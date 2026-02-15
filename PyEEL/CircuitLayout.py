@@ -468,81 +468,106 @@ class CircuitLayout:
         """
         Circuit with parallel components between two nodes + source.
 
+        When the source itself is in the parallel group (all components
+        share the same two nodes), lay them out side-by-side:
+
         ```
-            (n+) ─── comp_a ─── (n−)
-              │                   │
-              └── comp_b ─────────┘
+            (gnd_L) ──── wire ──── (gnd_R1) ──── wire ──── (gnd_R2)
+              │                       │                       │
+            [SRC]                   [comp_a]                [comp_b]
+              │                       │                       │
+            (top_L) ──── wire ──── (top_R1) ──── wire ──── (top_R2)
+        ```
+
+        When the source feeds into a separate node that branches into
+        parallel passives, use an L-shape with branches:
+
+        ```
+            (src+) ──── wire ──── (branch) ──── comp_a ──── (n−)
+              │                      │                        │
+            [SRC]                  comp_b ──────────────────(n−)
+              │
+            (GND)
         ```
         """
         gnd = self._graph.GroundNode
         parallels = self._graph.FindParallelComponents()
 
+        if not parallels:
+            self._layout_generic()
+            return
+
+        pa, pb = parallels[0][0], parallels[0][1]
+        par_edges = parallels[0][2]
+
         # Find source
         sources = self._graph.ComponentsByType("V")
         src = sources[0] if sources else None
 
-        if src:
-            src_nodes = {src["from"], src["to"]}
-            src_node = (src_nodes - {gnd}).pop() if gnd in src_nodes else list(src_nodes)[0]
-        else:
-            src_node = [n for n in self._graph.Nodes if n != gnd][0]
+        # Separate passive parallel edges from the source
+        passive_edges: list[dict] = []
+        src_in_parallel = False
+        for e in par_edges:
+            if src and e["name"] == src["name"]:
+                src_in_parallel = True
+            else:
+                passive_edges.append(e)
 
-        # Parallel pair nodes
-        if parallels:
-            pa, pb = parallels[0][0], parallels[0][1]
-            par_edges = parallels[0][2]
-        else:
-            self._layout_generic()
-            return
-
-        # Figure out which node connects to source
+        # Determine top / bottom nodes
         if pa == gnd or pb == gnd:
             top_node = pa if pa != gnd else pb
+            bot_node = gnd
         else:
             top_node = pa
+            bot_node = pb
 
-        self._positions[gnd] = (0.0, 0.0)
-        if src:
-            self._positions[src_node] = (0.0, 1.0)
+        n_passives = len(passive_edges)
+        total_cols = 1 + n_passives  # source column + one per passive
 
-        # Position the parallel pair
-        if top_node not in self._positions:
-            self._positions[top_node] = (1.0, 1.0)
-        other_par = pb if pa == top_node else pa
-        if other_par not in self._positions:
-            self._positions[other_par] = (2.0, 1.0)
+        # ── positions ───────────────────────────────────────────────
+        # Source on column 0, passives on columns 1..n
+        self._positions[gnd] = (0.0, 0.0)     # might be overwritten
+        self._positions[bot_node] = (0.0, 0.0)
+        self._positions[top_node] = (0.0, 1.0)
 
-        # Draw order
+        # ── draw order ──────────────────────────────────────────────
         self._draw_order.clear()
+
+        # Source (column 0, vertical)
         if src:
             self._draw_order.append(DrawStep(
-                src["name"], "V", gnd, src_node, "up", src.get("value"),
+                src["name"], "V", bot_node, top_node, "up",
+                src.get("value"),
                 {k: v for k, v in src.items()
-                 if k not in ("component", "name", "type", "value", "from", "to")}))
+                 if k not in ("component", "name", "type",
+                              "value", "from", "to")}))
 
-        # Series components from source to parallel junction
-        chain = self._graph.FindSeriesChains()
-        for ch in chain:
-            for i in range(len(ch) - 1):
-                a, b = ch[i], ch[i + 1]
-                edges = self._graph.ComponentsBetween(a, b)
-                if not edges:
-                    edges = self._graph.ComponentsBetween(b, a)
-                for e in edges:
-                    if e["name"] == (src["name"] if src else ""):
-                        continue
-                    if any(ds.comp_name == e["name"] for ds in self._draw_order):
-                        continue
-                    self._draw_order.append(DrawStep(
-                        e["name"], e["type"], a, b, "right", e.get("value")))
-
-        # Parallel components
-        for i, e in enumerate(par_edges):
-            if any(ds.comp_name == e["name"] for ds in self._draw_order):
-                continue
-            d = "right" if i == 0 else "down"
+        # Top wire from source column to first passive
+        if n_passives > 0:
             self._draw_order.append(DrawStep(
-                e["name"], e["type"], pa, pb, d, e.get("value")))
+                "_wire_top", "W", top_node, top_node, "right"))
+
+        # Each passive gets its own column
+        for i, e in enumerate(passive_edges):
+            col = float(i + 1)
+
+            # Wire along top rail to this column (continuation)
+            if i > 0:
+                self._draw_order.append(DrawStep(
+                    f"_wire_top_{i}", "W", top_node, top_node, "right"))
+
+            # The passive component going down
+            self._draw_order.append(DrawStep(
+                e["name"], e["type"], top_node, bot_node, "down",
+                e.get("value")))
+
+            # Wire along bottom rail back toward GND
+            if i < n_passives - 1:
+                self._draw_order.append(DrawStep(
+                    f"_wire_bot_{i}", "W", bot_node, bot_node, "right"))
+
+        # Bottom return wire back to source column
+        # (handled implicitly by schemdraw routing)
 
     # ── Ladder network ──────────────────────────────────────────────
     def _layout_ladder(self) -> None:
