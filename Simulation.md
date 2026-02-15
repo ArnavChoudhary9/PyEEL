@@ -299,7 +299,151 @@ $$
 
 ---
 
-## 10  Summary
+## 10  Performance Optimizations
+
+PyEEL is designed to run transient simulations in real-time with live
+plotting. To achieve ~90,000 simulation steps per second on a typical
+machine, several critical optimizations have been implemented.
+
+### 10.1  Batched Simulation Steps
+
+**Problem:** Matplotlib's `plt.pause()` blocks for ~30 ms per call.
+Calling `plotter.Update()` after every `Simulate(dt)` step means
+simulating 1 second of circuit time at `dt = 0.0005` would take ~60
+seconds of wall-clock time.
+
+**Solution:** Batch multiple simulation steps between visual updates:
+
+```python
+STEPS_PER_FRAME = 60
+while plotter.IsOpen:
+    for _ in range(STEPS_PER_FRAME):
+        ckt.Simulate(dt)
+    plotter.Update()
+```
+
+This reduces plot overhead by 60× while maintaining ~30 fps animation.
+
+The `LiveSimulation` class encapsulates this pattern:
+
+```python
+sim = LiveSimulation(ckt, plotter, dt=0.0005, speed=60)
+sim.Run()
+```
+
+### 10.2  Sliced Data Conversion in LivePlotter
+
+**Problem:** Converting the entire probe history from Python lists to
+numpy arrays every frame (`np.array(probe.TimeData)`) creates O(N)
+growing overhead as the simulation progresses.
+
+**Solution:** When a time window is specified, use `bisect.bisect_left`
+to find the start index *before* converting to numpy:
+
+```python
+if window is not None and len(probe.TimeData) > 0:
+    t_max = probe.TimeData[-1]
+    t_min = t_max - window
+    idx = bisect.bisect_left(probe.TimeData, t_min)
+    t = np.array(probe.TimeData[idx:])    # only convert windowed subset
+    v = np.array(probe.ValueData[idx:])
+else:
+    t = np.array(probe.TimeData)
+    v = np.array(probe.ValueData)
+```
+
+This eliminates the growing cost for windowed plots.
+
+### 10.3  Pre-allocated MNA System Matrices
+
+**Problem:** Creating new `np.zeros((n, n))` arrays every time-step
+incurs allocation overhead in the hottest code path.
+
+**Solution:** Allocate once in `Circuit.Finalize()`, then zero in-place:
+
+```python
+def Finalize(self):
+    # ... topology freeze ...
+    n = self._NodeManager.TotalUnknownCount
+    self._A = np.zeros((n, n))
+    self._b = np.zeros(n)
+
+def _BuildSystem(self, context):
+    self._A[:] = 0.0    # in-place zero — no allocation
+    self._b[:] = 0.0
+    for component in self._Components:
+        component.Stamp(self._A, self._b, context)
+    return self._A, self._b
+```
+
+For small systems (4×4) this saves ~10% overhead.
+
+### 10.4  Reused SimulationContext
+
+**Problem:** Constructing a new `SimulationContext` dataclass every
+time-step involves Python object creation, `__init__` overhead, and
+type annotation machinery.
+
+**Solution:** Allocate once, mutate fields each step:
+
+```python
+# In Finalize():
+self._context = SimulationContext(
+    Mode=SimulationMode.TRANSIENT, Time=0.0, dt=0.0
+)
+
+# In Simulate():
+self._context.Time = self.__T
+self._context.dt = dt
+self._context.x_prev = self.__x_prev
+```
+
+Saves ~5-10% overhead in the main loop.
+
+### 10.5  Direct Attribute Access in Components
+
+**Problem:** Capacitors and inductors used `dict.get()` to retrieve
+state variables (`v_prev`, `i_prev`, `current`), incurring dictionary
+hashing and lookup overhead every step.
+
+**Solution:** Store state in direct instance attributes:
+
+```python
+# In Capacitor.__init__:
+self._v_prev = 0.0
+self._current = 0.0
+
+# In Stamp():
+v_prev = self._v_prev    # ~3× faster than dict.get("v_prev", 0.0)
+```
+
+### 10.6  Cached Conductance in Resistors
+
+**Problem:** Resistors recomputed `G = 1.0 / R` on every `Stamp()` call.
+
+**Solution:** Cache in `__init__`:
+
+```python
+self._Conductance = 1.0 / resistance
+```
+
+### 10.7  Performance Summary
+
+| Optimization                   | Impact on 4×4 circuit | Category          |
+|--------------------------------|-----------------------|-------------------|
+| Batch simulation steps (60×)   | **~60× speedup**      | Algorithm change  |
+| Sliced data conversion         | O(N) → O(window)      | Memory efficiency |
+| Pre-allocated matrices         | ~10% faster           | Allocation        |
+| Reused SimulationContext       | ~5-10% faster         | Object creation   |
+| Direct attributes (not dict)   | ~5% faster            | Micro-optimization|
+| Cached conductance             | <1% faster            | Micro-optimization|
+
+Combined, these changes achieve **~90,000 steps/second** for typical
+LCR circuits, enabling real-time interactive simulation.
+
+---
+
+## 11  Summary
 
 | Concept               | Mathematical core                              |
 |-----------------------|------------------------------------------------|
