@@ -25,6 +25,7 @@ from PyEEL.Components import Resistor, Capacitor, Inductor
 from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
 from PyEEL.Probe import VoltageProbe, CurrentProbe
 from PyEEL.LivePlotter import LivePlotter
+from PyEEL.LiveSimulation import LiveSimulation
 
 # ── build circuit ───────────────────────────────────────────────────
 ckt = Circuit(solver=NumpySolver())
@@ -65,12 +66,7 @@ plotter = LivePlotter(
     window=1.0,             # show the last 1 second of data
 )
 
-dt = 0.0005   # 0.5 ms — ~400 samples per 5 Hz period
-
-STEPS_PER_FRAME = 60   # ~30 FPS visual update, 60× faster simulation
-while plotter.IsOpen:
-    for _ in range(STEPS_PER_FRAME):
-        ckt.Simulate(dt)
-    plotter.Update()
-
-print("Plot window closed — simulation stopped.")
+# ── run ─────────────────────────────────────────────────────────────
+# Press Space on the plot window to pause / resume.
+sim = LiveSimulation(ckt, plotter, dt=0.0005, speed=60)
+sim.Run()

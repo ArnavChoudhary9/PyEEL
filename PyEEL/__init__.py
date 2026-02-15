@@ -4,6 +4,7 @@ from .NodeManager import *
 from .SimulationContext import *
 from .Probe import *
 from .LivePlotter import *
+from .LiveSimulation import *
 
 from .Components.Component import *
 from .Components.Resistor import *
