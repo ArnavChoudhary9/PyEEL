@@ -1,5 +1,5 @@
-from .SimulationContext import SimulationContext
-from .NodeManager import *
+from ..SimulationContext import SimulationContext
+from ..NodeManager import *
 
 from abc import ABC, abstractmethod
 import numpy as np 
@@ -15,6 +15,14 @@ class Component(ABC):
         self._Nodes = nodes
         self._aux_indices = aux_indices
         self._state = {}
+        
+        # Raise an error if nodes are same
+        if len(set(nodes)) != len(nodes):
+            raise ValueError(f"Component {name} has duplicate nodes.")
+        
+        # Raise an error if nodes are empty
+        if not nodes:
+            raise ValueError(f"Component {name} must have at least one node.")      
     
     @property
     def Name(self) -> str: return self._Name
