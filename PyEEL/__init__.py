@@ -3,9 +3,10 @@ from .NodeManager import *
 
 from .SimulationContext import *
 from .Probe import *
+from .LivePlotter import *
 
 from .Components.Component import *
-from .Components.Resister import *
+from .Components.Resistor import *
 
 from .Components.Sources.Source import *
 from .Components.Sources.VoltageSource import *

@@ -1,2 +1,2 @@
 from .Component import *
-from .Resister import *
+from .Resistor import *

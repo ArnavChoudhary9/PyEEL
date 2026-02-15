@@ -6,7 +6,7 @@ from .Component import Component
 import numpy as np
 
 
-class Resister(Component):
+class Resistor(Component):
     """
     Ideal linear resistor.
 
