@@ -5,6 +5,9 @@ from .SimulationContext import *
 from .Probe import *
 from .LivePlotter import *
 from .LiveSimulation import *
+from .CircuitGraph import *
+from .CircuitLayout import *
+from .SchematicDrawer import *
 
 from .Components.Component import *
 from .Components.Resistor import *

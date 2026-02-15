@@ -209,7 +209,7 @@ Contributions are welcome! Please open an issue or pull request on GitHub.
 
 MIT License — see [LICENSE](LICENSE) for details.
 
-**Copyright © 2026 Arnav Choudhary**
+Copyright (c) 2026 Arnav Choudhary
 
 ---
 
