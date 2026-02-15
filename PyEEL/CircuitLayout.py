@@ -144,10 +144,13 @@ class CircuitLayout:
 
         # ── Parallel branches (R∥C, R∥L, L∥C) ──────────────────────
         if parallels and n_edges <= 5:
+            # Collect non-source types in the parallel group
             types_in_parallel = set()
             for _, _, edges in parallels:
                 for e in edges:
-                    types_in_parallel.add(e.get("type"))
+                    t = e.get("type")
+                    if t != "V":          # exclude the source
+                        types_in_parallel.add(t)
             if types_in_parallel == {"R", "C"}:
                 return TopologyPattern.PARALLEL_RC
             if types_in_parallel == {"R", "L"}:
@@ -208,46 +211,62 @@ class CircuitLayout:
 
     def _is_wheatstone(self, deg_map: dict, gnd: str) -> bool:
         """
-        Wheatstone bridge: exactly 5 resistors (or 4 + source) forming
-        a diamond with all interior nodes having degree 3.
+        Wheatstone bridge: 4+ resistors (including galvanometer) + source
+        forming a diamond.  Accepts 3 or 4 non-GND nodes.
         """
         G = self._graph.Graph
         non_gnd = [n for n in G.nodes if n != gnd]
 
-        # Need exactly 4 non-ground nodes
-        if len(non_gnd) != 4:
+        if len(non_gnd) < 3 or len(non_gnd) > 5:
             return False
 
         resistors = self._graph.ComponentsByType("R")
         sources = self._graph.ComponentsByType("V")
 
-        # Classic Wheatstone: 4 resistors + 1 source = 5 edges
-        # Or: 5 resistors + 1 source with galvanometer
+        # Need at least 4 resistors + 1 source (classic bridge +
+        # galvanometer, with GND acting as one node of the diamond).
         if not (len(resistors) >= 4 and len(sources) >= 1):
             return False
 
-        # At least 2 nodes should have degree 3 (bridge junctions)
-        deg3_count = sum(1 for n in non_gnd if deg_map.get(n, 0) == 3)
+        # At least 2 non-GND nodes with degree >= 3
+        deg3_count = sum(1 for n in non_gnd if deg_map.get(n, 0) >= 3)
         return deg3_count >= 2
 
     def _is_ladder(self, deg_map: dict, gnd: str) -> bool:
         """
         Ladder network: alternating series and shunt elements.
-        The GND node has degree >= 3, and there's a clear chain of
-        nodes across the top rail.
+        GND has degree >= 2 (shunt connections), and there are at
+        least 2 non-GND nodes connected by series elements along
+        a top rail, with shunt elements dropping to GND.
         """
         gnd_deg = deg_map.get(gnd, 0)
-        if gnd_deg < 3:
+        if gnd_deg < 2:
             return False
 
-        # Check for a series chain across the non-GND nodes
-        chains = self._graph.FindSeriesChains()
-        # At least one chain should go through 3+ nodes
-        for chain in chains:
-            if len(chain) >= 4:
-                return True
+        G = self._graph.Graph
+        non_gnd = [n for n in G.nodes if n != gnd]
 
-        return False
+        # Need at least 3 non-GND nodes for a meaningful ladder
+        if len(non_gnd) < 3:
+            return False
+
+        # Check that at least 2 non-GND nodes connect to GND
+        # (shunt elements)
+        shunt_count = sum(
+            1 for n in non_gnd
+            if G.has_edge(n, gnd) or G.has_edge(gnd, n)
+        )
+        if shunt_count < 2:
+            return False
+
+        # Check for series elements between consecutive top-rail nodes
+        series_count = 0
+        for n in non_gnd:
+            for nb in G.neighbors(n):
+                if nb != gnd and nb in non_gnd:
+                    series_count += 1
+        # Each edge counted twice (undirected), need at least 2 edges
+        return series_count >= 4  # 2 series edges × 2 directions
 
     # ════════════════════════════════════════════════════════════════
     #  Pass 2: Position assignment
@@ -603,36 +622,42 @@ class CircuitLayout:
     # ── Wheatstone bridge ───────────────────────────────────────────
     def _layout_wheatstone(self) -> None:
         """
+        Diamond layout for a Wheatstone bridge.  GND acts as the bottom
+        corner if there are only 3 non-GND nodes.
+
         ```
-              (top)
+              (src)
              /     \\
-          R1         R2
+          R1         R3
            /           \\
-        (left) ─ Rg ─ (right)
+        (mid_a) ─ Rg ─ (mid_b)
            \\           /
-          R3         R4
+          R2         R4
              \\     /
-              (bot)
+              (GND)
         ```
-        Diamond layout — identify the 4 peripheral nodes by degree.
         """
         gnd = self._graph.GroundNode
         G = self._graph.Graph
         deg_map = dict(G.degree())  # type: ignore[operator]
 
-        # Heuristic: sort non-GND nodes by degree descending
         non_gnd = sorted(
             [n for n in G.nodes if n != gnd],
             key=lambda n: deg_map[n], reverse=True
         )
 
-        # Place in diamond
+        # Place in diamond — GND is always the bottom corner
+        self._positions[gnd] = (1.0, 0.0)
+
+        if len(non_gnd) >= 3:
+            # Highest degree node = source (top), next two = midpoints
+            self._positions[non_gnd[0]] = (1.0, 2.0)   # top (source node)
+            self._positions[non_gnd[1]] = (0.0, 1.0)   # left midpoint
+            self._positions[non_gnd[2]] = (2.0, 1.0)   # right midpoint
+
         if len(non_gnd) >= 4:
-            self._positions[non_gnd[0]] = (0.0, 1.0)   # left
-            self._positions[non_gnd[1]] = (2.0, 1.0)   # right
-            self._positions[non_gnd[2]] = (1.0, 2.0)   # top
-            self._positions[non_gnd[3]] = (1.0, 0.0)   # bottom
-        self._positions[gnd] = (1.0, -1.0)
+            self._positions[non_gnd[3]] = (1.0, 0.0)   # extra bottom
+            self._positions[gnd] = (1.0, -1.0)
 
         # Draw order: enumerate all edges
         self._draw_order.clear()

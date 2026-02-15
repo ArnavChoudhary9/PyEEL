@@ -105,10 +105,11 @@ def _format_value(value: float | None, comp_type: str) -> str:
     for threshold, prefix in si:
         if abs_val >= threshold:
             scaled = value / threshold
-            # Clean trailing zeros
-            if scaled == int(scaled):
-                return f"{int(scaled)} {prefix}{unit}"
-            return f"{scaled:.2g} {prefix}{unit}"
+            # Clean trailing zeros — use rounding to avoid float artifacts
+            rounded = round(scaled, 10)
+            if rounded == int(rounded):
+                return f"{int(rounded)} {prefix}{unit}"
+            return f"{rounded:.2g} {prefix}{unit}"
 
     return f"{value:.2g} {unit}"
 
