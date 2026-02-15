@@ -1,3 +1,0 @@
-# Anologue Circuit Simulator Documentation
-
-## 
