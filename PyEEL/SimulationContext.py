@@ -12,8 +12,9 @@ class SimulationContext:
     Mode: SimulationMode
     Time: float
     dt: float
-    Frequency: float | None
-    x_prev: np.ndarray
-    Iteration: int | None
-    G_min: float | None # Minimum conductance for numerical stability in DC analysis
+    
+    x_prev: np.ndarray | None = None
+    Frequency: float | None = 0
+    Iteration: int | None = 0
+    G_min: float | None = 0 # Minimum conductance for numerical stability in DC analysis
     
