@@ -28,6 +28,8 @@ class Capacitor(Component):
             )
         super().__init__(name, nodes)
         self._Capacitance = capacitance
+        self._v_prev = 0.0
+        self._current = 0.0
 
     @property
     def Capacitance(self) -> float:
@@ -64,7 +66,7 @@ class Capacitor(Component):
             A[n2, n2] += G_eq
 
         # ── history current source ──────────────────────────────────
-        v_prev = self._state.get("v_prev", 0.0)
+        v_prev = self._v_prev
         I_hist = G_eq * v_prev
 
         if n1 is not None:
@@ -76,15 +78,14 @@ class Capacitor(Component):
                     context: SimulationContext) -> None:
         """Store voltage across the capacitor for the next time-step."""
         v = self.GetVoltage(solutionVector)
-        v_prev = self._state.get("v_prev", 0.0)
         G_eq = self._Capacitance / context.dt
-        self._state["current"] = G_eq * (v - v_prev)
-        self._state["v_prev"] = v
+        self._current = G_eq * (v - self._v_prev)
+        self._v_prev = v
 
     # ── query helpers ───────────────────────────────────────────────
     def GetCurrent(self, solutionVector: np.ndarray) -> float:
         """Return current through the capacitor (computed during UpdateState)."""
-        return self._state.get("current", 0.0)
+        return self._current
 
     def GetVoltage(self, solutionVector: np.ndarray) -> float:
         """Return voltage drop ``V(n1) - V(n2)``."""

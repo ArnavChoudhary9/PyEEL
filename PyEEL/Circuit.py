@@ -92,17 +92,27 @@ class Circuit:
 
         self._Finalized = True
 
+        # Pre-allocate MNA system arrays (zeroed in-place each step)
+        n = self._NodeManager.TotalUnknownCount
+        self._A = np.zeros((n, n))
+        self._b = np.zeros(n)
+
+        # Reusable simulation context (mutated each step to avoid
+        # repeated dataclass construction overhead)
+        self._context = SimulationContext(
+            Mode=SimulationMode.TRANSIENT, Time=0.0, dt=0.0
+        )
+
     # ── simulation ──────────────────────────────────────────────────
     def _BuildSystem(self, context: SimulationContext) -> tuple:
         """Assemble the global MNA matrix **A** and vector **b**."""
-        n = self._NodeManager.TotalUnknownCount
-        A = np.zeros((n, n))
-        b = np.zeros(n)
+        self._A[:] = 0.0       # zero in-place — no allocation
+        self._b[:] = 0.0
 
         for component in self._Components:
-            component.Stamp(A, b, context)
+            component.Stamp(self._A, self._b, context)
 
-        return A, b
+        return self._A, self._b
 
     def Simulate(self, dt: float) -> np.ndarray:
         """
@@ -114,12 +124,11 @@ class Circuit:
         if not self._Finalized:
             raise RuntimeError("Circuit must be finalized before simulation.")
 
-        context = SimulationContext(
-            Mode=SimulationMode.TRANSIENT,
-            Time=self.__T,
-            dt=dt,
-            x_prev=self.__x_prev,
-        )
+        # Reuse pre-allocated context — avoids dataclass construction
+        context = self._context
+        context.Time = self.__T
+        context.dt = dt
+        context.x_prev = self.__x_prev
 
         A, b = self._BuildSystem(context)
         solution = self._Solver.Solve(A, b)

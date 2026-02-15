@@ -28,6 +28,8 @@ class Inductor(Component):
             )
         super().__init__(name, nodes)
         self._Inductance = inductance
+        self._i_prev = 0.0
+        self._current = 0.0
 
     @property
     def Inductance(self) -> float:
@@ -65,7 +67,7 @@ class Inductor(Component):
             A[n2, n2] += G_eq
 
         # ── history current source ──────────────────────────────────
-        i_prev = self._state.get("i_prev", 0.0)
+        i_prev = self._i_prev
 
         if n1 is not None:
             b[n1] -= i_prev
@@ -76,16 +78,15 @@ class Inductor(Component):
                     context: SimulationContext) -> None:
         """Compute and store the inductor current for the next step."""
         v = self.GetVoltage(solutionVector)
-        i_prev = self._state.get("i_prev", 0.0)
         G_eq = context.dt / self._Inductance
-        i_new = G_eq * v + i_prev
-        self._state["current"] = i_new
-        self._state["i_prev"] = i_new
+        i_new = G_eq * v + self._i_prev
+        self._current = i_new
+        self._i_prev = i_new
 
     # ── query helpers ───────────────────────────────────────────────
     def GetCurrent(self, solutionVector: np.ndarray) -> float:
         """Return current through the inductor (computed during UpdateState)."""
-        return self._state.get("current", 0.0)
+        return self._current
 
     def GetVoltage(self, solutionVector: np.ndarray) -> float:
         """Return voltage drop ``V(n1) - V(n2)``."""

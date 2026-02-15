@@ -67,9 +67,10 @@ plotter = LivePlotter(
 
 dt = 0.0005   # 0.5 ms — ~400 samples per 5 Hz period
 
-# Run until the user closes the plot window
+STEPS_PER_FRAME = 60   # ~30 FPS visual update, 60× faster simulation
 while plotter.IsOpen:
-    ckt.Simulate(dt)
+    for _ in range(STEPS_PER_FRAME):
+        ckt.Simulate(dt)
     plotter.Update()
 
 print("Plot window closed — simulation stopped.")

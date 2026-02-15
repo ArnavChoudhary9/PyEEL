@@ -28,6 +28,7 @@ waveform detail is preserved as the simulation runs.
 
 from __future__ import annotations
 
+import bisect
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -118,15 +119,17 @@ class LivePlotter:
             x_min, x_max = float("inf"), float("-inf")
 
             for probe, line in zip(group, lines):
-                t = np.array(probe.TimeData)
-                v = np.array(probe.ValueData)
-
-                # window clipping
-                if self._window is not None and len(t) > 0:
-                    t_max = t[-1]
-                    mask = t >= (t_max - self._window)
-                    t = t[mask]
-                    v = v[mask]
+                # Slice BEFORE converting to numpy to avoid copying
+                # the entire history every frame.
+                if self._window is not None and len(probe.TimeData) > 0:
+                    t_max = probe.TimeData[-1]
+                    t_min = t_max - self._window
+                    idx = bisect.bisect_left(probe.TimeData, t_min)
+                    t = np.array(probe.TimeData[idx:])
+                    v = np.array(probe.ValueData[idx:])
+                else:
+                    t = np.array(probe.TimeData)
+                    v = np.array(probe.ValueData)
 
                 line.set_data(t, v)
 

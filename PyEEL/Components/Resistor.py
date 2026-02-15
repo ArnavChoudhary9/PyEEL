@@ -24,6 +24,7 @@ class Resistor(Component):
             )
         super().__init__(name, nodes)
         self._Resistance = resistance
+        self._Conductance = 1.0 / resistance   # cached to avoid division each step
 
     @property
     def Resistance(self) -> float:
@@ -50,7 +51,7 @@ class Resistor(Component):
         """
         n1 = self.Nodes[0].Index
         n2 = self.Nodes[1].Index
-        G = 1.0 / self._Resistance
+        G = self._Conductance
 
         if n1 is not None and n2 is not None:
             A[n1, n1] += G
