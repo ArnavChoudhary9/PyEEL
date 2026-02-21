@@ -26,6 +26,14 @@ class Waveform(ABC):
         """DC or peak value used for non-transient analyses."""
         ...
 
+    @property
+    def DCValue(self) -> float:
+        """DC component of the waveform for operating-point analysis.
+
+        Defaults to :attr:`StaticValue`.  Override in AC waveforms
+        that have no DC offset (e.g. pure sine → 0)."""
+        return self.StaticValue
+
     def __call__(self, context: SimulationContext) -> float:
         return self.GetValue(context)
 
@@ -47,7 +55,7 @@ class ConstantWave(Waveform):
 
 class SineWave(Waveform):
     """
-    Sinusoidal waveform: ``A · sin(2π f t + φ)``.
+    Sinusoidal waveform: ``A · sin(2π f t + φ) + offset``.
 
     Parameters
     ----------
@@ -57,19 +65,27 @@ class SineWave(Waveform):
         Peak amplitude.
     phase : float
         Phase offset in radians.
+    dc_offset : float
+        Constant DC offset added to the sinusoid.  Defaults to 0.
     """
 
     def __init__(self, frequency: float, amplitude: float = 1.0,
-                 phase: float = 0.0):
+                 phase: float = 0.0, dc_offset: float = 0.0):
         self._Frequency = frequency
         self._Amplitude = amplitude
         self._Phase = phase
+        self._DCOffset = dc_offset
 
     def GetValue(self, context: SimulationContext) -> float:
-        return self._Amplitude * math.sin(
+        return self._DCOffset + self._Amplitude * math.sin(
             2 * math.pi * self._Frequency * context.Time + self._Phase
         )
 
     @property
     def StaticValue(self) -> float:
         return self._Amplitude
+
+    @property
+    def DCValue(self) -> float:
+        """Pure sine has zero DC component (unless dc_offset is set)."""
+        return self._DCOffset

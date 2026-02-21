@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from ..Node import Node
 from ..NodeManager import NodeManager
-from ..SimulationContext import SimulationContext
+from ..SimulationContext import SimulationContext, SimulationMode
 from .Component import Component
 from .Inductor import Inductor
 
@@ -84,6 +84,16 @@ class MutualCoupling(Component):
                 f"conductance matrix (D = L₁L₂ - M² = 0). Use |k| < 1."
             )
 
+        # Physical constraint: |M| ≤ √(L1·L2)
+        M_candidate = k * math.sqrt(inductor1.Inductance * inductor2.Inductance)
+        M_limit = math.sqrt(inductor1.Inductance * inductor2.Inductance)
+        if abs(M_candidate) > M_limit * (1.0 + 1e-12):
+            raise ValueError(
+                f"MutualCoupling '{name}': |M| = {abs(M_candidate):.6e} H "
+                f"exceeds √(L₁L₂) = {M_limit:.6e} H. "
+                f"This is non-physical."
+            )
+
         # Collect unique nodes (preserving order, removing duplicates
         # that arise when inductors share a node).
         all_nodes = list(inductor1.Nodes) + list(inductor2.Nodes)
@@ -129,7 +139,10 @@ class MutualCoupling(Component):
         """
         Stamp coupling corrections into the MNA system.
 
-        Three groups of entries are added:
+        In **DC mode** magnetic coupling has no effect (inductors are
+        short circuits at DC steady state), so no stamp is applied.
+
+        Three groups of entries are added in TRANSIENT mode:
 
         1. **Self-correction** — adjusts each inductor's diagonal
            conductance from ``dt/L`` to ``dt·L_other / D``.
@@ -139,6 +152,10 @@ class MutualCoupling(Component):
            **b** whenever the coupling's tracked ``i_prev`` differs
            from the inductor's own stored value.
         """
+        # DC operating point: no magnetic coupling
+        if context.Mode == SimulationMode.DC:
+            return
+
         dt = context.dt
         L1_val = self._L1.Inductance
         L2_val = self._L2.Inductance
@@ -194,6 +211,12 @@ class MutualCoupling(Component):
         Compute the correct coupled inductor currents and update both
         the coupling's own history and the inductors' internal state.
         """
+        # DC mode: sync from individual inductor DC currents
+        if context.Mode == SimulationMode.DC:
+            self._i1_prev = self._L1._current
+            self._i2_prev = self._L2._current
+            return
+
         dt = context.dt
         L1_val = self._L1.Inductance
         L2_val = self._L2.Inductance

@@ -1,105 +1,70 @@
 """
-PyEEL - 240 V → 5 V Step-Down Transformer Demo
-================================================
-Simulates a mains-frequency (50 Hz) step-down transformer reducing
-240 V AC to 5 V AC, using the Transformer component.
-
-Turns ratio   n  = V₁ / V₂  = 240 / 5  = 48
-Inductance ratio  = n²       = 2304
-  → L_primary   = 2.304 H
-  → L_secondary = 1 mH
+PyEEL - Series LCR Circuit Demo
+=================================
+Demonstrates a series LCR circuit driven by an AC source.
 
 Topology::
 
-    V1 (240 V AC, 50 Hz)
-     │
-    (n1)─── R_primary 100 Ω ───(n2)─┐
-                                     ├── T1 primary  (2.304 H)
-                                    GND
+    V1 (AC 5 V, 5 Hz)
+     ├──(n1)── L1 0.1 H ──(n2)── C1 0.01 F ──(n3)── R1 1 Ω ──(GND)
 
-                                     ┌── T1 secondary (1 mH)
-    (GND)────────────────────────(n3)┘
-     │
-    (n3)─── R_load 5 Ω ──── GND
-
-    k = 0.99  (tight coupling, close to ideal)
+Resonant frequency  f₀ = 1/(2π√LC) ≈ 5.03 Hz  (≈ drive frequency)
+Quality factor       Q  = (1/R)·√(L/C) ≈ 3.16
 
 Probes:
-  • V(n1)      — mains source voltage  (240 V peak)
-  • V(n2)      — primary voltage across T1 winding
-  • V(n3)      — secondary output voltage  (≈ 5 V peak)
-  • I_primary  — primary winding current
-  • I_secondary— secondary winding current
+  • V(n1)  — source voltage
+  • V(n2)  — voltage after inductor (across C + R)
+  • V(n3)  — voltage across resistor
+  • I(L1)  — series current (same everywhere in the loop)
 """
 
 from PyEEL import *
 from PyEEL.Circuit import Circuit
 from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.Components import Resistor
-from PyEEL.Components.Transformer import Transformer
+from PyEEL.Components import Resistor, Capacitor, Inductor
 from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
 from PyEEL.Probe import VoltageProbe, CurrentProbe
 from PyEEL.LivePlotter import LivePlotter
 from PyEEL.LiveSimulation import LiveSimulation
 
-# ── transformer parameters ──────────────────────────────────────────
-TURNS_RATIO   = 48          # 240 V / 5 V
-L_PRIMARY     = 2.304       # H   (L1 = n² × L2)
-L_SECONDARY   = 1e-3        # H   (1 mH)
-K             = 0.99        # coupling coefficient (< 1)
-
 # ── build circuit ───────────────────────────────────────────────────
 ckt = Circuit(solver=NumpySolver())
+
 nm  = ckt.NodeManager
 gnd = nm.GroundNode
+n1  = nm.AddNode("n1")
+n2  = nm.AddNode("n2")
+n3  = nm.AddNode("n3")
 
-n1 = nm.AddNode("n1")   # mains / source positive
-n2 = nm.AddNode("n2")   # primary winding positive (after R_primary)
-n3 = nm.AddNode("n3")   # secondary winding output (before R_load)
-
-# Mains source: 240 V peak, 50 Hz
-#   V_rms = 240 V → peak = 240 × √2 ≈ 339 V  (use 240 V peak for simplicity)
-ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=240.0, frequency=50.0))
-
-# Primary current-limiting resistor (models winding resistance + fuse)
-ckt.AddComponent(Resistor("R_primary", (n1, n2), resistance=100.0))
-
-# Transformer: primary (n2→GND), secondary (GND→n3)
-T1 = Transformer("T1",
-    primary_nodes=(n2, gnd),
-    secondary_nodes=(gnd, n3),
-    primary_inductance=L_PRIMARY,
-    secondary_inductance=L_SECONDARY,
-    k=K)
-ckt.AddComponent(T1)
-
-# Secondary load resistor (models load + winding resistance)
-ckt.AddComponent(Resistor("R_load", (n3, gnd), resistance=5.0))
+#  V1 ──(n1)── L1 ──(n2)── C1 ──(n3)── R1 ──(gnd)
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5.0, frequency=5.0))
+ckt.AddComponent(l := Inductor("L1", (n1, n2), inductance=0.1))
+ckt.AddComponent(Capacitor("C1", (n2, n3), capacitance=0.01))
+ckt.AddComponent(Resistor("R1", (n3, gnd), resistance=1.0))
 
 # ── probes ──────────────────────────────────────────────────────────
-v_source    = VoltageProbe("V_source 240V",   n1)
-v_primary   = VoltageProbe("V_primary",       n2)
-v_secondary = VoltageProbe("V_secondary 5V",  n3)
+v_n1 = VoltageProbe("V(n1)", n1)            # source voltage
+v_n2 = VoltageProbe("V(n2)", n2)            # after inductor
+v_n3 = VoltageProbe("V(n3)", n3)            # across R (= V_R)
+i_l1 = CurrentProbe("I(L1)", l)             # series current
 
-i_primary   = CurrentProbe("I_primary",   T1.Primary)
-i_secondary = CurrentProbe("I_secondary", T1.Secondary)
-
-for p in (v_source, v_primary, v_secondary, i_primary, i_secondary):
-    ckt.AddProbe(p)
+ckt.AddProbe(v_n1)
+ckt.AddProbe(v_n2)
+ckt.AddProbe(v_n3)
+ckt.AddProbe(i_l1)
 
 ckt.Finalize()
 
 # ── live plotter ────────────────────────────────────────────────────
-# Subplot 1: source vs secondary voltage (very different scales — both shown)
-# Subplot 2: primary vs secondary current
+# Subplot 1: voltages at each node overlaid
+# Subplot 2: currents through L and R overlaid
 plotter = LivePlotter(
-    [v_source, v_primary, v_secondary],   # subplot 1 — voltages
-    [i_primary, i_secondary],             # subplot 2 — currents
-    window=0.06,                          # 3 cycles of 50 Hz
+    [v_n1, v_n2, v_n3],     # subplot 1 — voltages
+    [i_l1],                 # subplot 2 — currents
+    window=1.0,             # show the last 1 second of data
 )
 
 # ── run ─────────────────────────────────────────────────────────────
-# dt = 100 µs → 200 samples per 50 Hz cycle (good accuracy)
 # Press Space on the plot window to pause / resume.
-sim = LiveSimulation(ckt, plotter, dt=1e-4, speed=20)
+sim = LiveSimulation(ckt, plotter, dt=0.0005, speed=60)
 sim.Run()

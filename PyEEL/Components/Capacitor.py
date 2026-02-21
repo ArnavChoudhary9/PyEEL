@@ -1,6 +1,6 @@
 from ..Node import Node
 from ..NodeManager import NodeManager
-from ..SimulationContext import SimulationContext
+from ..SimulationContext import SimulationContext, SimulationMode
 from .Component import Component
 
 import numpy as np
@@ -46,10 +46,16 @@ class Capacitor(Component):
         """
         Stamp the backward-Euler companion model into the MNA system.
 
-        Equivalent conductance ``G_eq = C / dt`` is stamped like a
-        resistor.  The history current source
+        In **DC mode** the capacitor is an open circuit (no stamp).
+
+        In **TRANSIENT mode** an equivalent conductance ``G_eq = C / dt``
+        is stamped like a resistor, and the history current source
         ``I_hist = G_eq · v_prev_across`` is added to the **b** vector.
         """
+        # DC operating point: capacitor is an open circuit
+        if context.Mode == SimulationMode.DC:
+            return
+
         n1 = self.Nodes[0].Index
         n2 = self.Nodes[1].Index
         G_eq = self._Capacitance / context.dt
@@ -78,6 +84,13 @@ class Capacitor(Component):
                     context: SimulationContext) -> None:
         """Store voltage across the capacitor for the next time-step."""
         v = self.GetVoltage(solutionVector)
+
+        if context.Mode == SimulationMode.DC:
+            # In DC, just record the voltage; current is zero.
+            self._v_prev = v
+            self._current = 0.0
+            return
+
         G_eq = self._Capacitance / context.dt
         self._current = G_eq * (v - self._v_prev)
         self._v_prev = v

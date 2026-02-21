@@ -50,7 +50,8 @@ class LiveSimulation:
     _paused: bool
 
     def __init__(self, circuit: Circuit, plotter: LivePlotter, *,
-                 dt: float = 0.0005, speed: int = 60):
+                 dt: float = 0.0005, speed: int = 60,
+                 use_adaptive_dt: bool = False):
         if not circuit._Finalized:
             raise RuntimeError("Circuit must be finalized before simulation.")
 
@@ -60,6 +61,7 @@ class LiveSimulation:
         self._speed = speed
         self._paused = False
         self._pause_text = None
+        self._use_adaptive_dt = use_adaptive_dt
 
         # ── connect Space key to toggle pause ───────────────────────
         self._plotter._fig.canvas.mpl_connect(
@@ -71,11 +73,20 @@ class LiveSimulation:
         """
         Start the simulation loop.  Blocks until the user closes the
         plot window.
+
+        When *use_adaptive_dt* is ``True``, the circuit's recommended dt
+        is adopted after every frame (if adaptive is enabled in config).
         """
         while self._plotter.IsOpen:
             if not self._paused:
                 for _ in range(self._speed):
                     self._circuit.Simulate(self._dt)
+
+                # Adaptive timestep: pick up the circuit's recommendation
+                if (self._use_adaptive_dt
+                        and self._circuit.RecommendedDt is not None):
+                    self._dt = self._circuit.RecommendedDt
+
             self._plotter.Update()
 
         print("Plot window closed — simulation stopped.")

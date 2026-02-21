@@ -24,9 +24,12 @@ class Source(Component, ABC):
         """
         Return the source value for the current simulation context.
 
-        In transient mode the waveform is evaluated at ``context.Time``;
-        for DC/AC the static (peak) value is returned.
+        * **TRANSIENT** — waveform evaluated at ``context.Time``.
+        * **DC** — returns the waveform's DC component (offset).
+        * **AC** — returns the peak / static value.
         """
         if context.Mode == SimulationMode.TRANSIENT:
             return self._Waveform(context)
+        if context.Mode == SimulationMode.DC:
+            return self._Waveform.DCValue
         return self._Waveform.StaticValue

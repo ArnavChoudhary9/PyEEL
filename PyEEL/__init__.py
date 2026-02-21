@@ -1,7 +1,7 @@
 from .Node import *
 from .NodeManager import *
 
-from .SimulationContext import *
+from .SimulationContext import *          # exports SimulationMode, IntegrationMethod, SimulationConfig, SimulationContext
 from .Probe import *
 from .LivePlotter import *
 from .LiveSimulation import *
