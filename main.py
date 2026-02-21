@@ -26,7 +26,6 @@ from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
 from PyEEL.Probe import VoltageProbe, CurrentProbe
 from PyEEL.LivePlotter import LivePlotter
 from PyEEL.LiveSimulation import LiveSimulation
-from PyEEL.SchematicDrawer import SchematicDrawer
 
 # ── build circuit ───────────────────────────────────────────────────
 ckt = Circuit(solver=NumpySolver())
@@ -57,13 +56,6 @@ ckt.AddProbe(i_l1)
 ckt.AddProbe(i_r1)
 
 ckt.Finalize()
-
-# ── schematic ───────────────────────────────────────────────────────
-# Render the circuit topology as a schemdraw diagram.
-drawer = SchematicDrawer.FromCircuit(ckt)
-drawer.Summary()
-drawer.Save("schematic.png")
-drawer.Draw()                  # close the window to start simulation
 
 # ── live plotter ────────────────────────────────────────────────────
 # Subplot 1: voltages at each node overlaid
