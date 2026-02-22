@@ -33,6 +33,7 @@
   - [MOSFET](components/mosfet.md)
 - [Integrated Circuits](components/ics.md)
   - [Op-Amp](components/opamp.md)
+  - [Comparator](components/comparator.md)
 - [Magnetic Components](components/magnetic.md)
   - [Mutual Coupling](components/mutual-coupling.md)
   - [Transformer](components/transformer.md)

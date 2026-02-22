@@ -1156,6 +1156,216 @@ ckt.AddComponent(Resistor("Rd", (n_vdd, n_d), resistance=1e3))
 ckt.AddComponent(Resistor("Rg", (n_g, gnd), resistance=1e6))
 ckt.AddComponent(NMOS("M1", (n_d, n_g, gnd), Kp=2e-3, Vth=1.0))
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="integrated-circuits"><a class="header" href="#integrated-circuits">Integrated Circuits</a></h1>
+<p>Integrated circuit macro models provide higher-level abstractions for
+multi-transistor ICs.  Rather than modelling individual transistors,
+each IC is represented by a behavioural <strong>macro model</strong> that captures
+the key input/output characteristics.</p>
+<h2 id="available-ics"><a class="header" href="#available-ics">Available ICs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Component</th><th>Class</th><th>Terminals</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Op-Amp</strong></td><td><code>OpAmp</code></td><td><code>(V+, V-, Vout)</code></td><td>Voltage-feedback operational amplifier</td></tr>
+</tbody></table>
+</div>
+<h2 id="adding-more-ics"><a class="header" href="#adding-more-ics">Adding More ICs</a></h2>
+<p>New IC types (comparators, voltage regulators, 555 timers, etc.) can
+be added by creating a new class in <code>PyEEL/Components/ICs/</code> that
+inherits from <code>Component</code>.  See
+<a href="components/../extending/new-components.html">Adding New Components</a> for the
+step-by-step guide.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="op-amp-operational-amplifier"><a class="header" href="#op-amp-operational-amplifier">Op-Amp (Operational Amplifier)</a></h1>
+<blockquote>
+<p><strong>Module:</strong> <code>PyEEL.Components.ICs.OpAmp</code></p>
+<p><strong>Import:</strong> <code>from PyEEL import OpAmp</code>  or
+<code>from PyEEL.Components.ICs import OpAmp</code></p>
+</blockquote>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>The <code>OpAmp</code> class implements a <strong>voltage-feedback macro model</strong> of an
+operational amplifier.  It is suitable for both DC and transient analysis of circuits that use negative feedback (or, with saturation enabled, open-loop circuits).</p>
+<p>Three levels of fidelity are available:</p>
+<div class="table-wrapper"><table><thead><tr><th>Level</th><th>Configuration</th><th><code>IsNonlinear</code></th></tr></thead><tbody>
+<tr><td><strong>Ideal</strong></td><td><code>A_OL=1e9, R_in=1e12, R_out=0.001</code></td><td><code>False</code></td></tr>
+<tr><td><strong>Linear</strong></td><td>Finite gain / impedance (default LM741-like)</td><td><code>False</code></td></tr>
+<tr><td><strong>Saturating</strong></td><td>Same + output voltage clamping</td><td><code>True</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="terminal-convention"><a class="header" href="#terminal-convention">Terminal Convention</a></h2>
+<pre><code>nodes = (non_inverting_input, inverting_input, output)
+         V+                   V-                Vout
+</code></pre>
+<p>The output is <strong>single-ended</strong>, referenced to ground.</p>
+<h2 id="constructor-9"><a class="header" href="#constructor-9">Constructor</a></h2>
+<pre><code class="language-python">OpAmp(name, nodes, *,
+      A_OL=200_000.0,
+      R_in=2e6,
+      R_out=75.0,
+      V_sat_pos=None,
+      V_sat_neg=None)
+</code></pre>
+<h3 id="parameters"><a class="header" href="#parameters">Parameters</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>str</code></td><td>—</td><td>Component identifier (e.g. <code>'U1'</code>)</td></tr>
+<tr><td><code>nodes</code></td><td><code>tuple[Node, Node, Node]</code></td><td>—</td><td><code>(V+, V-, Vout)</code></td></tr>
+<tr><td><code>A_OL</code></td><td><code>float</code></td><td><code>200_000</code></td><td>Open-loop DC voltage gain (~106 dB)</td></tr>
+<tr><td><code>R_in</code></td><td><code>float</code></td><td><code>2e6</code></td><td>Differential input resistance (Ω)</td></tr>
+<tr><td><code>R_out</code></td><td><code>float</code></td><td><code>75.0</code></td><td>Output resistance (Ω)</td></tr>
+<tr><td><code>V_sat_pos</code></td><td><code>float | None</code></td><td><code>None</code></td><td>Positive output saturation voltage</td></tr>
+<tr><td><code>V_sat_neg</code></td><td><code>float | None</code></td><td><code>None</code></td><td>Negative saturation (defaults to <code>−V_sat_pos</code>)</td></tr>
+</tbody></table>
+</div>
+<h3 id="physical-meaning-of-each-parameter"><a class="header" href="#physical-meaning-of-each-parameter">Physical meaning of each parameter</a></h3>
+<ul>
+<li>
+<p><strong><code>A_OL</code></strong> — Open-loop voltage gain.  This is the gain with no
+external feedback network.  Real op-amps have 100–120 dB
+($10^5$ – $10^6$).  With negative feedback the closed-loop gain is
+determined by external resistors, not <code>A_OL</code>.</p>
+</li>
+<li>
+<p><strong><code>R_in</code></strong> — Differential input resistance between V+ and V-.
+Bipolar op-amps (LM741): ~2 MΩ.  FET-input (TL072): ~$10^{12}$ Ω.
+Determines how much current the input draws from the signal source.</p>
+</li>
+<li>
+<p><strong><code>R_out</code></strong> — Open-loop output resistance.  With negative feedback
+the effective output impedance drops to
+$R_{out,eff} \approx R_{out} / (1 + A_{OL} \cdot \beta)$
+where $\beta$ is the feedback fraction.</p>
+</li>
+<li>
+<p><strong><code>V_sat_pos / V_sat_neg</code></strong> — Output voltage limits, typically
+~1–2 V below the supply rails.  When the open-loop output
+$A_{OL} \cdot (V^+ - V^-)$ would exceed these limits, the model
+clamps the output and the gain drops to zero (saturation).  Leave
+<code>None</code> for a purely linear model.</p>
+</li>
+</ul>
+<h2 id="mna-model"><a class="header" href="#mna-model">MNA Model</a></h2>
+<p>The op-amp uses <strong>one auxiliary unknown</strong> — the output branch
+current $I_{out}$.</p>
+<h3 id="internal-equivalent-circuit"><a class="header" href="#internal-equivalent-circuit">Internal equivalent circuit</a></h3>
+<pre><code>           G_in = 1/R_in
+  V+ ──┬──/\/\/──┬── V−
+       │         │
+       │    ┌────┘
+       │    │
+       │  ╔═══════════════╗
+       │  ║  Controlled   ║
+       │  ║  Voltage Src  ║  V = A_OL · (V+ − V−)
+       │  ╚═══════╤═══════╝
+       │          │
+       │         R_out
+       │          │
+       └──────── Vout
+</code></pre>
+<h3 id="stamp-equations"><a class="header" href="#stamp-equations">Stamp equations</a></h3>
+<p><strong>Input resistance</strong> (conductance $G = 1/R_{in}$):</p>
+<p>$$
+\begin{aligned}
+A[V^+, V^+] &amp;+= G \
+A[V^+, V^-] &amp;-= G \
+A[V^-, V^-] &amp;+= G \
+A[V^-, V^+] &amp;-= G
+\end{aligned}
+$$</p>
+<p><strong>Output stage</strong> (auxiliary row for KVL, plus KCL at output):</p>
+<p>$$V_{out} - R_{out} \cdot I_{aux} - A_{OL} \cdot (V^+ - V^-) = 0$$</p>
+<p>$$
+\begin{aligned}
+A[\text{aux}, V_{out}] &amp;+= 1 \
+A[\text{aux}, \text{aux}] &amp;-= R_{out} \
+A[\text{aux}, V^+] &amp;-= A_{OL} \
+A[\text{aux}, V^-] &amp;+= A_{OL} \
+A[V_{out}, \text{aux}] &amp;+= 1 &amp; \text{(KCL)}
+\end{aligned}
+$$</p>
+<h3 id="saturation-piecewise-linear"><a class="header" href="#saturation-piecewise-linear">Saturation (piecewise-linear)</a></h3>
+<p>When saturation is enabled, the Stamp method checks the current
+operating point at each Newton–Raphson iteration:</p>
+<ul>
+<li><strong>Linear region</strong> ($V_{sat,neg} &lt; A_{OL} \cdot V_{diff} &lt; V_{sat,pos}$):
+normal stamp above.</li>
+<li><strong>Positive saturation</strong> ($A_{OL} \cdot V_{diff} &gt; V_{sat,pos}$):
+replaces the VCVS equation with $V_{out} - R_{out} \cdot I_{aux} = V_{sat,pos}$.</li>
+<li><strong>Negative saturation</strong> ($A_{OL} \cdot V_{diff} &lt; V_{sat,neg}$):
+replaces with $V_{out} - R_{out} \cdot I_{aux} = V_{sat,neg}$.</li>
+</ul>
+<h2 id="properties-10"><a class="header" href="#properties-10">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>OpenLoopGain</code></td><td><code>float</code></td><td>$A_{OL}$</td></tr>
+<tr><td><code>InputResistance</code></td><td><code>float</code></td><td>$R_{in}$ (Ω)</td></tr>
+<tr><td><code>OutputResistance</code></td><td><code>float</code></td><td>$R_{out}$ (Ω)</td></tr>
+<tr><td><code>SaturationPositive</code></td><td><code>float | None</code></td><td>$V_{sat,pos}$</td></tr>
+<tr><td><code>SaturationNegative</code></td><td><code>float | None</code></td><td>$V_{sat,neg}$</td></tr>
+<tr><td><code>IsNonlinear</code></td><td><code>bool</code></td><td><code>True</code> when saturation is enabled</td></tr>
+</tbody></table>
+</div>
+<h2 id="query-methods-1"><a class="header" href="#query-methods-1">Query Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>GetVoltage(sv)</code></td><td><code>float</code></td><td>Output voltage $V_{out}$</td></tr>
+<tr><td><code>GetCurrent(sv)</code></td><td><code>float</code></td><td>Output branch current $I_{out}$</td></tr>
+<tr><td><code>GetDifferentialInput(sv)</code></td><td><code>float</code></td><td>$V^+ - V^-$</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-inverting-amplifier"><a class="header" href="#example-inverting-amplifier">Example: Inverting Amplifier</a></h2>
+<pre><code class="language-python">from PyEEL import (Circuit, NodeManager, OpAmp, Resistor,
+                   DCVoltageSource, NumpySolver, SimulationConfig,
+                   VoltageProbe)
+
+nm  = NodeManager()
+gnd = nm.GroundNode
+n_in  = nm.AddNode("in")
+n_inv = nm.AddNode("inv")
+n_out = nm.AddNode("out")
+
+config = SimulationConfig(dt=1e-4, t_end=0.01)
+ckt = Circuit(solver=NumpySolver(), config=config, nodeManager=nm)
+
+# DC input
+ckt.AddComponent(DCVoltageSource("Vin", (n_in, gnd), voltage=1.0))
+
+# Inverting amplifier: gain = -Rf/Rin = -100k/10k = -10
+ckt.AddComponent(Resistor("Rin", (n_in, n_inv), resistance=10e3))
+ckt.AddComponent(Resistor("Rf",  (n_inv, n_out), resistance=100e3))
+ckt.AddComponent(OpAmp("U1", (gnd, n_inv, n_out)))
+
+# Load resistor (prevents floating output)
+ckt.AddComponent(Resistor("Rload", (n_out, gnd), resistance=10e3))
+
+p = VoltageProbe("Vout", n_out, gnd)
+ckt.AddProbe(p)
+ckt.Finalize()
+ckt.RunDC()
+
+print(f"Vout = {p.Data[-1]:.2f} V")   # ≈ −10.0 V
+</code></pre>
+<h2 id="example-non-inverting-amplifier-with-saturation"><a class="header" href="#example-non-inverting-amplifier-with-saturation">Example: Non-Inverting Amplifier with Saturation</a></h2>
+<pre><code class="language-python">ckt.AddComponent(
+    OpAmp("U1", (n_in, n_fb, n_out),
+          A_OL=200_000, R_in=2e6, R_out=75.0,
+          V_sat_pos=13.0, V_sat_neg=-13.0)
+)
+</code></pre>
+<p>This clips the output at ±13 V (typical for a ±15 V supply with
+~2 V dropout).</p>
+<h2 id="pre-built-library-parts"><a class="header" href="#pre-built-library-parts">Pre-Built Library Parts</a></h2>
+<p>See <a href="components/../library/overview.html">Component Library — Op-Amps</a> for
+ready-to-use factory functions like <code>LM741</code>, <code>TL072</code>, <code>NE5532</code>, etc.</p>
+<h2 id="common-topologies"><a class="header" href="#common-topologies">Common Topologies</a></h2>
+<p>See <a href="components/../library/common.html">Common Building Blocks</a> for factory helpers:
+<code>inverting_amplifier</code>, <code>non_inverting_amplifier</code>, <code>voltage_follower</code>,
+<code>summing_amplifier</code>, <code>difference_amplifier</code>, <code>integrator</code>,
+<code>differentiator</code>.</p>
+<h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
+<ul>
+<li>Always include a <strong>load resistor</strong> on the output to avoid a floating
+node.  Even 10 kΩ to ground is sufficient.</li>
+<li>For DC-only analysis, disable transient mode:
+<code>SimulationConfig(dt=1e-4, t_end=0.01, mode=SimulationMode.DC_ONLY)</code>.</li>
+<li>The default parameters match a typical <strong>LM741</strong>.  Use the library
+for other parts.</li>
+<li>For an "ideal" op-amp, use <code>IdealOpAmp</code> from the library, or set
+<code>A_OL=1e9, R_in=1e12, R_out=0.001</code>.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="magnetic-components"><a class="header" href="#magnetic-components">Magnetic Components</a></h1>
 <p>PyEEL supports coupled inductors and transformers for modelling energy
 transfer through magnetic fields.</p>
@@ -1180,7 +1390,7 @@ ckt.AddComponent(L1)
 ckt.AddComponent(L2)
 ckt.AddComponent(K1)
 </code></pre>
-<h2 id="constructor-9"><a class="header" href="#constructor-9">Constructor</a></h2>
+<h2 id="constructor-10"><a class="header" href="#constructor-10">Constructor</a></h2>
 <pre><code class="language-python">MutualCoupling(name: str, inductor1: Inductor, inductor2: Inductor, k: float)
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -1190,7 +1400,7 @@ ckt.AddComponent(K1)
 <tr><td><code>k</code></td><td><code>float</code></td><td><strong>Coupling coefficient</strong>, $-1 &lt; k &lt; 1$ (typically 0.9–0.999 for transformers)</td></tr>
 </tbody></table>
 </div>
-<h2 id="properties-10"><a class="header" href="#properties-10">Properties</a></h2>
+<h2 id="properties-11"><a class="header" href="#properties-11">Properties</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>CouplingCoefficient</code></td><td><code>float</code></td><td>$k$</td></tr>
 <tr><td><code>MutualInductance</code></td><td><code>float</code></td><td>$M = k\sqrt{L_1 L_2}$</td></tr>
@@ -1247,7 +1457,7 @@ T1 = Transformer("T1",
 )
 ckt.AddComponent(T1)
 </code></pre>
-<h2 id="constructor-10"><a class="header" href="#constructor-10">Constructor</a></h2>
+<h2 id="constructor-11"><a class="header" href="#constructor-11">Constructor</a></h2>
 <pre><code class="language-python">Transformer(name: str,
             primary_nodes: tuple[Node, Node],
             secondary_nodes: tuple[Node, Node],
@@ -1264,7 +1474,7 @@ ckt.AddComponent(T1)
 <tr><td><code>k</code></td><td><code>float</code></td><td>Coupling coefficient (0 &lt; k &lt; 1; use 0.999 for near-ideal)</td></tr>
 </tbody></table>
 </div>
-<h2 id="properties-11"><a class="header" href="#properties-11">Properties</a></h2>
+<h2 id="properties-12"><a class="header" href="#properties-12">Properties</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>Primary</code></td><td><code>Inductor</code></td><td>The primary winding inductor</td></tr>
 <tr><td><code>Secondary</code></td><td><code>Inductor</code></td><td>The secondary winding inductor</td></tr>
@@ -1425,7 +1635,7 @@ voltage or current elsewhere in the circuit.  They are used to model
 amplifiers, transconductance stages, and feedback networks.</p>
 <pre><code class="language-python">from PyEEL import VCVS, VCCS, CCVS, CCCS
 </code></pre>
-<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<h2 id="overview-1"><a class="header" href="#overview-1">Overview</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Class</th><th>SPICE Name</th><th>Relation</th><th>Control</th><th>Output</th></tr></thead><tbody>
 <tr><td><code>VCVS</code></td><td>E</td><td>$V_{out} = A_v \cdot V_{ctrl}$</td><td>Voltage</td><td>Voltage</td></tr>
 <tr><td><code>VCCS</code></td><td>G</td><td>$I_{out} = g_m \cdot V_{ctrl}$</td><td>Voltage</td><td>Current</td></tr>
@@ -1485,7 +1695,7 @@ measure the control current.  This is the same technique used in SPICE.</p>
 </div>
 <p><strong>Auxiliary unknowns:</strong> 1 (sense branch current)</p>
 <p><strong>Equation:</strong> $I_{out} = A_i \cdot I_{sense}$</p>
-<h2 id="query-methods-1"><a class="header" href="#query-methods-1">Query Methods</a></h2>
+<h2 id="query-methods-2"><a class="header" href="#query-methods-2">Query Methods</a></h2>
 <p>All dependent sources provide:</p>
 <div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody>
 <tr><td><code>GetCurrent(solution)</code></td><td>Output branch current</td></tr>
@@ -1967,7 +2177,7 @@ can create a Probe directly if needed.</p>
 as the simulation runs.</p>
 <pre><code class="language-python">from PyEEL import LivePlotter
 </code></pre>
-<h2 id="constructor-11"><a class="header" href="#constructor-11">Constructor</a></h2>
+<h2 id="constructor-12"><a class="header" href="#constructor-12">Constructor</a></h2>
 <pre><code class="language-python">LivePlotter(*groups: list[Probe], window: float | None = None,
             update_interval: float = 0.03)
 </code></pre>
@@ -1986,7 +2196,7 @@ as the simulation runs.</p>
 )
 </code></pre>
 <p>This creates a figure with 2 vertically stacked subplots.</p>
-<h2 id="properties-12"><a class="header" href="#properties-12">Properties</a></h2>
+<h2 id="properties-13"><a class="header" href="#properties-13">Properties</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>IsOpen</code></td><td><code>bool</code></td><td>Whether the plot window is still open</td></tr>
 </tbody></table>
@@ -2009,7 +2219,7 @@ for _ in range(50_000):
 
 plotter.KeepOpen()
 </code></pre>
-<h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
+<h2 id="tips-1"><a class="header" href="#tips-1">Tips</a></h2>
 <ul>
 <li><strong>Window size:</strong> Set <code>window</code> to 2–3 periods of your signal for a clean
 display.  For 50 Hz → <code>window=0.06</code>.</li>
@@ -2026,7 +2236,7 @@ blocking simulation loop with interactive controls.</p>
 sim = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
 sim.Run()
 </code></pre>
-<h2 id="constructor-12"><a class="header" href="#constructor-12">Constructor</a></h2>
+<h2 id="constructor-13"><a class="header" href="#constructor-13">Constructor</a></h2>
 <pre><code class="language-python">LiveSimulation(circuit: Circuit, plotter: LivePlotter, *,
                dt: float = 0.0005, speed: int = 60,
                use_adaptive_dt: bool = False)
@@ -2057,7 +2267,7 @@ responsive UI.</p>
 <tr><td><code>TogglePause()</code></td><td>Toggle pause state</td></tr>
 </tbody></table>
 </div>
-<h2 id="properties-13"><a class="header" href="#properties-13">Properties</a></h2>
+<h2 id="properties-14"><a class="header" href="#properties-14">Properties</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>IsPaused</code></td><td><code>bool</code></td><td>Current pause state</td></tr>
 <tr><td><code>dt</code></td><td><code>float</code></td><td>Time step (settable at runtime)</td></tr>
@@ -2228,6 +2438,24 @@ ckt.AddComponent(LED_Red("LED1", (n_a, n_k)))
 <p>Transformer functions take <code>(name, primary_nodes, secondary_nodes)</code> instead
 of <code>(name, nodes)</code>.</p>
 </blockquote>
+<h3 id="operational-amplifiers"><a class="header" href="#operational-amplifiers">Operational Amplifiers</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$A_{OL}$</th><th>$R_{in}$</th><th>$R_{out}$</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>LM741</code></td><td>LM741</td><td>200k</td><td>2 MΩ</td><td>75 Ω</td><td>Classic general-purpose</td></tr>
+<tr><td><code>LM358</code></td><td>LM358</td><td>100k</td><td>2 MΩ</td><td>150 Ω</td><td>Dual, single-supply</td></tr>
+<tr><td><code>LM324</code></td><td>LM324</td><td>100k</td><td>2 MΩ</td><td>150 Ω</td><td>Quad, single-supply</td></tr>
+<tr><td><code>TL072</code></td><td>TL072</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Low-noise JFET input</td></tr>
+<tr><td><code>TL082</code></td><td>TL082</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>General JFET input</td></tr>
+<tr><td><code>NE5532</code></td><td>NE5532</td><td>100k</td><td>300 kΩ</td><td>0.3 Ω</td><td>Low-noise audio</td></tr>
+<tr><td><code>OP07</code></td><td>OP07</td><td>500k</td><td>33 MΩ</td><td>60 Ω</td><td>Precision</td></tr>
+<tr><td><code>OPA2134</code></td><td>OPA2134</td><td>1M</td><td>10 TΩ</td><td>1 Ω</td><td>Hi-fi audio FET</td></tr>
+<tr><td><code>AD620</code></td><td>AD620</td><td>1M</td><td>10 GΩ</td><td>1 Ω</td><td>Instrumentation amp</td></tr>
+<tr><td><code>IdealOpAmp</code></td><td>—</td><td>10⁹</td><td>1 TΩ</td><td>0.001 Ω</td><td>Textbook ideal</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p>Op-amp functions take <code>(name, nodes)</code> where
+<code>nodes = (non_inv_input, inv_input, output)</code>.</p>
+</blockquote>
 <h2 id="adding-your-own-parts"><a class="header" href="#adding-your-own-parts">Adding Your Own Parts</a></h2>
 <p>See <a href="library/../extending/new-library-parts.html">Adding Library Parts</a> for how to
 extend this library with new components.</p>
@@ -2329,6 +2557,58 @@ capacitors.  Returns <code>(components, {'base': Node, 'collector': Node, 'emitt
 <pre><code class="language-python">add_all(circuit: Circuit, components: list[Component]) -&gt; None
 </code></pre>
 <p>Convenience function to add a list of components to a circuit in one call.</p>
+<h3 id="op-amp-circuits"><a class="header" href="#op-amp-circuits">Op-Amp Circuits</a></h3>
+<h4 id="inverting_amplifier"><a class="header" href="#inverting_amplifier"><code>inverting_amplifier</code></a></h4>
+<pre><code class="language-python">inverting_amplifier(prefix, node_manager, n_in, n_out, n_gnd, *,
+                    r_in=10e3, r_f=100e3,
+                    A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                    ) -&gt; (list, {'inv_input'})
+</code></pre>
+<p>Inverting amplifier.  Gain ≈ $-R_f / R_{in}$.</p>
+<h4 id="non_inverting_amplifier"><a class="header" href="#non_inverting_amplifier"><code>non_inverting_amplifier</code></a></h4>
+<pre><code class="language-python">non_inverting_amplifier(prefix, node_manager, n_in, n_out, n_gnd, *,
+                        r1=10e3, r_f=90e3,
+                        A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                        ) -&gt; (list, {'inv_input'})
+</code></pre>
+<p>Non-inverting amplifier.  Gain ≈ $1 + R_f / R_1$.</p>
+<h4 id="voltage_follower"><a class="header" href="#voltage_follower"><code>voltage_follower</code></a></h4>
+<pre><code class="language-python">voltage_follower(prefix, node_manager, n_in, n_out, *,
+                 A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                 ) -&gt; (list, {'feedback'})
+</code></pre>
+<p>Unity-gain buffer (gain = 1).  Uses a tiny wire resistor for the direct
+output-to-inverting-input feedback connection.</p>
+<h4 id="summing_amplifier"><a class="header" href="#summing_amplifier"><code>summing_amplifier</code></a></h4>
+<pre><code class="language-python">summing_amplifier(prefix, node_manager, input_nodes, n_out, n_gnd, *,
+                  r_inputs=10e3, r_f=10e3,
+                  A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                  ) -&gt; (list, {'summing_junction'})
+</code></pre>
+<p>Inverting summing amplifier with N inputs.  If all input resistors are
+equal: $V_{out} = -(R_f / R_{in}) \cdot (V_1 + V_2 + \dots + V_N)$.</p>
+<h4 id="difference_amplifier"><a class="header" href="#difference_amplifier"><code>difference_amplifier</code></a></h4>
+<pre><code class="language-python">difference_amplifier(prefix, node_manager, n_in_pos, n_in_neg, n_out, n_gnd, *,
+                     r1=10e3, r2=10e3, r3=10e3, r_f=10e3,
+                     A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                     ) -&gt; (list, {'inv_input', 'noninv_input'})
+</code></pre>
+<p>Difference (subtractor) amplifier.  When $R_1 = R_3$ and $R_2 = R_f$:
+$V_{out} = (R_f / R_1) \cdot (V_{pos} - V_{neg})$.</p>
+<h4 id="integrator"><a class="header" href="#integrator"><code>integrator</code></a></h4>
+<pre><code class="language-python">integrator(prefix, node_manager, n_in, n_out, n_gnd, *,
+           r_in=10e3, c_f=100e-9,
+           A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+           ) -&gt; (list, {'inv_input'})
+</code></pre>
+<p>Inverting integrator.  $V_{out}(t) = -\dfrac{1}{RC} \int V_{in} , dt$.</p>
+<h4 id="differentiator"><a class="header" href="#differentiator"><code>differentiator</code></a></h4>
+<pre><code class="language-python">differentiator(prefix, node_manager, n_in, n_out, n_gnd, *,
+               c_in=100e-9, r_f=10e3,
+               A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+               ) -&gt; (list, {'inv_input'})
+</code></pre>
+<p>Inverting differentiator.  $V_{out}(t) = -R_f C \dfrac{dV_{in}}{dt}$.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="example-half-wave-rectifier"><a class="header" href="#example-half-wave-rectifier">Example: Half-Wave Rectifier</a></h1>
 <p>A simple half-wave rectifier converts AC to pulsating DC using a single
 diode.</p>
@@ -2611,7 +2891,7 @@ demonstrating energy exchange and voltage magnification.</p>
 <pre><code>V_ac ──── L (0.1H) ──── C (0.01F) ──── R (1Ω) ──── GND
 (5V, 5Hz)
 </code></pre>
-<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<h2 id="parameters-1"><a class="header" href="#parameters-1">Parameters</a></h2>
 <ul>
 <li>$f_0 = \dfrac{1}{2\pi\sqrt{LC}} = \dfrac{1}{2\pi\sqrt{0.1 \times 0.01}} \approx 5.03$ Hz</li>
 <li>$Q = \dfrac{1}{R}\sqrt{\dfrac{L}{C}} = \sqrt{\dfrac{0.1}{0.01}} \approx 3.16$</li>

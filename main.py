@@ -1,146 +1,100 @@
 """
-PyEEL — Linear Power Supply Demo
-===================================
-Models a 240 V AC mains supply stepped down to ~12 V AC by a
-transformer, then full-bridge rectified and filtered.
+PyEEL — Voltage-Controlled Sources Demo (VCVS & VCCS)
+=======================================================
+Demonstrates both voltage-controlled dependent sources in one circuit.
 
 Topology::
 
-    ┌───────────────── TRANSFORMER ──────────────────┐
-    │  Primary (240 Vrms, 50 Hz)   Secondary (~12 V) │
-    │  p1 ──┤ L1 ├── p2           s1 ──┤ L2 ├── s2  │
-    └────────────────────────────────────────────────-┘
+                     ┌──────── VCVS (E1, gain=3) ───────┐
+                     │  ctrl: (n1, GND)                 │
+    V1 (1 V, 100 Hz) │ out:  (n_e, GND)                 │
+     │               │                                  │
+    (n1)──R1 (1 kΩ)──GND    (n_e)──R_e (1 kΩ)──GND      │
+                                                        │
+                     ┌──────── VCCS (G1, gm=2 mS) ──────┘
+                     │  ctrl: (n1, GND)
+                     │  out:  (GND, n_g)  — current into n_g
+                     │
+                     (n_g)──R_g (2 kΩ)──GND
 
-              Full-Bridge Rectifier
-              ~~~~~~~~~~~~~~~~~~~~~~
-               s1 ──┬── D1 →──┬── dc+
-                    │         │
-                    └── D3 ←──┘
-                              │
-               s2 ──┬── D2 →──┤
-                    │         │
-                    └── D4 ←──┘── dc-  (GND)
+**VCVS (E1)** — voltage gain μ = 3
+  V(n_e) = 3 × V(n1)
+  With V1 = 1 V peak at 100 Hz and R1 as load:
+    V(n1) = 1 V peak → V(n_e) = 3 V peak.
 
-    dc+ ──┤ C1 (filter) ├── GND
-    dc+ ──┤ R_load       ├── GND
+**VCCS (G1)** — transconductance g = 2 mS
+  I_out = 2e-3 × V(n1) = 2 mA peak
+  Across R_g = 2 kΩ: V(n_g) = I_out × R_g = 4 V peak.
 
-Design notes
-------------
-  • Primary inductance   L1 = 10 H   (realistic mains-frequency core)
-  • Turns ratio          n  = 20:1   → secondary voltage ≈ 12 V peak
-  • Secondary inductance L2 = L1/n²  = 0.025 H
-  • Coupling coefficient k  = 0.999  (close to ideal)
-  • Filter capacitor     C1 = 1000 µF
-  • Load resistor        R  = 100 Ω  → ≈120 mA load
-
-Probes:
-  • V(p1)  — primary (mains) voltage
-  • V(s1)  — secondary voltage
-  • V(dc+) — rectified + filtered DC output
+Probes
+------
+  • V(n1)   — input voltage (1 V sine)
+  • V(n_e)  — VCVS output (3× input)
+  • V(n_g)  — VCCS output across R_g (4 V peak)
 """
 
 from PyEEL.Circuit import Circuit
 from PyEEL.Solver.Solver import NumpySolver
 from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor, Capacitor, Diode, Transformer
+from PyEEL.Components import Resistor
 from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
+from PyEEL.Components.Sources.DependentSources import VCVS, VCCS
 from PyEEL.Probe import VoltageProbe
 from PyEEL.LivePlotter import LivePlotter
 from PyEEL.LiveSimulation import LiveSimulation
 
-# ── configuration ───────────────────────────────────────────────────
-config = SimulationConfig(
-    dc_operating_point=True,
-    gmin=1e-12,
-    nr_max_iterations=100,          # more headroom for 7-diode-drop bridge
-    nr_abs_tolerance=1e-6,
-    source_stepping_steps=20,       # gentle ramp for large-signal startup
-)
+# ── config ───────────────────────────────────────────────────────────
+config = SimulationConfig(dc_operating_point=True, gmin=1e-12)
 
-# ── build circuit ───────────────────────────────────────────────────
 ckt = Circuit(solver=NumpySolver(), config=config)
-
 nm  = ckt.NodeManager
-gnd = nm.GroundNode          # dc- / neutral reference
+gnd = nm.GroundNode
 
-# Transformer nodes
-p1 = nm.AddNode("p1")       # primary +
-p2 = nm.AddNode("p2")       # primary - (can float or tie to gnd)
-s1 = nm.AddNode("s1")       # secondary +
-s2 = nm.AddNode("s2")       # secondary -
+n1   = nm.AddNode("n1")      # input node
+n_e  = nm.AddNode("n_e")     # VCVS output
+n_g  = nm.AddNode("n_g")     # VCCS output
 
-# DC output node
-dc_plus = nm.AddNode("dc+")
+# ── input source & load ─────────────────────────────────────────────
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd),
+                                  amplitude=1.0, frequency=100.0))
 
-# ── 1. AC mains source (240 Vrms → peak ≈ 339.4 V) ────────────────
-import math
-V_rms = 240.0
-V_peak = V_rms * math.sqrt(2)
-ckt.AddComponent(ACVoltageSource(
-    "V_mains", (p1, p2), amplitude=V_peak, frequency=50.0,
-))
+# ── VCVS: E1, gain = 3 V/V ──────────────────────────────────────────
+#   Controls on V(n1, GND); output between n_e and GND.
+ckt.AddComponent(VCVS("E1", out_nodes=(n_e, gnd),
+                       ctrl_nodes=(n1, gnd), gain=3.0))
+# Load on VCVS output (so current can flow)
+ckt.AddComponent(Resistor("R_e", (n_e, gnd), resistance=1e3))
 
-# ── 2. Step-down transformer (20:1 turns ratio) ────────────────────
-n_ratio = 20.0
-L_primary = 10.0                           # 10 H
-L_secondary = L_primary / (n_ratio ** 2)   # 0.025 H
-k = 0.999
+# ── VCCS: G1, transconductance = 2 mS ───────────────────────────────
+#   Controls on V(n1, GND); output current into n_g.
+#   out_nodes=(gnd, n_g) so that output current enters n_g,
+#   giving V(n_g) = +gm × V_ctrl × R_g  (non-inverting).
+ckt.AddComponent(VCCS("G1", out_nodes=(gnd, n_g),
+                       ctrl_nodes=(n1, gnd), transconductance=2e-3))
+# Load converts output current to a voltage
+ckt.AddComponent(Resistor("R_g", (n_g, gnd), resistance=2e3))
 
-ckt.AddComponent(Transformer(
-    "T1",
-    primary_nodes=(p1, p2),
-    secondary_nodes=(s1, s2),
-    primary_inductance=L_primary,
-    secondary_inductance=L_secondary,
-    k=k,
-))
+# ── probes ───────────────────────────────────────────────────────────
+v_in = VoltageProbe("V(input)", n1)
+v_e  = VoltageProbe("V(VCVS)",  n_e)
+v_g  = VoltageProbe("V(VCCS)",  n_g)
 
-# ── 3. Full-bridge rectifier (4 diodes) ────────────────────────────
-#
-#   s1 ──→ D1 ──→ dc+      (positive half-cycle path)
-#   gnd ←─ D3 ←── s1       (return path, negative rail)
-#   s2 ──→ D2 ──→ dc+      (negative half-cycle path)
-#   gnd ←─ D4 ←── s2       (return path, negative rail)
-#
-# Using 1N4007-ish parameters for power diodes
-diode_params = dict(Is=1e-10, n=1.8)
+ckt.AddProbe(v_in)
+ckt.AddProbe(v_e)
+ckt.AddProbe(v_g)
 
-ckt.AddComponent(Diode("D1", (s1, dc_plus), **diode_params))   # s1 → dc+
-ckt.AddComponent(Diode("D2", (s2, dc_plus), **diode_params))   # s2 → dc+
-ckt.AddComponent(Diode("D3", (gnd, s1),     **diode_params))   # gnd → s1
-ckt.AddComponent(Diode("D4", (gnd, s2),     **diode_params))   # gnd → s2
-
-# ── 4. Filter capacitor ────────────────────────────────────────────
-ckt.AddComponent(Capacitor("C1", (dc_plus, gnd), capacitance=1000e-6))
-
-# ── 5. Load resistor ───────────────────────────────────────────────
-ckt.AddComponent(Resistor("R_load", (dc_plus, gnd), resistance=100.0))
-
-# ── 6. Tie primary return to ground through small R (avoids float) ──
-ckt.AddComponent(Resistor("R_gnd", (p2, gnd), resistance=0.01))
-
-# ── probes ──────────────────────────────────────────────────────────
-v_mains = VoltageProbe("V(mains)", p1)      # primary voltage
-v_sec   = VoltageProbe("V(sec)",   s1)      # secondary voltage
-v_dc    = VoltageProbe("V(dc+)",   dc_plus) # DC output
-
-ckt.AddProbe(v_mains)
-ckt.AddProbe(v_sec)
-ckt.AddProbe(v_dc)
-
-# ── simulate ────────────────────────────────────────────────────────
+# ── simulate ─────────────────────────────────────────────────────────
 ckt.Finalize()
 
 plotter = LivePlotter(
-    [v_sec, v_dc],          # subplot 1: secondary + DC output
-    [v_mains],              # subplot 2: mains primary
-    window=100e-3,          # show last 100 ms (5 cycles)
+    [v_in, v_e, v_g],   # all three waveforms overlaid
+    window=30e-3,        # 3 full cycles at 100 Hz
 )
 
 sim = LiveSimulation(
     ckt, plotter,
-    dt=2e-5,                # 20 µs steps (fine enough for 50 Hz + diode switching)
-    speed=200,
+    dt=5e-5,             # 200 samples per cycle
+    speed=100,
 )
 
 sim.Run()

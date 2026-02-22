@@ -169,6 +169,20 @@ All use `nodes = (collector, base, emitter)`.
 > Op-amp functions take `(name, nodes)` where
 > `nodes = (non_inv_input, inv_input, output)`.
 
+### Comparators
+
+| Function | Part | $R_{in}$ | $R_{out}$ | Description |
+|---|---|---|---|---|
+| `LM393` | LM393 | 1 MΩ | 50 Ω | Dual, general purpose |
+| `LM339` | LM339 | 1 MΩ | 50 Ω | Quad, single supply |
+| `LM311` | LM311 | 500 kΩ | 50 Ω | Fast, with output transistor |
+| `TLV3201` | TLV3201 | 100 MΩ | 25 Ω | Rail-to-rail CMOS |
+| `MAX9021` | MAX9021 | 1 TΩ | 10 Ω | Ultra-low power |
+| `IdealComparator` | — | 1 TΩ | 0.001 Ω | Textbook ideal |
+
+> Comparator functions take `(name, nodes, *, V_high=5.0, V_low=0.0)`
+> where `nodes = (non_inv_input, inv_input, output)`.
+
 ## Adding Your Own Parts
 
 See [Adding Library Parts](../extending/new-library-parts.md) for how to

@@ -256,6 +256,58 @@ capacitors.  Returns <code>(components, {'base': Node, 'collector': Node, 'emitt
 <pre><code class="language-python">add_all(circuit: Circuit, components: list[Component]) -&gt; None
 </code></pre>
 <p>Convenience function to add a list of components to a circuit in one call.</p>
+<h3 id="op-amp-circuits"><a class="header" href="#op-amp-circuits">Op-Amp Circuits</a></h3>
+<h4 id="inverting_amplifier"><a class="header" href="#inverting_amplifier"><code>inverting_amplifier</code></a></h4>
+<pre><code class="language-python">inverting_amplifier(prefix, node_manager, n_in, n_out, n_gnd, *,
+                    r_in=10e3, r_f=100e3,
+                    A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                    ) -&gt; (list, {'inv_input'})
+</code></pre>
+<p>Inverting amplifier.  Gain ≈ $-R_f / R_{in}$.</p>
+<h4 id="non_inverting_amplifier"><a class="header" href="#non_inverting_amplifier"><code>non_inverting_amplifier</code></a></h4>
+<pre><code class="language-python">non_inverting_amplifier(prefix, node_manager, n_in, n_out, n_gnd, *,
+                        r1=10e3, r_f=90e3,
+                        A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                        ) -&gt; (list, {'inv_input'})
+</code></pre>
+<p>Non-inverting amplifier.  Gain ≈ $1 + R_f / R_1$.</p>
+<h4 id="voltage_follower"><a class="header" href="#voltage_follower"><code>voltage_follower</code></a></h4>
+<pre><code class="language-python">voltage_follower(prefix, node_manager, n_in, n_out, *,
+                 A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                 ) -&gt; (list, {'feedback'})
+</code></pre>
+<p>Unity-gain buffer (gain = 1).  Uses a tiny wire resistor for the direct
+output-to-inverting-input feedback connection.</p>
+<h4 id="summing_amplifier"><a class="header" href="#summing_amplifier"><code>summing_amplifier</code></a></h4>
+<pre><code class="language-python">summing_amplifier(prefix, node_manager, input_nodes, n_out, n_gnd, *,
+                  r_inputs=10e3, r_f=10e3,
+                  A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                  ) -&gt; (list, {'summing_junction'})
+</code></pre>
+<p>Inverting summing amplifier with N inputs.  If all input resistors are
+equal: $V_{out} = -(R_f / R_{in}) \cdot (V_1 + V_2 + \dots + V_N)$.</p>
+<h4 id="difference_amplifier"><a class="header" href="#difference_amplifier"><code>difference_amplifier</code></a></h4>
+<pre><code class="language-python">difference_amplifier(prefix, node_manager, n_in_pos, n_in_neg, n_out, n_gnd, *,
+                     r1=10e3, r2=10e3, r3=10e3, r_f=10e3,
+                     A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                     ) -&gt; (list, {'inv_input', 'noninv_input'})
+</code></pre>
+<p>Difference (subtractor) amplifier.  When $R_1 = R_3$ and $R_2 = R_f$:
+$V_{out} = (R_f / R_1) \cdot (V_{pos} - V_{neg})$.</p>
+<h4 id="integrator"><a class="header" href="#integrator"><code>integrator</code></a></h4>
+<pre><code class="language-python">integrator(prefix, node_manager, n_in, n_out, n_gnd, *,
+           r_in=10e3, c_f=100e-9,
+           A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+           ) -&gt; (list, {'inv_input'})
+</code></pre>
+<p>Inverting integrator.  $V_{out}(t) = -\dfrac{1}{RC} \int V_{in} , dt$.</p>
+<h4 id="differentiator"><a class="header" href="#differentiator"><code>differentiator</code></a></h4>
+<pre><code class="language-python">differentiator(prefix, node_manager, n_in, n_out, n_gnd, *,
+               c_in=100e-9, r_f=10e3,
+               A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+               ) -&gt; (list, {'inv_input'})
+</code></pre>
+<p>Inverting differentiator.  $V_{out}(t) = -R_f C \dfrac{dV_{in}}{dt}$.</p>
 
                     </main>
 

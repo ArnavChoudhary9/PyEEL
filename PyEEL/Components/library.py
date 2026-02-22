@@ -26,6 +26,7 @@ from .Semiconductors.MOSFET import MOSFET, MOSFETType
 from .Magnetic.Transformer import Transformer
 from .Sources.VoltageSource import VoltageSource, DCVoltageSource, ACVoltageSource
 from .ICs.OpAmp import OpAmp
+from .ICs.Comparator import Comparator
 
 
 # =====================================================================
@@ -812,3 +813,120 @@ def IdealOpAmp(
     A_OL = 10⁹, R_in = 10¹² Ω, R_out ≈ 0 Ω.
     """
     return OpAmp(name, nodes, A_OL=1e9, R_in=1e12, R_out=0.001)
+
+
+# =====================================================================
+#  Comparators  (non_inv_input, inv_input, output)
+# =====================================================================
+
+def LM393(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+    *,
+    V_high: float = 5.0,
+    V_low: float = 0.0,
+) -> Comparator:
+    """
+    LM393 — dual open-collector comparator.
+
+    R_in ≈ 200 kΩ, R_out ≈ 50 Ω (modelled as push-pull here).
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return Comparator(name, nodes,
+                      V_high=V_high, V_low=V_low,
+                      R_in=200e3, R_out=50.0)
+
+
+def LM339(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+    *,
+    V_high: float = 5.0,
+    V_low: float = 0.0,
+) -> Comparator:
+    """
+    LM339 — quad open-collector comparator.
+
+    R_in ≈ 200 kΩ, R_out ≈ 50 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return Comparator(name, nodes,
+                      V_high=V_high, V_low=V_low,
+                      R_in=200e3, R_out=50.0)
+
+
+def LM311(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+    *,
+    V_high: float = 5.0,
+    V_low: float = 0.0,
+) -> Comparator:
+    """
+    LM311 — single high-speed comparator.
+
+    R_in ≈ 400 kΩ, R_out ≈ 30 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return Comparator(name, nodes,
+                      V_high=V_high, V_low=V_low,
+                      R_in=400e3, R_out=30.0)
+
+
+def TLV3201(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+    *,
+    V_high: float = 3.3,
+    V_low: float = 0.0,
+) -> Comparator:
+    """
+    TLV3201 — single low-power push-pull comparator (3.3 V / 5 V).
+
+    R_in ≈ 1 MΩ, R_out ≈ 30 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return Comparator(name, nodes,
+                      V_high=V_high, V_low=V_low,
+                      R_in=1e6, R_out=30.0)
+
+
+def MAX9021(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+    *,
+    V_high: float = 3.3,
+    V_low: float = 0.0,
+) -> Comparator:
+    """
+    MAX9021 — single nano-power push-pull comparator (1.8–5.5 V).
+
+    R_in ≈ 1 MΩ, R_out ≈ 40 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return Comparator(name, nodes,
+                      V_high=V_high, V_low=V_low,
+                      R_in=1e6, R_out=40.0)
+
+
+def IdealComparator(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+    *,
+    V_high: float = 5.0,
+    V_low: float = 0.0,
+) -> Comparator:
+    """
+    Ideal comparator — no delay, infinite input impedance,
+    near-zero output resistance.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return Comparator(name, nodes,
+                      V_high=V_high, V_low=V_low,
+                      R_in=1e12, R_out=0.001)

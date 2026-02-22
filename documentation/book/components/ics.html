@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Magnetic Components - PyEEL Documentation</title>
+        <title>Integrated Circuits - PyEEL Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -129,7 +129,7 @@
                         <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/components/magnetic.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/components/ics.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -158,27 +158,32 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="magnetic-components"><a class="header" href="#magnetic-components">Magnetic Components</a></h1>
-<p>PyEEL supports coupled inductors and transformers for modelling energy
-transfer through magnetic fields.</p>
-<div class="table-wrapper"><table><thead><tr><th>Component</th><th>Description</th></tr></thead><tbody>
-<tr><td><a href="mutual-coupling.html">Mutual Coupling</a></td><td>Couples two existing <code>Inductor</code> components with coefficient $k$</td></tr>
-<tr><td><a href="transformer.html">Transformer</a></td><td>High-level wrapper: two inductors + mutual coupling in one object</td></tr>
+                        <h1 id="integrated-circuits"><a class="header" href="#integrated-circuits">Integrated Circuits</a></h1>
+<p>Integrated circuit macro models provide higher-level abstractions for
+multi-transistor ICs.  Rather than modelling individual transistors,
+each IC is represented by a behavioural <strong>macro model</strong> that captures
+the key input/output characteristics.</p>
+<h2 id="available-ics"><a class="header" href="#available-ics">Available ICs</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Component</th><th>Class</th><th>Terminals</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Op-Amp</strong></td><td><code>OpAmp</code></td><td><code>(V+, V-, Vout)</code></td><td>Voltage-feedback operational amplifier</td></tr>
 </tbody></table>
 </div>
-<h2 id="import"><a class="header" href="#import">Import</a></h2>
-<pre><code class="language-python">from PyEEL import MutualCoupling, Transformer
-</code></pre>
+<h2 id="adding-more-ics"><a class="header" href="#adding-more-ics">Adding More ICs</a></h2>
+<p>New IC types (comparators, voltage regulators, 555 timers, etc.) can
+be added by creating a new class in <code>PyEEL/Components/ICs/</code> that
+inherits from <code>Component</code>.  See
+<a href="../extending/new-components.html">Adding New Components</a> for the
+step-by-step guide.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../components/opamp.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../components/mosfet.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../components/mutual-coupling.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../components/opamp.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -188,11 +193,11 @@ transfer through magnetic fields.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../components/opamp.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../components/mosfet.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../components/mutual-coupling.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../components/opamp.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

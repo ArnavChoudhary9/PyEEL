@@ -256,3 +256,44 @@ differentiator(prefix, node_manager, n_in, n_out, n_gnd, *,
 ```
 
 Inverting differentiator.  $V_{out}(t) = -R_f C \dfrac{dV_{in}}{dt}$.
+
+### Comparator Circuits
+
+#### `voltage_comparator`
+
+```python
+voltage_comparator(prefix, n_in, n_ref, n_out, *,
+                   V_high=5.0, V_low=0.0,
+                   R_in=1e6, R_out=50.0
+                   ) -> list
+```
+
+Single comparator. Output = `V_high` when `V_in > V_ref`, else `V_low`.
+
+#### `schmitt_trigger`
+
+```python
+schmitt_trigger(prefix, node_manager, n_in, n_out, n_ref, *,
+                r_upper=100e3, r_lower=10e3,
+                V_supply=5.0, V_hys=None,
+                R_in=1e6, R_out=50.0
+                ) -> (list, {'noninv_input'})
+```
+
+Non-inverting Schmitt trigger.  Positive feedback through
+$R_{upper} / R_{lower}$ creates hysteresis:
+$V_{hys} \approx V_{supply} \cdot R_{lower} / (R_{upper} + R_{lower})$.
+
+#### `window_comparator`
+
+```python
+window_comparator(prefix, n_in, n_out_high, n_out_low,
+                  n_ref_high, n_ref_low, *,
+                  V_high=5.0, V_low=0.0,
+                  R_in=1e6, R_out=50.0
+                  ) -> (list, {})
+```
+
+Two comparators detect whether a signal is **inside** a voltage window
+`[V_ref_low, V_ref_high]`.  `n_out_high` goes HIGH when
+`V_in > V_ref_high`; `n_out_low` goes HIGH when `V_in < V_ref_low`.

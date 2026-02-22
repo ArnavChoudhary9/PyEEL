@@ -9,7 +9,7 @@ from .Component import Component
 from .Passive import Resistor, Capacitor, Inductor
 from .Semiconductors import Diode, ZenerDiode, BJT, BJTType, NPN, PNP, MOSFET, MOSFETType, NMOS, PMOS
 from .Magnetic import MutualCoupling, Transformer
-from .ICs import OpAmp
+from .ICs import OpAmp, Comparator
 from . import common
 from . import library
 
@@ -20,7 +20,7 @@ __all__ = [
     "BJT", "BJTType", "NPN", "PNP",
     "MOSFET", "MOSFETType", "NMOS", "PMOS",
     "MutualCoupling", "Transformer",
-    "OpAmp",
+    "OpAmp", "Comparator",
     "common",
     "library",
 ]

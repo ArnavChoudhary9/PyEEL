@@ -294,6 +294,24 @@ ckt.AddComponent(LED_Red("LED1", (n_a, n_k)))
 <p>Transformer functions take <code>(name, primary_nodes, secondary_nodes)</code> instead
 of <code>(name, nodes)</code>.</p>
 </blockquote>
+<h3 id="operational-amplifiers"><a class="header" href="#operational-amplifiers">Operational Amplifiers</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$A_{OL}$</th><th>$R_{in}$</th><th>$R_{out}$</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>LM741</code></td><td>LM741</td><td>200k</td><td>2 MΩ</td><td>75 Ω</td><td>Classic general-purpose</td></tr>
+<tr><td><code>LM358</code></td><td>LM358</td><td>100k</td><td>2 MΩ</td><td>150 Ω</td><td>Dual, single-supply</td></tr>
+<tr><td><code>LM324</code></td><td>LM324</td><td>100k</td><td>2 MΩ</td><td>150 Ω</td><td>Quad, single-supply</td></tr>
+<tr><td><code>TL072</code></td><td>TL072</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Low-noise JFET input</td></tr>
+<tr><td><code>TL082</code></td><td>TL082</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>General JFET input</td></tr>
+<tr><td><code>NE5532</code></td><td>NE5532</td><td>100k</td><td>300 kΩ</td><td>0.3 Ω</td><td>Low-noise audio</td></tr>
+<tr><td><code>OP07</code></td><td>OP07</td><td>500k</td><td>33 MΩ</td><td>60 Ω</td><td>Precision</td></tr>
+<tr><td><code>OPA2134</code></td><td>OPA2134</td><td>1M</td><td>10 TΩ</td><td>1 Ω</td><td>Hi-fi audio FET</td></tr>
+<tr><td><code>AD620</code></td><td>AD620</td><td>1M</td><td>10 GΩ</td><td>1 Ω</td><td>Instrumentation amp</td></tr>
+<tr><td><code>IdealOpAmp</code></td><td>—</td><td>10⁹</td><td>1 TΩ</td><td>0.001 Ω</td><td>Textbook ideal</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p>Op-amp functions take <code>(name, nodes)</code> where
+<code>nodes = (non_inv_input, inv_input, output)</code>.</p>
+</blockquote>
 <h2 id="adding-your-own-parts"><a class="header" href="#adding-your-own-parts">Adding Your Own Parts</a></h2>
 <p>See <a href="../extending/new-library-parts.html">Adding Library Parts</a> for how to
 extend this library with new components.</p>

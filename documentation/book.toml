@@ -2,7 +2,7 @@
 authors = ["Arnav Choudhary"]
 language = "en"
 multilingual = false
-src = "md"
+src = "src"
 title = "PyEEL Documentation"
 
 [build]
