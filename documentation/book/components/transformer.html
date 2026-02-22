@@ -1,0 +1,300 @@
+<!DOCTYPE HTML>
+<html lang="en" class="navy sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Transformer - PyEEL Documentation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">PyEEL Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/components/transformer.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="transformer"><a class="header" href="#transformer">Transformer</a></h1>
+<p>A high-level wrapper that creates two coupled inductors and a
+<code>MutualCoupling</code> in a single object.  Models an ideal (or near-ideal)
+transformer.</p>
+<pre><code class="language-python">from PyEEL import Transformer
+
+T1 = Transformer("T1",
+    primary_nodes=(n_pri_p, n_pri_n),
+    secondary_nodes=(n_sec_p, n_sec_n),
+    primary_inductance=100.0,
+    secondary_inductance=0.25,
+    k=0.999,
+)
+ckt.AddComponent(T1)
+</code></pre>
+<h2 id="constructor"><a class="header" href="#constructor">Constructor</a></h2>
+<pre><code class="language-python">Transformer(name: str,
+            primary_nodes: tuple[Node, Node],
+            secondary_nodes: tuple[Node, Node],
+            primary_inductance: float,
+            secondary_inductance: float,
+            k: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>str</code></td><td>Unique component name</td></tr>
+<tr><td><code>primary_nodes</code></td><td><code>(Node, Node)</code></td><td><code>(p+, p−)</code> of the primary winding</td></tr>
+<tr><td><code>secondary_nodes</code></td><td><code>(Node, Node)</code></td><td><code>(s+, s−)</code> of the secondary winding</td></tr>
+<tr><td><code>primary_inductance</code></td><td><code>float</code></td><td>$L_1$ in <strong>Henries</strong></td></tr>
+<tr><td><code>secondary_inductance</code></td><td><code>float</code></td><td>$L_2$ in <strong>Henries</strong></td></tr>
+<tr><td><code>k</code></td><td><code>float</code></td><td>Coupling coefficient (0 &lt; k &lt; 1; use 0.999 for near-ideal)</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties"><a class="header" href="#properties">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Primary</code></td><td><code>Inductor</code></td><td>The primary winding inductor</td></tr>
+<tr><td><code>Secondary</code></td><td><code>Inductor</code></td><td>The secondary winding inductor</td></tr>
+<tr><td><code>Coupling</code></td><td><code>MutualCoupling</code></td><td>The coupling component</td></tr>
+<tr><td><code>TurnsRatio</code></td><td><code>float</code></td><td>$n = \sqrt{L_1 / L_2}$</td></tr>
+<tr><td><code>MutualInductance</code></td><td><code>float</code></td><td>$M = k\sqrt{L_1 L_2}$</td></tr>
+<tr><td><code>CouplingCoefficient</code></td><td><code>float</code></td><td>$k$</td></tr>
+</tbody></table>
+</div>
+<h2 id="methods"><a class="header" href="#methods">Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>GetCurrent(solution)</code></td><td><code>float</code></td><td>Primary winding current</td></tr>
+<tr><td><code>GetVoltage(solution)</code></td><td><code>float</code></td><td>Primary winding voltage</td></tr>
+<tr><td><code>GetSecondaryCurrent(solution)</code></td><td><code>float</code></td><td>Secondary winding current</td></tr>
+<tr><td><code>GetSecondaryVoltage(solution)</code></td><td><code>float</code></td><td>Secondary winding voltage</td></tr>
+</tbody></table>
+</div>
+<h2 id="turns-ratio-and-inductance"><a class="header" href="#turns-ratio-and-inductance">Turns Ratio and Inductance</a></h2>
+<p>For an ideal transformer with turns ratio $n = N_1/N_2$:</p>
+<p>$$
+\frac{V_1}{V_2} = n, \qquad \frac{I_2}{I_1} = n
+$$</p>
+<p>The relationship between inductances and turns ratio:</p>
+<p>$$
+n = \frac{N_1}{N_2} = \sqrt{\frac{L_1}{L_2}}
+$$</p>
+<p>So to model a step-down transformer from $V_1$ to $V_2$:</p>
+<p>$$
+L_2 = L_1 \cdot \left(\frac{V_2}{V_1}\right)^2
+$$</p>
+<h3 id="example-240-v--12-v"><a class="header" href="#example-240-v--12-v">Example: 240 V → 12 V</a></h3>
+<p>With $L_1 = 100$ H:</p>
+<p>$$
+L_2 = 100 \times \left(\frac{12}{240}\right)^2 = 100 \times 0.0025 = 0.25 \text{ H}
+$$</p>
+<h2 id="using-current-probes"><a class="header" href="#using-current-probes">Using Current Probes</a></h2>
+<p>To measure the current through a transformer winding, pass the internal
+inductor to a <code>CurrentProbe</code>:</p>
+<pre><code class="language-python">ckt.AddProbe(CurrentProbe("I_pri", T1.Primary))
+ckt.AddProbe(CurrentProbe("I_sec", T1.Secondary))
+</code></pre>
+<h2 id="example--step-down-transformer-with-load"><a class="header" href="#example--step-down-transformer-with-load">Example — Step-Down Transformer with Load</a></h2>
+<pre><code class="language-python">n_pri = nm.AddNode("pri")
+n_sec = nm.AddNode("sec")
+
+ckt.AddComponent(ACVoltageSource("Vmains", (n_pri, gnd),
+                                  amplitude=339.4, frequency=50))
+T1 = Transformer("T1", (n_pri, gnd), (n_sec, gnd),
+                 primary_inductance=100.0,
+                 secondary_inductance=0.25,
+                 k=0.999)
+ckt.AddComponent(T1)
+ckt.AddComponent(Resistor("RL", (n_sec, gnd), resistance=100))
+# V_sec ≈ 339.4 / 20 ≈ 17 V peak (≈ 12 V RMS)
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../components/mutual-coupling.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../components/sources.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../components/mutual-coupling.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../components/sources.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

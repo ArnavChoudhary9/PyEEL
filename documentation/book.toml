@@ -1,0 +1,15 @@
+[book]
+authors = ["Arnav Choudhary"]
+language = "en"
+multilingual = false
+src = "md"
+title = "PyEEL Documentation"
+
+[build]
+build-dir = "book"
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/ArnavChoudhary9/PyEEL"
+edit-url-template = "https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/{path}"

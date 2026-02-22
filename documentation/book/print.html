@@ -1,0 +1,2992 @@
+<!DOCTYPE HTML>
+<html lang="en" class="navy sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>PyEEL Documentation</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">PyEEL Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="pyeel--python-electronics-engineering-library"><a class="header" href="#pyeel--python-electronics-engineering-library">PyEEL — Python Electronics Engineering Library</a></h1>
+<p><strong>PyEEL</strong> is a from-scratch circuit simulator written in pure Python (NumPy).
+It implements <strong>Modified Nodal Analysis (MNA)</strong> with a full <strong>Newton–Raphson</strong>
+non-linear solver, <strong>Backward-Euler</strong> transient integration, and real-time
+<strong>matplotlib</strong> visualisation — all in a clean, extensible object-oriented
+design.</p>
+<h2 id="what-can-it-do"><a class="header" href="#what-can-it-do">What Can It Do?</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Capability</th><th>Details</th></tr></thead><tbody>
+<tr><td><strong>DC operating-point</strong></td><td>Solves the steady-state bias point of any circuit</td></tr>
+<tr><td><strong>Transient analysis</strong></td><td>Time-domain simulation with fixed or adaptive time-step</td></tr>
+<tr><td><strong>Non-linear devices</strong></td><td>Diodes, Zener diodes, BJTs (Ebers–Moll), MOSFETs (Level-1)</td></tr>
+<tr><td><strong>Magnetic coupling</strong></td><td>Coupled inductors, ideal transformers</td></tr>
+<tr><td><strong>Dependent sources</strong></td><td>VCVS, VCCS, CCVS, CCCS</td></tr>
+<tr><td><strong>Live visualisation</strong></td><td>Real-time animated plots with <code>LiveSimulation</code></td></tr>
+<tr><td><strong>Pre-built library</strong></td><td>55+ real-world components with datasheet parameters</td></tr>
+</tbody></table>
+</div>
+<h2 id="project-layout"><a class="header" href="#project-layout">Project Layout</a></h2>
+<pre><code>PyEEL/
+├── Core/                  # Node, NodeManager, SimulationContext
+├── Components/
+│   ├── Passive/           # Resistor, Capacitor, Inductor
+│   ├── Semiconductors/    # Diode, ZenerDiode, BJT, MOSFET
+│   ├── Magnetic/          # MutualCoupling, Transformer
+│   ├── Sources/           # VoltageSource, DependentSources, Waveform
+│   ├── common.py          # Circuit-topology factory helpers
+│   └── library.py         # Pre-built real-world parts
+├── Solver/                # MNA builder, Newton–Raphson, DC OP
+├── Simulation/            # Circuit engine, adaptive timestep
+└── Visualization/         # Probes, LivePlotter, LiveSimulation
+</code></pre>
+<h2 id="quick-example"><a class="header" href="#quick-example">Quick Example</a></h2>
+<pre><code class="language-python">from PyEEL import (
+    Circuit, NumpySolver, SimulationConfig,
+    Resistor, ACVoltageSource, Diode,
+    VoltageProbe, LivePlotter, LiveSimulation,
+)
+
+config = SimulationConfig(dc_operating_point=True)
+ckt    = Circuit(solver=NumpySolver(), config=config)
+nm     = ckt.NodeManager
+gnd    = nm.GroundNode
+
+n1  = nm.AddNode("n1")
+n2  = nm.AddNode("n2")
+
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5, frequency=50))
+ckt.AddComponent(Diode("D1", (n1, n2)))
+ckt.AddComponent(Resistor("R1", (n2, gnd), resistance=1000))
+
+ckt.AddProbe(VoltageProbe("V_in", n1))
+ckt.AddProbe(VoltageProbe("V_out", n2))
+ckt.Finalize()
+
+plotter = LivePlotter([ckt.Probes[0], ckt.Probes[1]])
+sim     = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
+sim.Run()
+</code></pre>
+<blockquote>
+<p><strong>Next:</strong> <a href="getting-started/installation.html">Installation →</a></p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<h2 id="requirements"><a class="header" href="#requirements">Requirements</a></h2>
+<ul>
+<li><strong>Python ≥ 3.10</strong> (uses <code>X | Y</code> union type syntax)</li>
+<li><strong>NumPy</strong> — dense linear-algebra solver</li>
+<li><strong>matplotlib</strong> — live plotting</li>
+</ul>
+<h2 id="install-from-source"><a class="header" href="#install-from-source">Install from Source</a></h2>
+<pre><code class="language-bash">git clone https://github.com/ArnavChoudhary9/PyEEL.git
+cd PyEEL
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS / Linux
+source venv/bin/activate
+
+pip install -r requirements.txt
+</code></pre>
+<p>The <code>requirements.txt</code> contains:</p>
+<pre><code>numpy
+matplotlib
+</code></pre>
+<h2 id="verify"><a class="header" href="#verify">Verify</a></h2>
+<pre><code class="language-bash">python -c "from PyEEL import Circuit, NumpySolver; print('PyEEL OK')"
+</code></pre>
+<h2 id="running-examples"><a class="header" href="#running-examples">Running Examples</a></h2>
+<pre><code class="language-bash">python examples/half_wave_rectifier.py
+python examples/ce_amplifier.py
+python examples/linear_power_supply.py
+</code></pre>
+<p>Each example opens a real-time matplotlib window. Press <strong>Space</strong> to
+pause/resume; close the window to exit.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h1>
+<p>This page walks through building and simulating a simple circuit — an AC
+source driving a resistor — in under 30 lines of code.</p>
+<h2 id="1-imports"><a class="header" href="#1-imports">1. Imports</a></h2>
+<pre><code class="language-python">from PyEEL import (
+    Circuit, NumpySolver, SimulationConfig,
+    Resistor, ACVoltageSource,
+    VoltageProbe, CurrentProbe,
+    LivePlotter, LiveSimulation,
+)
+</code></pre>
+<h2 id="2-create-the-circuit"><a class="header" href="#2-create-the-circuit">2. Create the Circuit</a></h2>
+<pre><code class="language-python">config = SimulationConfig(dc_operating_point=True)
+ckt    = Circuit(solver=NumpySolver(), config=config)
+nm     = ckt.NodeManager
+gnd    = nm.GroundNode
+</code></pre>
+<ul>
+<li><strong><code>NumpySolver()</code></strong> — the linear algebra back-end (NumPy dense solver).</li>
+<li><strong><code>SimulationConfig</code></strong> — holds every simulation knob (defaults are fine for
+most circuits).</li>
+<li><strong><code>NodeManager</code></strong> — creates and tracks circuit nodes.  <code>GroundNode</code> is the
+reference (0 V).</li>
+</ul>
+<h2 id="3-add-nodes-and-components"><a class="header" href="#3-add-nodes-and-components">3. Add Nodes and Components</a></h2>
+<pre><code class="language-python">n1 = nm.AddNode("n1")    # top of the resistor
+n2 = nm.AddNode("n2")    # bottom of the resistor (optional mid-node)
+
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5, frequency=50))
+ckt.AddComponent(Resistor("R1", (n1, gnd), resistance=1000))
+</code></pre>
+<p>Every component needs:</p>
+<ol>
+<li>A <strong>unique name</strong> (string)</li>
+<li>A <strong>tuple of <code>Node</code> objects</strong> defining its terminals</li>
+<li>Its <strong>electrical parameters</strong></li>
+</ol>
+<h2 id="4-add-probes"><a class="header" href="#4-add-probes">4. Add Probes</a></h2>
+<pre><code class="language-python">v_probe = VoltageProbe("V_n1", n1)           # voltage at n1 vs GND
+i_probe = CurrentProbe("I_V1", ckt.????)     # explained below
+ckt.AddProbe(v_probe)
+</code></pre>
+<ul>
+<li><strong><code>VoltageProbe(name, node)</code></strong> records <code>V(node) − V(GND)</code> at every time step.</li>
+<li><strong><code>CurrentProbe(name, component)</code></strong> records the branch current through a
+voltage source (or any component that stores an auxiliary current unknown).</li>
+</ul>
+<h2 id="5-finalize--simulate"><a class="header" href="#5-finalize--simulate">5. Finalize &amp; Simulate</a></h2>
+<pre><code class="language-python">ckt.Finalize()   # freeze topology, allocate MNA matrices
+
+# Option A — live animated plot
+plotter = LivePlotter([v_probe], window=0.1)
+sim     = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
+sim.Run()         # blocks until window is closed
+
+# Option B — headless loop
+for _ in range(10_000):
+    ckt.Simulate(dt=1e-4)
+print(v_probe.ValueData[-1])     # last recorded value
+</code></pre>
+<h2 id="the-standard-pattern"><a class="header" href="#the-standard-pattern">The Standard Pattern</a></h2>
+<p>Almost every PyEEL script follows this sequence:</p>
+<pre><code>Config → Circuit → NodeManager → Nodes → Components → Probes → Finalize → Simulate
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Step</th><th>Key Call</th></tr></thead><tbody>
+<tr><td>Config</td><td><code>SimulationConfig(...)</code></td></tr>
+<tr><td>Circuit</td><td><code>Circuit(solver=NumpySolver(), config=config)</code></td></tr>
+<tr><td>Nodes</td><td><code>nm.AddNode("name")</code></td></tr>
+<tr><td>Components</td><td><code>ckt.AddComponent(...)</code></td></tr>
+<tr><td>Probes</td><td><code>ckt.AddProbe(VoltageProbe(...))</code></td></tr>
+<tr><td>Finalize</td><td><code>ckt.Finalize()</code></td></tr>
+<tr><td>Simulate</td><td><code>LiveSimulation(...).Run()</code> or <code>ckt.Simulate(dt)</code> loop</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="nodes--node-manager"><a class="header" href="#nodes--node-manager">Nodes &amp; Node Manager</a></h1>
+<p>Nodes are the fundamental building blocks of any circuit.  Every component
+connects between two or more nodes, and the simulator solves for the
+<strong>voltage at each node</strong> relative to ground.</p>
+<h2 id="node"><a class="header" href="#node"><code>Node</code></a></h2>
+<pre><code class="language-python">from PyEEL import Node
+</code></pre>
+<p>A <code>Node</code> represents a single electrical net.</p>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Name</code></td><td><code>str</code></td><td>Human-readable label (e.g. <code>"n1"</code>, <code>"Vcc"</code>)</td></tr>
+<tr><td><code>Index</code></td><td><code>int | None</code></td><td>Row/column in the MNA matrix. <code>None</code> for ground.</td></tr>
+<tr><td><code>IsGround</code></td><td><code>bool</code></td><td><code>True</code> when this is the reference node</td></tr>
+</tbody></table>
+</div>
+<p>You almost never create <code>Node</code> objects directly — use the <strong>NodeManager</strong>
+instead.</p>
+<h2 id="nodemanager"><a class="header" href="#nodemanager"><code>NodeManager</code></a></h2>
+<pre><code class="language-python">nm = ckt.NodeManager          # get from a Circuit instance
+gnd = nm.GroundNode           # reference node (0 V, always exists)
+</code></pre>
+<p>The <code>NodeManager</code> is the factory for all nodes in a circuit.</p>
+<h3 id="creating-nodes"><a class="header" href="#creating-nodes">Creating Nodes</a></h3>
+<pre><code class="language-python">n1  = nm.AddNode("n1")
+n2  = nm.AddNode("Vcc")
+n3  = nm.AddNode("output")
+</code></pre>
+<p><code>AddNode</code> assigns a sequential integer index to each node, which becomes
+its row/column position in the MNA system.</p>
+<blockquote>
+<p><strong>Tip:</strong> Node names must be unique.  Trying to add a duplicate raises
+<code>ValueError</code>.</p>
+</blockquote>
+<h3 id="looking-up-nodes"><a class="header" href="#looking-up-nodes">Looking Up Nodes</a></h3>
+<pre><code class="language-python">node = nm.GetNode("n1")                            # returns Node or None
+node = nm.GetNode("n1", create_if_missing=True)     # creates if absent
+</code></pre>
+<h3 id="freezing"><a class="header" href="#freezing">Freezing</a></h3>
+<p>After <code>Circuit.Finalize()</code>, the node manager is <strong>frozen</strong> — no new nodes
+can be added.  This is required before auxiliary unknowns (e.g. voltage-source
+branch currents) are allocated.</p>
+<h3 id="properties"><a class="header" href="#properties">Properties</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>GroundNode</code></td><td>The GND reference node</td></tr>
+<tr><td><code>VoltageUnknownCount</code></td><td>Number of non-ground nodes</td></tr>
+<tr><td><code>AuxiliaryUnknownCount</code></td><td>Extra unknowns (branch currents)</td></tr>
+<tr><td><code>TotalUnknownCount</code></td><td>Size of the MNA solution vector</td></tr>
+<tr><td><code>NodesFrozen</code></td><td><code>True</code> after <code>Freeze()</code></td></tr>
+</tbody></table>
+</div>
+<h3 id="solution-vector-layout"><a class="header" href="#solution-vector-layout">Solution Vector Layout</a></h3>
+<p>The MNA solution vector is laid out as:</p>
+<pre><code>[ V_node0, V_node1, …, V_nodeN-1, I_aux0, I_aux1, … ]
+  ←── voltage unknowns ──→  ←── auxiliary unknowns ──→
+</code></pre>
+<p>Ground is excluded (its voltage is defined as 0).</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="simulation-configuration"><a class="header" href="#simulation-configuration">Simulation Configuration</a></h1>
+<p><code>SimulationConfig</code> is a Python dataclass that holds <strong>every tuneable knob</strong>
+of the simulator.  Pass it to <code>Circuit()</code> at construction time; sensible
+defaults are provided for all fields.</p>
+<pre><code class="language-python">from PyEEL import SimulationConfig, IntegrationMethod
+
+config = SimulationConfig(
+    dc_operating_point=True,
+    integration_method=IntegrationMethod.BACKWARD_EULER,
+)
+ckt = Circuit(solver=NumpySolver(), config=config)
+</code></pre>
+<h2 id="enums"><a class="header" href="#enums">Enums</a></h2>
+<h3 id="simulationmode"><a class="header" href="#simulationmode"><code>SimulationMode</code></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Int</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>DC</code></td><td>1</td><td>DC operating-point analysis</td></tr>
+<tr><td><code>AC</code></td><td>2</td><td>Small-signal AC (future)</td></tr>
+<tr><td><code>TRANSIENT</code></td><td>3</td><td>Time-domain transient analysis</td></tr>
+</tbody></table>
+</div>
+<h3 id="integrationmethod"><a class="header" href="#integrationmethod"><code>IntegrationMethod</code></a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Int</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>BACKWARD_EULER</code></td><td>1</td><td>First-order implicit — unconditionally stable, some damping</td></tr>
+<tr><td><code>TRAPEZOIDAL</code></td><td>2</td><td>Second-order implicit — less damping, can ring on stiff systems</td></tr>
+</tbody></table>
+</div>
+<h2 id="configuration-parameters"><a class="header" href="#configuration-parameters">Configuration Parameters</a></h2>
+<h3 id="integration"><a class="header" href="#integration">Integration</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>integration_method</code></td><td><code>BACKWARD_EULER</code></td><td>Numerical integration scheme for capacitors and inductors</td></tr>
+<tr><td><code>gmin</code></td><td><code>1e-12</code></td><td>Minimum conductance added across every node pair to aid convergence</td></tr>
+</tbody></table>
+</div>
+<h3 id="time-step-limits"><a class="header" href="#time-step-limits">Time-Step Limits</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>min_dt</code></td><td><code>1e-15</code></td><td>Absolute floor on time step (seconds)</td></tr>
+<tr><td><code>max_dt</code></td><td><code>1.0</code></td><td>Absolute ceiling on time step (seconds)</td></tr>
+</tbody></table>
+</div>
+<h3 id="dc-operating-point"><a class="header" href="#dc-operating-point">DC Operating Point</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>dc_operating_point</code></td><td><code>True</code></td><td>Solve the DC bias point before transient simulation begins</td></tr>
+<tr><td><code>dc_inductor_resistance</code></td><td><code>1e-9</code></td><td>Small resistance placed in series with inductors during DC analysis (prevents singular matrix)</td></tr>
+</tbody></table>
+</div>
+<h3 id="adaptive-time-step"><a class="header" href="#adaptive-time-step">Adaptive Time-Step</a></h3>
+<p>By default the time step is fixed.  Enable adaptive stepping for circuits
+with fast edges or widely varying dynamics.</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>adaptive_timestep</code></td><td><code>False</code></td><td>Enable adaptive time-step control</td></tr>
+<tr><td><code>adaptive_threshold</code></td><td><code>0.5</code></td><td>Normalised change threshold to trigger step shrinking</td></tr>
+<tr><td><code>adaptive_shrink</code></td><td><code>0.5</code></td><td>Multiply <code>dt</code> by this factor when step is rejected</td></tr>
+<tr><td><code>adaptive_grow</code></td><td><code>1.05</code></td><td>Multiply <code>dt</code> by this factor when step is accepted</td></tr>
+<tr><td><code>max_grow_factor</code></td><td><code>2.0</code></td><td>Maximum single-step growth ratio</td></tr>
+</tbody></table>
+</div>
+<h3 id="diagnostics"><a class="header" href="#diagnostics">Diagnostics</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>condition_number_warning</code></td><td><code>1e15</code></td><td>Log a warning when the MNA matrix condition number exceeds this</td></tr>
+<tr><td><code>energy_check</code></td><td><code>True</code></td><td>Enable stored-energy sanity check each step</td></tr>
+<tr><td><code>max_energy</code></td><td><code>1e12</code></td><td>Warn if total stored energy (capacitors + inductors) exceeds this</td></tr>
+</tbody></table>
+</div>
+<h3 id="newtonraphson-iteration"><a class="header" href="#newtonraphson-iteration">Newton–Raphson Iteration</a></h3>
+<p>These control the non-linear solver used for diodes, BJTs, MOSFETs.</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>nr_max_iterations</code></td><td><code>50</code></td><td>Maximum NR iterations per time step</td></tr>
+<tr><td><code>nr_abs_tolerance</code></td><td><code>1e-9</code></td><td>Absolute convergence threshold on Δx</td></tr>
+<tr><td><code>nr_rel_tolerance</code></td><td><code>1e-6</code></td><td>Relative convergence threshold</td></tr>
+<tr><td><code>nr_damping_enabled</code></td><td><code>True</code></td><td>Use damped Newton steps</td></tr>
+<tr><td><code>nr_initial_damping</code></td><td><code>1.0</code></td><td>Starting damping factor (1.0 = full step)</td></tr>
+<tr><td><code>nr_min_damping</code></td><td><code>0.01</code></td><td>Minimum damping factor</td></tr>
+<tr><td><code>nr_vt_limit</code></td><td><code>0.25</code></td><td>Maximum voltage change per NR step (thermal-voltage units)</td></tr>
+</tbody></table>
+</div>
+<h3 id="gmin-stepping"><a class="header" href="#gmin-stepping">Gmin Stepping</a></h3>
+<p>A fallback convergence technique: start with a large <code>gmin</code> (leakage
+conductance) and gradually reduce it to the target value.</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>gmin_stepping_enabled</code></td><td><code>True</code></td><td>Enable gmin stepping as a convergence aid</td></tr>
+<tr><td><code>gmin_stepping_start</code></td><td><code>1e-3</code></td><td>Starting gmin value</td></tr>
+<tr><td><code>gmin_stepping_factor</code></td><td><code>10.0</code></td><td>Divide gmin by this each step</td></tr>
+<tr><td><code>gmin_stepping_min</code></td><td><code>1e-12</code></td><td>Final (target) gmin value</td></tr>
+</tbody></table>
+</div>
+<h3 id="source-stepping"><a class="header" href="#source-stepping">Source Stepping</a></h3>
+<p>Another convergence aid: ramp source amplitudes from 0 to full value over
+several steps.</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>source_stepping_enabled</code></td><td><code>True</code></td><td>Enable source stepping for DC OP</td></tr>
+<tr><td><code>source_stepping_steps</code></td><td><code>10</code></td><td>Number of ramp steps</td></tr>
+</tbody></table>
+</div>
+<h2 id="simulationcontext"><a class="header" href="#simulationcontext"><code>SimulationContext</code></a></h2>
+<p><code>SimulationContext</code> is an internal dataclass that carries the <strong>current state</strong>
+of the simulator to every <code>Stamp()</code> call.  You rarely interact with it
+directly, but it's useful to understand:</p>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Mode</code></td><td><code>SimulationMode</code></td><td>Current analysis type</td></tr>
+<tr><td><code>Time</code></td><td><code>float</code></td><td>Current simulation time (seconds)</td></tr>
+<tr><td><code>dt</code></td><td><code>float</code></td><td>Current time-step size</td></tr>
+<tr><td><code>x_prev</code></td><td><code>np.ndarray</code></td><td>Solution vector from previous step</td></tr>
+<tr><td><code>x_current</code></td><td><code>np.ndarray</code></td><td>Current iterate (during NR)</td></tr>
+<tr><td><code>Frequency</code></td><td><code>float</code></td><td>For AC analysis</td></tr>
+<tr><td><code>Iteration</code></td><td><code>int</code></td><td>Overall step counter</td></tr>
+<tr><td><code>is_nonlinear_iteration</code></td><td><code>bool</code></td><td>True during NR inner loop</td></tr>
+<tr><td><code>source_factor</code></td><td><code>float</code></td><td>0 → 1 ramp during source stepping</td></tr>
+<tr><td><code>integration_method</code></td><td><code>IntegrationMethod</code></td><td>Active integration scheme</td></tr>
+<tr><td><code>gmin</code></td><td><code>float</code></td><td>Active gmin value</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="circuit"><a class="header" href="#circuit">Circuit</a></h1>
+<p>The <code>Circuit</code> class is the top-level simulation engine.  It owns the node
+manager, component list, probes, and drives the MNA solve loop.</p>
+<pre><code class="language-python">from PyEEL import Circuit, NumpySolver, SimulationConfig
+
+config = SimulationConfig(dc_operating_point=True)
+ckt    = Circuit(solver=NumpySolver(), config=config)
+</code></pre>
+<h2 id="constructor"><a class="header" href="#constructor">Constructor</a></h2>
+<pre><code class="language-python">Circuit(solver: LinearSolver, config: SimulationConfig | None = None)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Argument</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>solver</code></td><td>A <code>LinearSolver</code> instance (use <code>NumpySolver()</code>)</td></tr>
+<tr><td><code>config</code></td><td>Optional simulation configuration.  Defaults are used if omitted.</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-1"><a class="header" href="#properties-1">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>NodeManager</code></td><td><code>NodeManager</code></td><td>Access the node factory</td></tr>
+<tr><td><code>Time</code></td><td><code>float</code></td><td>Current simulation clock (seconds)</td></tr>
+<tr><td><code>Probes</code></td><td><code>list[Probe]</code></td><td>All registered probes</td></tr>
+<tr><td><code>Config</code></td><td><code>SimulationConfig</code></td><td>Active configuration</td></tr>
+<tr><td><code>RecommendedDt</code></td><td><code>float</code></td><td>Suggested time step based on circuit dynamics</td></tr>
+</tbody></table>
+</div>
+<h2 id="building-a-circuit"><a class="header" href="#building-a-circuit">Building a Circuit</a></h2>
+<h3 id="step-1--create-nodes"><a class="header" href="#step-1--create-nodes">Step 1 — Create Nodes</a></h3>
+<pre><code class="language-python">nm  = ckt.NodeManager
+gnd = nm.GroundNode
+n1  = nm.AddNode("n1")
+n2  = nm.AddNode("n2")
+</code></pre>
+<h3 id="step-2--add-components"><a class="header" href="#step-2--add-components">Step 2 — Add Components</a></h3>
+<pre><code class="language-python">ckt.AddComponent(Resistor("R1", (n1, gnd), resistance=1000))
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5, frequency=50))
+</code></pre>
+<h3 id="step-3--add-probes"><a class="header" href="#step-3--add-probes">Step 3 — Add Probes</a></h3>
+<pre><code class="language-python">ckt.AddProbe(VoltageProbe("V_n1", n1))
+</code></pre>
+<h3 id="step-4--finalize"><a class="header" href="#step-4--finalize">Step 4 — Finalize</a></h3>
+<pre><code class="language-python">ckt.Finalize()
+</code></pre>
+<p><code>Finalize()</code> performs these critical steps in order:</p>
+<ol>
+<li><strong>Freezes the node manager</strong> — no more nodes can be added.</li>
+<li><strong>Registers auxiliary unknowns</strong> — voltage sources and current-controlled
+sources get their branch-current indices.</li>
+<li><strong>Validates topology</strong> — checks for isolated nodes, capacitor-only nodes,
+voltage-source loops, and extreme parameter values.</li>
+<li><strong>Allocates MNA arrays</strong> — creates the <code>A</code> matrix and <code>b</code> vector sized to
+<code>TotalUnknownCount</code>.</li>
+<li><strong>Creates the Newton–Raphson solver</strong> (if non-linear components exist).</li>
+</ol>
+<h2 id="simulating"><a class="header" href="#simulating">Simulating</a></h2>
+<h3 id="dc-operating-point-1"><a class="header" href="#dc-operating-point-1">DC Operating Point</a></h3>
+<pre><code class="language-python">x_dc = ckt.SolveDCOperatingPoint()
+</code></pre>
+<p>Solves the static bias point with all time-derivative terms zeroed.
+Capacitors become open circuits; inductors become short circuits.</p>
+<h3 id="transient-step"><a class="header" href="#transient-step">Transient Step</a></h3>
+<pre><code class="language-python">x = ckt.Simulate(dt=1e-4)
+</code></pre>
+<p>Advances the simulation by one time step <code>dt</code>.  Returns the new solution
+vector.  Internally:</p>
+<ol>
+<li>Builds the MNA system for the current time.</li>
+<li>If the circuit is linear, solves directly; otherwise runs
+Newton–Raphson.</li>
+<li>Updates component internal states (e.g. capacitor history).</li>
+<li>Records probe data.</li>
+<li>Advances the clock.</li>
+</ol>
+<h3 id="reset"><a class="header" href="#reset">Reset</a></h3>
+<pre><code class="language-python">ckt.Reset()
+</code></pre>
+<p>Resets the simulation clock to 0, clears the solution vector, and
+clears all probe data.  The topology and components remain intact, so
+you can re-run without rebuilding.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="components-overview"><a class="header" href="#components-overview">Components Overview</a></h1>
+<p>All circuit elements in PyEEL inherit from the abstract <code>Component</code> base
+class.  Every component must implement five methods that the MNA engine
+calls during simulation.</p>
+<h2 id="base-class-component"><a class="header" href="#base-class-component">Base Class: <code>Component</code></a></h2>
+<pre><code class="language-python">from PyEEL.Components.Component import Component
+</code></pre>
+<h3 id="constructor-1"><a class="header" href="#constructor-1">Constructor</a></h3>
+<pre><code class="language-python">Component(name: str, nodes: tuple[Node, ...], aux_indices: list[int] | None = None)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Argument</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>Unique identifier string (e.g. <code>"R1"</code>, <code>"D1"</code>)</td></tr>
+<tr><td><code>nodes</code></td><td>Tuple of <code>Node</code> objects — the component's terminals</td></tr>
+<tr><td><code>aux_indices</code></td><td>Pre-existing auxiliary variable indices (rarely used)</td></tr>
+</tbody></table>
+</div>
+<h3 id="properties-2"><a class="header" href="#properties-2">Properties</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Name</code></td><td><code>str</code></td><td>Component name</td></tr>
+<tr><td><code>Nodes</code></td><td><code>tuple[Node, ...]</code></td><td>Terminal nodes</td></tr>
+<tr><td><code>AuxIndices</code></td><td><code>list[int]</code></td><td>Auxiliary unknown indices (branch currents)</td></tr>
+<tr><td><code>PreviousState</code></td><td><code>dict</code></td><td>Persistent state between time steps</td></tr>
+<tr><td><code>IsNonlinear</code></td><td><code>bool</code></td><td><code>False</code> by default; <code>True</code> for diodes, BJTs, MOSFETs</td></tr>
+</tbody></table>
+</div>
+<h3 id="abstract-methods"><a class="header" href="#abstract-methods">Abstract Methods</a></h3>
+<p>Every component implements these:</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>RegisterUnknowns(nodeManager)</code></td><td>Request auxiliary unknowns (e.g. branch current for voltage sources)</td></tr>
+<tr><td><code>Stamp(A, b, context)</code></td><td>Write the component's contribution into the MNA matrix <code>A</code> and RHS vector <code>b</code></td></tr>
+<tr><td><code>UpdateState(solutionVector, context)</code></td><td>Store state needed for the next time step (e.g. capacitor voltage)</td></tr>
+<tr><td><code>GetCurrent(solutionVector)</code></td><td>Return the branch current through the component</td></tr>
+<tr><td><code>GetVoltage(solutionVector)</code></td><td>Return the voltage across the component</td></tr>
+</tbody></table>
+</div>
+<h2 id="component-categories"><a class="header" href="#component-categories">Component Categories</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Category</th><th>Components</th><th>Module</th></tr></thead><tbody>
+<tr><td><strong>Passive</strong></td><td>Resistor, Capacitor, Inductor</td><td><code>Components.Passive</code></td></tr>
+<tr><td><strong>Semiconductors</strong></td><td>Diode, ZenerDiode, BJT, MOSFET</td><td><code>Components.Semiconductors</code></td></tr>
+<tr><td><strong>Magnetic</strong></td><td>MutualCoupling, Transformer</td><td><code>Components.Magnetic</code></td></tr>
+<tr><td><strong>Sources</strong></td><td>VoltageSource, VCVS, VCCS, CCVS, CCCS</td><td><code>Components.Sources</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="stamp-helpers"><a class="header" href="#stamp-helpers">Stamp Helpers</a></h2>
+<p>Utility functions in <code>Components.stamp_helpers</code> simplify writing MNA stamps:</p>
+<pre><code class="language-python">stamp_conductance(A, na, nb, G)          # 2×2 conductance stamp
+stamp_transconductance(A, ...)           # VCCS-style stamp
+stamp_current_source(b, n_from, n_to, I) # current into RHS
+get_voltage_across(solution, n_pos, n_neg)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="passive-components"><a class="header" href="#passive-components">Passive Components</a></h1>
+<p>Passive components dissipate or store energy — they do not amplify signals.
+PyEEL provides three passive elements: <strong>Resistor</strong>, <strong>Capacitor</strong>, and
+<strong>Inductor</strong>.</p>
+<p>All passive components are linear and stamp directly into the MNA matrix
+without requiring Newton–Raphson iteration.</p>
+<div class="table-wrapper"><table><thead><tr><th>Component</th><th>Energy</th><th>MNA Treatment</th></tr></thead><tbody>
+<tr><td><a href="components/resistor.html">Resistor</a></td><td>Dissipates</td><td>Conductance stamp (<code>G = 1/R</code>)</td></tr>
+<tr><td><a href="components/capacitor.html">Capacitor</a></td><td>Stores (electric field)</td><td>Companion model (equiv. conductance + history current)</td></tr>
+<tr><td><a href="components/inductor.html">Inductor</a></td><td>Stores (magnetic field)</td><td>Companion model (equiv. conductance + history current)</td></tr>
+</tbody></table>
+</div>
+<h2 id="import"><a class="header" href="#import">Import</a></h2>
+<pre><code class="language-python">from PyEEL import Resistor, Capacitor, Inductor
+</code></pre>
+<h2 id="common-pattern"><a class="header" href="#common-pattern">Common Pattern</a></h2>
+<pre><code class="language-python">ckt.AddComponent(Resistor("R1", (n1, n2), resistance=1e3))
+ckt.AddComponent(Capacitor("C1", (n1, gnd), capacitance=100e-6))
+ckt.AddComponent(Inductor("L1", (n1, n2), inductance=10e-3))
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="resistor"><a class="header" href="#resistor">Resistor</a></h1>
+<p>An ideal linear resistor that obeys Ohm's Law: $V = IR$.</p>
+<pre><code class="language-python">from PyEEL import Resistor
+
+ckt.AddComponent(Resistor("R1", (n1, n2), resistance=1000))
+</code></pre>
+<h2 id="constructor-2"><a class="header" href="#constructor-2">Constructor</a></h2>
+<pre><code class="language-python">Resistor(name: str, nodes: tuple[Node, Node], resistance: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>str</code></td><td>Unique component name</td></tr>
+<tr><td><code>nodes</code></td><td><code>(Node, Node)</code></td><td><code>(positive, negative)</code> terminals</td></tr>
+<tr><td><code>resistance</code></td><td><code>float</code></td><td>Resistance in <strong>Ohms (Ω)</strong>. Must be &gt; 0.</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-3"><a class="header" href="#properties-3">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Resistance</code></td><td><code>float</code></td><td>The resistance value in Ω</td></tr>
+</tbody></table>
+</div>
+<h2 id="mna-stamp"><a class="header" href="#mna-stamp">MNA Stamp</a></h2>
+<p>The resistor stamps a <strong>conductance</strong> $G = 1/R$ into the MNA matrix:</p>
+<p>$$
+\begin{bmatrix} +G &amp; -G \ -G &amp; +G \end{bmatrix}
+$$</p>
+<p>applied to rows/columns corresponding to the two terminal nodes.  If either
+node is ground, that row/column is simply omitted.</p>
+<h2 id="dc-behaviour"><a class="header" href="#dc-behaviour">DC Behaviour</a></h2>
+<p>Resistors behave identically in DC and transient analysis.</p>
+<h2 id="example--voltage-divider"><a class="header" href="#example--voltage-divider">Example — Voltage Divider</a></h2>
+<pre><code class="language-python">n_in  = nm.AddNode("in")
+n_out = nm.AddNode("out")
+
+ckt.AddComponent(DCVoltageSource("V1", (n_in, gnd), voltage=10))
+ckt.AddComponent(Resistor("R1", (n_in, n_out), resistance=1000))
+ckt.AddComponent(Resistor("R2", (n_out, gnd), resistance=1000))
+# V_out = 10 × 1000/(1000+1000) = 5 V
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="capacitor"><a class="header" href="#capacitor">Capacitor</a></h1>
+<p>An ideal linear capacitor: $I = C \dfrac{dV}{dt}$.</p>
+<pre><code class="language-python">from PyEEL import Capacitor
+
+ckt.AddComponent(Capacitor("C1", (n1, gnd), capacitance=100e-6))
+</code></pre>
+<h2 id="constructor-3"><a class="header" href="#constructor-3">Constructor</a></h2>
+<pre><code class="language-python">Capacitor(name: str, nodes: tuple[Node, Node], capacitance: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>str</code></td><td>Unique component name</td></tr>
+<tr><td><code>nodes</code></td><td><code>(Node, Node)</code></td><td><code>(positive, negative)</code> terminals</td></tr>
+<tr><td><code>capacitance</code></td><td><code>float</code></td><td>Capacitance in <strong>Farads (F)</strong>. Must be &gt; 0.</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-4"><a class="header" href="#properties-4">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Capacitance</code></td><td><code>float</code></td><td>The capacitance value in F</td></tr>
+</tbody></table>
+</div>
+<h2 id="mna-stamp--backward-euler-companion"><a class="header" href="#mna-stamp--backward-euler-companion">MNA Stamp — Backward Euler Companion</a></h2>
+<p>During transient analysis the capacitor is replaced by an equivalent
+<strong>companion model</strong> using the Backward Euler approximation:</p>
+<p>$$
+I_n = G_{eq} \cdot V_n - I_{hist}
+$$</p>
+<p>where:</p>
+<ul>
+<li>$G_{eq} = \dfrac{C}{\Delta t}$ — equivalent conductance</li>
+<li>$I_{hist} = G_{eq} \cdot V_{n-1}$ — history current from the previous time step</li>
+</ul>
+<p>This stamps as a conductance $G_{eq}$ plus a current source $I_{hist}$
+into the RHS vector.</p>
+<h2 id="dc-behaviour-1"><a class="header" href="#dc-behaviour-1">DC Behaviour</a></h2>
+<p>In DC operating-point analysis ($\Delta t \to \infty$), the capacitor
+becomes an <strong>open circuit</strong> — no stamp is applied.</p>
+<h2 id="choosing-capacitance-values"><a class="header" href="#choosing-capacitance-values">Choosing Capacitance Values</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Typical Use</th></tr></thead><tbody>
+<tr><td>100 pF – 1 nF</td><td>High-frequency bypass, RF</td></tr>
+<tr><td>10 nF – 100 nF</td><td>Decoupling (0.1 µF is the universal bypass cap)</td></tr>
+<tr><td>1 µF – 100 µF</td><td>Signal coupling, timing circuits</td></tr>
+<tr><td>100 µF – 1000 µF</td><td>Power supply filtering</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="inductor"><a class="header" href="#inductor">Inductor</a></h1>
+<p>An ideal linear inductor: $V = L \dfrac{dI}{dt}$.</p>
+<pre><code class="language-python">from PyEEL import Inductor
+
+ckt.AddComponent(Inductor("L1", (n1, n2), inductance=10e-3))
+</code></pre>
+<h2 id="constructor-4"><a class="header" href="#constructor-4">Constructor</a></h2>
+<pre><code class="language-python">Inductor(name: str, nodes: tuple[Node, Node], inductance: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>str</code></td><td>Unique component name</td></tr>
+<tr><td><code>nodes</code></td><td><code>(Node, Node)</code></td><td><code>(positive, negative)</code> terminals</td></tr>
+<tr><td><code>inductance</code></td><td><code>float</code></td><td>Inductance in <strong>Henries (H)</strong>. Must be &gt; 0.</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-5"><a class="header" href="#properties-5">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Inductance</code></td><td><code>float</code></td><td>The inductance value in H</td></tr>
+</tbody></table>
+</div>
+<h2 id="mna-stamp--backward-euler-companion-1"><a class="header" href="#mna-stamp--backward-euler-companion-1">MNA Stamp — Backward Euler Companion</a></h2>
+<p>The inductor uses a companion model similar to the capacitor but with
+inverted roles:</p>
+<p>$$
+V_n = \frac{L}{\Delta t} \cdot I_n - \frac{L}{\Delta t} \cdot I_{n-1}
+$$</p>
+<p>Rearranged into a conductance form:</p>
+<ul>
+<li>$G_{eq} = \dfrac{\Delta t}{L}$ — equivalent conductance</li>
+<li>$I_{hist} = I_{n-1}$ — stored inductor current from the previous step</li>
+</ul>
+<p>The inductor registers one <strong>auxiliary unknown</strong> for its branch current.</p>
+<h2 id="dc-behaviour-2"><a class="header" href="#dc-behaviour-2">DC Behaviour</a></h2>
+<p>In DC operating-point analysis, the inductor becomes a <strong>short circuit</strong>
+(implemented as a very small resistance, <code>dc_inductor_resistance</code> from
+the simulation config — default <code>1e-9 Ω</code>).</p>
+<h2 id="choosing-inductance-values"><a class="header" href="#choosing-inductance-values">Choosing Inductance Values</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Typical Use</th></tr></thead><tbody>
+<tr><td>1 µH – 100 µH</td><td>Switch-mode power supplies, RF</td></tr>
+<tr><td>1 mH – 100 mH</td><td>Audio crossover, filtering</td></tr>
+<tr><td>0.1 H – 10 H</td><td>Mains transformers, coupled inductors</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="semiconductor-components"><a class="header" href="#semiconductor-components">Semiconductor Components</a></h1>
+<p>Semiconductor devices exhibit <strong>non-linear</strong> I–V characteristics, meaning
+the MNA system cannot be solved in a single step.  PyEEL uses
+<strong>Newton–Raphson iteration</strong> to linearise these devices around the current
+operating point at each time step.</p>
+<div class="table-wrapper"><table><thead><tr><th>Component</th><th>Model</th><th>Terminals</th></tr></thead><tbody>
+<tr><td><a href="components/diode.html">Diode</a></td><td>Shockley equation</td><td>anode, cathode</td></tr>
+<tr><td><a href="components/zener-diode.html">Zener Diode</a></td><td>Forward Shockley + reverse breakdown</td><td>anode, cathode</td></tr>
+<tr><td><a href="components/bjt.html">BJT</a></td><td>Ebers–Moll (+ Early effect)</td><td>collector, base, emitter</td></tr>
+<tr><td><a href="components/mosfet.html">MOSFET</a></td><td>Level-1 Shichman–Hodges</td><td>drain, gate, source</td></tr>
+</tbody></table>
+</div>
+<p>All semiconductor components set <code>IsNonlinear = True</code>, which triggers the
+Newton–Raphson solver.</p>
+<h2 id="import-1"><a class="header" href="#import-1">Import</a></h2>
+<pre><code class="language-python">from PyEEL import Diode, ZenerDiode, BJT, BJTType, NPN, PNP, MOSFET, MOSFETType, NMOS, PMOS
+</code></pre>
+<h2 id="linearisation-how-n-r-works"><a class="header" href="#linearisation-how-n-r-works">Linearisation (How N-R Works)</a></h2>
+<p>At each Newton–Raphson iteration the non-linear device:</p>
+<ol>
+<li><strong>Reads</strong> the current approximate voltages from <code>context.x_current</code>.</li>
+<li><strong>Evaluates</strong> the device equations at that operating point.</li>
+<li><strong>Stamps</strong> a linearised conductance + current source into the MNA matrix.</li>
+<li>The solver finds a better solution; repeat until convergence.</li>
+</ol>
+<p>The stamp at each iteration consists of:</p>
+<ul>
+<li>A <strong>differential conductance</strong> $g = \dfrac{\partial I}{\partial V}$ (goes into <code>A</code>)</li>
+<li>An <strong>equivalent current source</strong> $I_{eq} = I(V_0) - g \cdot V_0$ (goes into <code>b</code>)</li>
+</ul>
+<p>This is the standard <strong>companion model</strong> approach used in SPICE-class
+simulators.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="diode"><a class="header" href="#diode">Diode</a></h1>
+<p>Models a semiconductor diode using the <strong>Shockley diode equation</strong>.</p>
+<pre><code class="language-python">from PyEEL import Diode
+
+ckt.AddComponent(Diode("D1", (n_anode, n_cathode), Is=1e-14, n=1.0))
+</code></pre>
+<h2 id="constructor-5"><a class="header" href="#constructor-5">Constructor</a></h2>
+<pre><code class="language-python">Diode(name: str, nodes: tuple[Node, Node], *, Is=1e-14, n=1.0, Vt=0.02585)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>—</td><td>—</td><td>Unique component name</td></tr>
+<tr><td><code>nodes</code></td><td>—</td><td>—</td><td><code>(anode, cathode)</code></td></tr>
+<tr><td><code>Is</code></td><td>$I_S$</td><td><code>1e-14</code></td><td><strong>Saturation current</strong> (A). Reverse-bias leakage. Larger values → lower forward voltage.</td></tr>
+<tr><td><code>n</code></td><td>$n$</td><td><code>1.0</code></td><td><strong>Emission coefficient</strong> (ideality factor). 1.0 = ideal; real diodes 1.0–2.0.</td></tr>
+<tr><td><code>Vt</code></td><td>$V_T$</td><td><code>0.02585</code></td><td><strong>Thermal voltage</strong> $\frac{kT}{q}$ at 25 °C (≈ 25.85 mV)</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-6"><a class="header" href="#properties-6">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>SaturationCurrent</code></td><td><code>float</code></td><td>$I_S$ in Amps</td></tr>
+<tr><td><code>EmissionCoefficient</code></td><td><code>float</code></td><td>$n$ (dimensionless)</td></tr>
+<tr><td><code>ThermalVoltage</code></td><td><code>float</code></td><td>$V_T$ in Volts</td></tr>
+</tbody></table>
+</div>
+<h2 id="the-shockley-equation"><a class="header" href="#the-shockley-equation">The Shockley Equation</a></h2>
+<p>$$
+I_D = I_S \left( e^{\frac{V_D}{n V_T}} - 1 \right)
+$$</p>
+<p>where $V_D = V_{anode} - V_{cathode}$.</p>
+<h3 id="physical-meaning-of-parameters"><a class="header" href="#physical-meaning-of-parameters">Physical Meaning of Parameters</a></h3>
+<ul>
+<li>
+<p><strong>$I_S$ (Saturation Current):</strong> The tiny reverse-bias current that flows
+due to minority carriers.  Typical values range from <code>1e-15</code> (small-signal)
+to <code>1e-5</code> (Schottky).  Doubling $I_S$ reduces the forward voltage by
+about $n V_T \ln 2 \approx 18$ mV.</p>
+</li>
+<li>
+<p><strong>$n$ (Emission Coefficient):</strong> Models recombination in the depletion
+region.  $n = 1$ for an ideal diode; $n \approx 1.7$–$2.0$ for
+real silicon diodes.  LEDs have higher $n$ values (1.8–2.1).</p>
+</li>
+<li>
+<p><strong>$V_T$ (Thermal Voltage):</strong> $kT/q$ — about 25.85 mV at room temperature
+(25 °C).  Changes with temperature: $V_T = T/11{,}586$ (T in Kelvin).</p>
+</li>
+</ul>
+<h2 id="spice-style-voltage-limiting"><a class="header" href="#spice-style-voltage-limiting">SPICE-Style Voltage Limiting</a></h2>
+<p>To prevent numerical overflow in $e^{V_D/(nV_T)}$, PyEEL implements
+SPICE-style voltage limiting: the diode voltage change per Newton–Raphson
+iteration is clamped, and the exponential argument is capped at a safe
+maximum.</p>
+<h2 id="n-r-linearisation"><a class="header" href="#n-r-linearisation">N-R Linearisation</a></h2>
+<p>At operating point $V_0$:</p>
+<ul>
+<li>Conductance: $g_d = \dfrac{I_S}{n V_T} \cdot e^{V_0/(nV_T)}$</li>
+<li>Current source: $I_{eq} = I_D(V_0) - g_d \cdot V_0$</li>
+</ul>
+<h2 id="dc-behaviour-3"><a class="header" href="#dc-behaviour-3">DC Behaviour</a></h2>
+<p>The diode is nonlinear in both DC and transient.  The DC operating-point
+solver finds the bias using Newton–Raphson (with source-stepping and
+gmin-stepping fallbacks).</p>
+<h2 id="typical-part-values"><a class="header" href="#typical-part-values">Typical Part Values</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Part</th><th>$I_S$</th><th>$n$</th><th>Application</th></tr></thead><tbody>
+<tr><td>1N4007 (rectifier)</td><td><code>7.02e-9</code></td><td><code>1.77</code></td><td>Power rectification</td></tr>
+<tr><td>1N4148 (signal)</td><td><code>2.52e-9</code></td><td><code>1.75</code></td><td>Fast switching</td></tr>
+<tr><td>1N5819 (Schottky)</td><td><code>2.5e-5</code></td><td><code>1.05</code></td><td>Low-drop rectifier</td></tr>
+<tr><td>Red LED</td><td><code>1.2e-20</code></td><td><code>1.8</code></td><td>Indicator ($V_f \approx 1.8$ V)</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p><strong>Tip:</strong> Use functions from <code>PyEEL.Components.library</code> for real-world
+parts with datasheet values pre-filled. See
+<a href="components/../library/overview.html">Component Library</a>.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="zener-diode"><a class="header" href="#zener-diode">Zener Diode</a></h1>
+<p>Models a diode with a well-defined <strong>reverse breakdown voltage</strong> used for
+voltage regulation and clamping.</p>
+<pre><code class="language-python">from PyEEL import ZenerDiode
+
+ckt.AddComponent(ZenerDiode("DZ1", (n_anode, n_cathode), Vz=5.1))
+</code></pre>
+<h2 id="constructor-6"><a class="header" href="#constructor-6">Constructor</a></h2>
+<pre><code class="language-python">ZenerDiode(name: str, nodes: tuple[Node, Node], *,
+           Vz=5.1, Is=1e-14, n=1.0, Ibv=1e-3, n_bv=1.0, Vt=0.02585)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>—</td><td>—</td><td>Unique component name</td></tr>
+<tr><td><code>nodes</code></td><td>—</td><td>—</td><td><code>(anode, cathode)</code></td></tr>
+<tr><td><code>Vz</code></td><td>$V_Z$</td><td><code>5.1</code></td><td><strong>Zener breakdown voltage</strong> (V). The reverse voltage at which the diode conducts heavily.</td></tr>
+<tr><td><code>Is</code></td><td>$I_S$</td><td><code>1e-14</code></td><td><strong>Forward saturation current</strong> (A) — same as standard diode</td></tr>
+<tr><td><code>n</code></td><td>$n$</td><td><code>1.0</code></td><td><strong>Forward emission coefficient</strong></td></tr>
+<tr><td><code>Ibv</code></td><td>$I_{BV}$</td><td><code>1e-3</code></td><td><strong>Breakdown current</strong> (A). Current at which the reverse breakdown knee is defined.</td></tr>
+<tr><td><code>n_bv</code></td><td>$n_{BV}$</td><td><code>1.0</code></td><td><strong>Breakdown emission coefficient</strong>. Sharpness of the reverse knee.</td></tr>
+<tr><td><code>Vt</code></td><td>$V_T$</td><td><code>0.02585</code></td><td><strong>Thermal voltage</strong> at 25 °C</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-7"><a class="header" href="#properties-7">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>ZenerVoltage</code></td><td><code>float</code></td><td>$V_Z$ in Volts</td></tr>
+<tr><td><code>SaturationCurrent</code></td><td><code>float</code></td><td>$I_S$ in Amps</td></tr>
+<tr><td><code>EmissionCoefficient</code></td><td><code>float</code></td><td>$n$</td></tr>
+<tr><td><code>ThermalVoltage</code></td><td><code>float</code></td><td>$V_T$ in Volts</td></tr>
+<tr><td><code>BreakdownCurrent</code></td><td><code>float</code></td><td>$I_{BV}$ in Amps</td></tr>
+</tbody></table>
+</div>
+<h2 id="device-equation"><a class="header" href="#device-equation">Device Equation</a></h2>
+<p>The Zener diode combines <strong>forward</strong> and <strong>reverse</strong> exponentials:</p>
+<p>$$
+I = I_S \left( e^{\frac{V_D}{n V_T}} - 1 \right)</p>
+<ul>
+<li>I_{BV} \left( e^{\frac{-(V_D + V_Z)}{n_{BV} V_T}} - 1 \right)
+$$</li>
+</ul>
+<ul>
+<li><strong>First term</strong> — standard forward Shockley diode (same as <code>Diode</code>).</li>
+<li><strong>Second term</strong> — reverse breakdown: becomes significant when $V_D &lt; -V_Z$.</li>
+</ul>
+<h3 id="physical-meaning-of-parameters-1"><a class="header" href="#physical-meaning-of-parameters-1">Physical Meaning of Parameters</a></h3>
+<ul>
+<li>
+<p><strong>$V_Z$ (Zener Voltage):</strong> The reverse voltage at which the diode enters
+breakdown.  Standard values: 2.4 V, 3.3 V, 5.1 V, 6.2 V, 12 V, 15 V.</p>
+</li>
+<li>
+<p><strong>$I_{BV}$ (Breakdown Current):</strong> The knee current — the current at which
+the breakdown transition is referenced.  Larger values make the breakdown
+knee softer.</p>
+</li>
+<li>
+<p><strong>$n_{BV}$ (Breakdown Emission Coefficient):</strong> Controls the sharpness of
+the reverse breakdown transition.  Lower values produce a sharper, more
+ideal Zener knee.</p>
+</li>
+</ul>
+<h2 id="typical-applications"><a class="header" href="#typical-applications">Typical Applications</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Application</th><th>Circuit</th></tr></thead><tbody>
+<tr><td><strong>Voltage regulation</strong></td><td>Series resistor + Zener to GND → regulated output</td></tr>
+<tr><td><strong>Overvoltage clamp</strong></td><td>Zener across sensitive input pins</td></tr>
+<tr><td><strong>Waveform clipper</strong></td><td>Zener in series/parallel with signal path</td></tr>
+</tbody></table>
+</div>
+<h2 id="typical-part-values-1"><a class="header" href="#typical-part-values-1">Typical Part Values</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Part</th><th>$V_Z$</th><th>$I_{BV}$</th><th>Package</th></tr></thead><tbody>
+<tr><td>BZX55C3V3</td><td>3.3 V</td><td>5 mA</td><td>DO-35, 500 mW</td></tr>
+<tr><td>BZX55C5V1</td><td>5.1 V</td><td>5 mA</td><td>DO-35, 500 mW</td></tr>
+<tr><td>BZX55C12</td><td>12 V</td><td>1 mA</td><td>DO-35, 500 mW</td></tr>
+</tbody></table>
+</div>
+<h2 id="example--shunt-regulator"><a class="header" href="#example--shunt-regulator">Example — Shunt Regulator</a></h2>
+<pre><code class="language-python"># 12 V input → 470 Ω series R → 5.1 V Zener → GND
+ckt.AddComponent(DCVoltageSource("V1", (n_in, gnd), voltage=12))
+ckt.AddComponent(Resistor("Rs", (n_in, n_out), resistance=470))
+ckt.AddComponent(ZenerDiode("DZ1", (gnd, n_out), Vz=5.1))
+ckt.AddComponent(Resistor("RL", (n_out, gnd), resistance=2000))
+# V_out ≈ 5.1 V
+</code></pre>
+<blockquote>
+<p>Note the Zener orientation: <code>(anode=GND, cathode=n_out)</code> so it conducts
+in reverse from <code>n_out</code> to GND when <code>V(n_out) &gt; Vz</code>.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="bjt-bipolar-junction-transistor"><a class="header" href="#bjt-bipolar-junction-transistor">BJT (Bipolar Junction Transistor)</a></h1>
+<p>Models NPN and PNP transistors using the <strong>Ebers–Moll</strong> large-signal model
+with optional <strong>Early effect</strong> (base-width modulation).</p>
+<pre><code class="language-python">from PyEEL import BJT, BJTType, NPN, PNP
+
+# Full constructor
+ckt.AddComponent(BJT("Q1", (n_c, n_b, n_e), BJTType.NPN, Is=14.34e-15, BF=255.9))
+
+# Convenience factories
+ckt.AddComponent(NPN("Q1", (n_c, n_b, n_e), BF=200))
+ckt.AddComponent(PNP("Q2", (n_c, n_b, n_e), BF=180))
+</code></pre>
+<h2 id="constructor-7"><a class="header" href="#constructor-7">Constructor</a></h2>
+<pre><code class="language-python">BJT(name: str, nodes: tuple[Node, Node, Node], bjt_type=BJTType.NPN, *,
+    Is=1e-15, BF=100.0, BR=1.0, Nf=1.0, Nr=1.0, Vt=0.02585, Vaf=None)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>—</td><td>—</td><td>Unique component name</td></tr>
+<tr><td><code>nodes</code></td><td>—</td><td>—</td><td><code>(collector, base, emitter)</code></td></tr>
+<tr><td><code>bjt_type</code></td><td>—</td><td><code>NPN</code></td><td><code>BJTType.NPN</code> or <code>BJTType.PNP</code></td></tr>
+<tr><td><code>Is</code></td><td>$I_S$</td><td><code>1e-15</code></td><td><strong>Transport saturation current</strong> (A). Controls the overall I–V scale.</td></tr>
+<tr><td><code>BF</code></td><td>$\beta_F$</td><td><code>100.0</code></td><td><strong>Forward current gain</strong> ($h_{FE}$). Ratio $I_C / I_B$ in forward active.</td></tr>
+<tr><td><code>BR</code></td><td>$\beta_R$</td><td><code>1.0</code></td><td><strong>Reverse current gain</strong>. Ratio in reverse active (usually 0.1–10).</td></tr>
+<tr><td><code>Nf</code></td><td>$N_F$</td><td><code>1.0</code></td><td><strong>Forward emission coefficient</strong>. Ideality of the B-E junction.</td></tr>
+<tr><td><code>Nr</code></td><td>$N_R$</td><td><code>1.0</code></td><td><strong>Reverse emission coefficient</strong>. Ideality of the B-C junction.</td></tr>
+<tr><td><code>Vt</code></td><td>$V_T$</td><td><code>0.02585</code></td><td><strong>Thermal voltage</strong> at 25 °C</td></tr>
+<tr><td><code>Vaf</code></td><td>$V_{AF}$</td><td><code>None</code></td><td><strong>Forward Early voltage</strong> (V). <code>None</code> disables the Early effect.</td></tr>
+</tbody></table>
+</div>
+<h2 id="bjttype-enum"><a class="header" href="#bjttype-enum"><code>BJTType</code> Enum</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Int</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>NPN</code></td><td><code>1</code></td><td>Current flows C → E; conventional amplifier polarity</td></tr>
+<tr><td><code>PNP</code></td><td><code>-1</code></td><td>Current flows E → C; voltages/currents are inverted</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-8"><a class="header" href="#properties-8">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Type</code></td><td><code>BJTType</code></td><td>NPN or PNP</td></tr>
+<tr><td><code>SaturationCurrent</code></td><td><code>float</code></td><td>$I_S$</td></tr>
+<tr><td><code>ForwardGain</code></td><td><code>float</code></td><td>$\beta_F$</td></tr>
+<tr><td><code>ReverseGain</code></td><td><code>float</code></td><td>$\beta_R$</td></tr>
+</tbody></table>
+</div>
+<h2 id="query-methods"><a class="header" href="#query-methods">Query Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody>
+<tr><td><code>GetCurrent(solution)</code></td><td>Collector current $I_C$</td></tr>
+<tr><td><code>GetVoltage(solution)</code></td><td>$V_{CE}$</td></tr>
+<tr><td><code>GetBaseCurrent(solution)</code></td><td>Base current $I_B$ (from last NR iteration)</td></tr>
+<tr><td><code>GetVbe(solution)</code></td><td>Base-emitter voltage</td></tr>
+<tr><td><code>GetVbc(solution)</code></td><td>Base-collector voltage</td></tr>
+</tbody></table>
+</div>
+<h2 id="the-ebersmoll-model"><a class="header" href="#the-ebersmoll-model">The Ebers–Moll Model</a></h2>
+<p>The transport form of the Ebers–Moll model computes:</p>
+<p>$$
+I_F = I_S \left( e^{\frac{V_{BE}}{N_F V_T}} - 1 \right)
+$$</p>
+<p>$$
+I_R = I_S \left( e^{\frac{V_{BC}}{N_R V_T}} - 1 \right)
+$$</p>
+<p>$$
+I_C = I_F - I_R - \frac{I_R}{\beta_R}
+$$</p>
+<p>$$
+I_B = \frac{I_F}{\beta_F} + \frac{I_R}{\beta_R}
+$$</p>
+<p>$$
+I_E = -(I_C + I_B)
+$$</p>
+<h3 id="with-early-effect-v_af-neq-none"><a class="header" href="#with-early-effect-v_af-neq-none">With Early Effect ($V_{AF} \neq$ None)</a></h3>
+<p>The forward current is modulated by $V_{CE}$:</p>
+<p>$$
+I_C = I_F \left(1 + \frac{V_{CE}}{V_{AF}}\right) - I_R - \frac{I_R}{\beta_R}
+$$</p>
+<p>This models the finite output resistance $r_o \approx V_{AF} / I_C$.</p>
+<h3 id="physical-meaning-of-parameters-2"><a class="header" href="#physical-meaning-of-parameters-2">Physical Meaning of Parameters</a></h3>
+<ul>
+<li>
+<p><strong>$I_S$ (Saturation Current):</strong> The leakage current of both junctions (assumed symmetric in the transport model). Typical: <code>1e-15</code>–<code>1e-11</code> A.</p>
+</li>
+<li>
+<p><strong>$\beta_F$ (Forward Gain):</strong> The DC current gain $h_{FE}$, typically 100–500 for small-signal BJTs, 20–100 for power devices, 1000+ for Darlington pairs.</p>
+</li>
+<li>
+<p><strong>$\beta_R$ (Reverse Gain):</strong> Much lower than $\beta_F$; models the transistor behaviour when operated in reverse (C and E swapped).</p>
+</li>
+<li>
+<p><strong>$N_F$, $N_R$ (Emission Coefficients):</strong> Usually 1.0 for standard BJTs. Darlington pairs may use $N_F \approx 1.5$ since two junctions are in series.</p>
+</li>
+<li>
+<p><strong>$V_{AF}$ (Early Voltage):</strong> Models the slope of the $I_C$ vs $V_{CE}$ curves. Higher values → flatter curves → higher output resistance. Typical: 50–200 V for small-signal, 100+ V for power.</p>
+</li>
+</ul>
+<h2 id="pnp-transistors"><a class="header" href="#pnp-transistors">PNP Transistors</a></h2>
+<p>For PNP, all voltages and currents are internally negated by the <code>BJTType</code>
+polarity factor (<code>-1</code>).  You use the same node order <code>(collector, base,  emitter)</code> — just connect with appropriate supply polarity.</p>
+<h2 id="typical-part-values-2"><a class="header" href="#typical-part-values-2">Typical Part Values</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Part</th><th>Type</th><th>$\beta_F$</th><th>$I_S$</th><th>$V_{AF}$</th><th>Application</th></tr></thead><tbody>
+<tr><td>2N2222</td><td>NPN</td><td>256</td><td><code>14.34e-15</code></td><td>74 V</td><td>General purpose</td></tr>
+<tr><td>2N3904</td><td>NPN</td><td>416</td><td><code>6.73e-15</code></td><td>74 V</td><td>General purpose</td></tr>
+<tr><td>BC547</td><td>NPN</td><td>400</td><td><code>1.8e-14</code></td><td>80 V</td><td>Small signal</td></tr>
+<tr><td>2N3906</td><td>PNP</td><td>181</td><td><code>1.3e-14</code></td><td>18.7 V</td><td>General purpose</td></tr>
+<tr><td>TIP31C</td><td>NPN</td><td>50</td><td><code>1e-12</code></td><td>100 V</td><td>Medium power</td></tr>
+<tr><td>TIP120</td><td>NPN</td><td>1000</td><td><code>6.8e-10</code></td><td>100 V</td><td>Darlington</td></tr>
+</tbody></table>
+</div>
+<h2 id="example--common-emitter-amplifier"><a class="header" href="#example--common-emitter-amplifier">Example — Common-Emitter Amplifier</a></h2>
+<pre><code class="language-python">n_vcc = nm.AddNode("Vcc")
+n_b   = nm.AddNode("base")
+n_c   = nm.AddNode("collector")
+
+ckt.AddComponent(DCVoltageSource("Vcc", (n_vcc, gnd), voltage=12))
+ckt.AddComponent(Resistor("Rb", (n_vcc, n_b), resistance=100e3))
+ckt.AddComponent(Resistor("Rc", (n_vcc, n_c), resistance=1e3))
+ckt.AddComponent(NPN("Q1", (n_c, n_b, gnd), BF=200, Is=14.34e-15, Vaf=74))
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="mosfet"><a class="header" href="#mosfet">MOSFET</a></h1>
+<p>Models N-channel and P-channel MOSFETs using the <strong>Level-1 Shichman–Hodges</strong>
+model with three operating regions: cutoff, linear (triode), and saturation.</p>
+<pre><code class="language-python">from PyEEL import MOSFET, MOSFETType, NMOS, PMOS
+
+# Full constructor
+ckt.AddComponent(MOSFET("M1", (n_d, n_g, n_s), MOSFETType.NMOS, Kp=2e-3, Vth=1.5))
+
+# Convenience factories
+ckt.AddComponent(NMOS("M1", (n_d, n_g, n_s), Kp=2e-3, Vth=1.5))
+ckt.AddComponent(PMOS("M2", (n_d, n_g, n_s), Kp=1e-3, Vth=-1.5))
+</code></pre>
+<h2 id="constructor-8"><a class="header" href="#constructor-8">Constructor</a></h2>
+<pre><code class="language-python">MOSFET(name: str, nodes: tuple[Node, Node, Node],
+       mosfet_type=MOSFETType.NMOS, *,
+       Kp=2e-5, Vth=1.0, lambda_=0.0)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>—</td><td>—</td><td>Unique component name</td></tr>
+<tr><td><code>nodes</code></td><td>—</td><td>—</td><td><code>(drain, gate, source)</code></td></tr>
+<tr><td><code>mosfet_type</code></td><td>—</td><td><code>NMOS</code></td><td><code>MOSFETType.NMOS</code> or <code>MOSFETType.PMOS</code></td></tr>
+<tr><td><code>Kp</code></td><td>$K_p$</td><td><code>2e-5</code></td><td><strong>Transconductance parameter</strong> (A/V²). $K_p = \mu_n C_{ox} (W/L)$.</td></tr>
+<tr><td><code>Vth</code></td><td>$V_{th}$</td><td><code>1.0</code></td><td><strong>Threshold voltage</strong> (V). Gate voltage above which the channel forms.</td></tr>
+<tr><td><code>lambda_</code></td><td>$\lambda$</td><td><code>0.0</code></td><td><strong>Channel-length modulation</strong> (1/V). Models finite output resistance.</td></tr>
+</tbody></table>
+</div>
+<h2 id="mosfettype-enum"><a class="header" href="#mosfettype-enum"><code>MOSFETType</code> Enum</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Int</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>NMOS</code></td><td><code>1</code></td><td>N-channel enhancement MOSFET</td></tr>
+<tr><td><code>PMOS</code></td><td><code>-1</code></td><td>P-channel enhancement MOSFET</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-9"><a class="header" href="#properties-9">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Type</code></td><td><code>MOSFETType</code></td><td>NMOS or PMOS</td></tr>
+<tr><td><code>Kp</code></td><td><code>float</code></td><td>Transconductance parameter</td></tr>
+<tr><td><code>Vth</code></td><td><code>float</code></td><td>Threshold voltage</td></tr>
+</tbody></table>
+</div>
+<h2 id="operating-regions"><a class="header" href="#operating-regions">Operating Regions</a></h2>
+<p>For NMOS ($V_{GS}$, $V_{DS}$ measured relative to source):</p>
+<h3 id="cutoff-v_gs--v_th"><a class="header" href="#cutoff-v_gs--v_th">Cutoff ($V_{GS} &lt; V_{th}$)</a></h3>
+<p>$$
+I_D = 0
+$$</p>
+<p>The MOSFET is off.</p>
+<h3 id="linear--triode-v_gs-geq-v_th-and-v_ds--v_gs---v_th"><a class="header" href="#linear--triode-v_gs-geq-v_th-and-v_ds--v_gs---v_th">Linear / Triode ($V_{GS} \geq V_{th}$ and $V_{DS} &lt; V_{GS} - V_{th}$)</a></h3>
+<p>$$
+I_D = K_p \left[ (V_{GS} - V_{th}) \cdot V_{DS} - \frac{V_{DS}^2}{2} \right] (1 + \lambda V_{DS})
+$$</p>
+<p>The MOSFET acts like a voltage-controlled resistor.</p>
+<h3 id="saturation-v_gs-geq-v_th-and-v_ds-geq-v_gs---v_th"><a class="header" href="#saturation-v_gs-geq-v_th-and-v_ds-geq-v_gs---v_th">Saturation ($V_{GS} \geq V_{th}$ and $V_{DS} \geq V_{GS} - V_{th}$)</a></h3>
+<p>$$
+I_D = \frac{K_p}{2} (V_{GS} - V_{th})^2 (1 + \lambda V_{DS})
+$$</p>
+<p>The MOSFET acts like a voltage-controlled current source — the amplifying
+region.</p>
+<h3 id="physical-meaning-of-parameters-3"><a class="header" href="#physical-meaning-of-parameters-3">Physical Meaning of Parameters</a></h3>
+<ul>
+<li>
+<p><strong>$K_p$ (Transconductance Parameter):</strong> Combines the intrinsic mobility,
+oxide capacitance, and device geometry: $K_p = \mu C_{ox} \frac{W}{L}$.
+Larger $K_p$ → more current for the same $V_{GS}$.</p>
+</li>
+<li>
+<p><strong>$V_{th}$ (Threshold Voltage):</strong> The gate-source voltage at which the
+channel begins to conduct.  Typical: 0.5–3 V for enhancement-mode devices.</p>
+</li>
+<li>
+<p><strong>$\lambda$ (Channel-Length Modulation):</strong> Models the slope of $I_D$ vs
+$V_{DS}$ in saturation.  Output resistance: $r_o = 1/(\lambda I_D)$.
+Set to <code>0.0</code> for an ideal (infinite $r_o$) device.</p>
+</li>
+</ul>
+<h2 id="pmos-transistors"><a class="header" href="#pmos-transistors">PMOS Transistors</a></h2>
+<p>For PMOS, all polarities are inverted internally.  Use the same node order
+<code>(drain, gate, source)</code> — the PMOS conducts when $V_{SG} &gt; |V_{th}|$.</p>
+<h2 id="example--common-source-amplifier"><a class="header" href="#example--common-source-amplifier">Example — Common-Source Amplifier</a></h2>
+<pre><code class="language-python">n_vdd = nm.AddNode("Vdd")
+n_g   = nm.AddNode("gate")
+n_d   = nm.AddNode("drain")
+
+ckt.AddComponent(DCVoltageSource("Vdd", (n_vdd, gnd), voltage=5))
+ckt.AddComponent(Resistor("Rd", (n_vdd, n_d), resistance=1e3))
+ckt.AddComponent(Resistor("Rg", (n_g, gnd), resistance=1e6))
+ckt.AddComponent(NMOS("M1", (n_d, n_g, gnd), Kp=2e-3, Vth=1.0))
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="magnetic-components"><a class="header" href="#magnetic-components">Magnetic Components</a></h1>
+<p>PyEEL supports coupled inductors and transformers for modelling energy
+transfer through magnetic fields.</p>
+<div class="table-wrapper"><table><thead><tr><th>Component</th><th>Description</th></tr></thead><tbody>
+<tr><td><a href="components/mutual-coupling.html">Mutual Coupling</a></td><td>Couples two existing <code>Inductor</code> components with coefficient $k$</td></tr>
+<tr><td><a href="components/transformer.html">Transformer</a></td><td>High-level wrapper: two inductors + mutual coupling in one object</td></tr>
+</tbody></table>
+</div>
+<h2 id="import-2"><a class="header" href="#import-2">Import</a></h2>
+<pre><code class="language-python">from PyEEL import MutualCoupling, Transformer
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="mutual-coupling"><a class="header" href="#mutual-coupling">Mutual Coupling</a></h1>
+<p>Couples two <code>Inductor</code> components magnetically, modelling the shared
+magnetic flux.</p>
+<pre><code class="language-python">from PyEEL import Inductor, MutualCoupling
+
+L1 = Inductor("L1", (n1, n2), inductance=10e-3)
+L2 = Inductor("L2", (n3, n4), inductance=10e-3)
+K1 = MutualCoupling("K1", L1, L2, k=0.8)
+
+ckt.AddComponent(L1)
+ckt.AddComponent(L2)
+ckt.AddComponent(K1)
+</code></pre>
+<h2 id="constructor-9"><a class="header" href="#constructor-9">Constructor</a></h2>
+<pre><code class="language-python">MutualCoupling(name: str, inductor1: Inductor, inductor2: Inductor, k: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>str</code></td><td>Unique component name</td></tr>
+<tr><td><code>inductor1</code></td><td><code>Inductor</code></td><td>First coupled inductor</td></tr>
+<tr><td><code>inductor2</code></td><td><code>Inductor</code></td><td>Second coupled inductor</td></tr>
+<tr><td><code>k</code></td><td><code>float</code></td><td><strong>Coupling coefficient</strong>, $-1 &lt; k &lt; 1$ (typically 0.9–0.999 for transformers)</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-10"><a class="header" href="#properties-10">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>CouplingCoefficient</code></td><td><code>float</code></td><td>$k$</td></tr>
+<tr><td><code>MutualInductance</code></td><td><code>float</code></td><td>$M = k\sqrt{L_1 L_2}$</td></tr>
+<tr><td><code>Inductor1</code></td><td><code>Inductor</code></td><td>First inductor reference</td></tr>
+<tr><td><code>Inductor2</code></td><td><code>Inductor</code></td><td>Second inductor reference</td></tr>
+</tbody></table>
+</div>
+<h2 id="methods"><a class="header" href="#methods">Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>GetInductorCurrents(solution)</code></td><td><code>(float, float)</code></td><td>Currents through both inductors</td></tr>
+</tbody></table>
+</div>
+<h2 id="physics"><a class="header" href="#physics">Physics</a></h2>
+<p>The mutual inductance is:</p>
+<p>$$
+M = k \sqrt{L_1 L_2}
+$$</p>
+<p>where $k$ is the coupling coefficient:</p>
+<ul>
+<li>$k = 1$ — perfect coupling (not allowed numerically; use 0.999)</li>
+<li>$k = 0$ — no coupling (independent inductors)</li>
+<li>$k &lt; 0$ — inverted coupling (dot convention flip)</li>
+</ul>
+<p>The coupled inductor equations:</p>
+<p>$$
+V_1 = L_1 \frac{dI_1}{dt} + M \frac{dI_2}{dt}
+$$</p>
+<p>$$
+V_2 = M \frac{dI_1}{dt} + L_2 \frac{dI_2}{dt}
+$$</p>
+<h2 id="mna-stamp-1"><a class="header" href="#mna-stamp-1">MNA Stamp</a></h2>
+<p>In Backward Euler, the coupling adds cross-terms between the two inductor
+companion models — an equivalent cross-conductance proportional to $M/\Delta t$.</p>
+<h2 id="dc-behaviour-4"><a class="header" href="#dc-behaviour-4">DC Behaviour</a></h2>
+<p>In DC, the mutual coupling (like inductors themselves) becomes a short
+circuit.  No cross-coupling terms are stamped.</p>
+<blockquote>
+<p><strong>Tip:</strong> For most transformer applications, use the higher-level
+<a href="components/transformer.html"><code>Transformer</code></a> class which wraps two inductors and a
+mutual coupling into a single object.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="transformer"><a class="header" href="#transformer">Transformer</a></h1>
+<p>A high-level wrapper that creates two coupled inductors and a
+<code>MutualCoupling</code> in a single object.  Models an ideal (or near-ideal)
+transformer.</p>
+<pre><code class="language-python">from PyEEL import Transformer
+
+T1 = Transformer("T1",
+    primary_nodes=(n_pri_p, n_pri_n),
+    secondary_nodes=(n_sec_p, n_sec_n),
+    primary_inductance=100.0,
+    secondary_inductance=0.25,
+    k=0.999,
+)
+ckt.AddComponent(T1)
+</code></pre>
+<h2 id="constructor-10"><a class="header" href="#constructor-10">Constructor</a></h2>
+<pre><code class="language-python">Transformer(name: str,
+            primary_nodes: tuple[Node, Node],
+            secondary_nodes: tuple[Node, Node],
+            primary_inductance: float,
+            secondary_inductance: float,
+            k: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>str</code></td><td>Unique component name</td></tr>
+<tr><td><code>primary_nodes</code></td><td><code>(Node, Node)</code></td><td><code>(p+, p−)</code> of the primary winding</td></tr>
+<tr><td><code>secondary_nodes</code></td><td><code>(Node, Node)</code></td><td><code>(s+, s−)</code> of the secondary winding</td></tr>
+<tr><td><code>primary_inductance</code></td><td><code>float</code></td><td>$L_1$ in <strong>Henries</strong></td></tr>
+<tr><td><code>secondary_inductance</code></td><td><code>float</code></td><td>$L_2$ in <strong>Henries</strong></td></tr>
+<tr><td><code>k</code></td><td><code>float</code></td><td>Coupling coefficient (0 &lt; k &lt; 1; use 0.999 for near-ideal)</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-11"><a class="header" href="#properties-11">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Primary</code></td><td><code>Inductor</code></td><td>The primary winding inductor</td></tr>
+<tr><td><code>Secondary</code></td><td><code>Inductor</code></td><td>The secondary winding inductor</td></tr>
+<tr><td><code>Coupling</code></td><td><code>MutualCoupling</code></td><td>The coupling component</td></tr>
+<tr><td><code>TurnsRatio</code></td><td><code>float</code></td><td>$n = \sqrt{L_1 / L_2}$</td></tr>
+<tr><td><code>MutualInductance</code></td><td><code>float</code></td><td>$M = k\sqrt{L_1 L_2}$</td></tr>
+<tr><td><code>CouplingCoefficient</code></td><td><code>float</code></td><td>$k$</td></tr>
+</tbody></table>
+</div>
+<h2 id="methods-1"><a class="header" href="#methods-1">Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>GetCurrent(solution)</code></td><td><code>float</code></td><td>Primary winding current</td></tr>
+<tr><td><code>GetVoltage(solution)</code></td><td><code>float</code></td><td>Primary winding voltage</td></tr>
+<tr><td><code>GetSecondaryCurrent(solution)</code></td><td><code>float</code></td><td>Secondary winding current</td></tr>
+<tr><td><code>GetSecondaryVoltage(solution)</code></td><td><code>float</code></td><td>Secondary winding voltage</td></tr>
+</tbody></table>
+</div>
+<h2 id="turns-ratio-and-inductance"><a class="header" href="#turns-ratio-and-inductance">Turns Ratio and Inductance</a></h2>
+<p>For an ideal transformer with turns ratio $n = N_1/N_2$:</p>
+<p>$$
+\frac{V_1}{V_2} = n, \qquad \frac{I_2}{I_1} = n
+$$</p>
+<p>The relationship between inductances and turns ratio:</p>
+<p>$$
+n = \frac{N_1}{N_2} = \sqrt{\frac{L_1}{L_2}}
+$$</p>
+<p>So to model a step-down transformer from $V_1$ to $V_2$:</p>
+<p>$$
+L_2 = L_1 \cdot \left(\frac{V_2}{V_1}\right)^2
+$$</p>
+<h3 id="example-240-v--12-v"><a class="header" href="#example-240-v--12-v">Example: 240 V → 12 V</a></h3>
+<p>With $L_1 = 100$ H:</p>
+<p>$$
+L_2 = 100 \times \left(\frac{12}{240}\right)^2 = 100 \times 0.0025 = 0.25 \text{ H}
+$$</p>
+<h2 id="using-current-probes"><a class="header" href="#using-current-probes">Using Current Probes</a></h2>
+<p>To measure the current through a transformer winding, pass the internal
+inductor to a <code>CurrentProbe</code>:</p>
+<pre><code class="language-python">ckt.AddProbe(CurrentProbe("I_pri", T1.Primary))
+ckt.AddProbe(CurrentProbe("I_sec", T1.Secondary))
+</code></pre>
+<h2 id="example--step-down-transformer-with-load"><a class="header" href="#example--step-down-transformer-with-load">Example — Step-Down Transformer with Load</a></h2>
+<pre><code class="language-python">n_pri = nm.AddNode("pri")
+n_sec = nm.AddNode("sec")
+
+ckt.AddComponent(ACVoltageSource("Vmains", (n_pri, gnd),
+                                  amplitude=339.4, frequency=50))
+T1 = Transformer("T1", (n_pri, gnd), (n_sec, gnd),
+                 primary_inductance=100.0,
+                 secondary_inductance=0.25,
+                 k=0.999)
+ckt.AddComponent(T1)
+ckt.AddComponent(Resistor("RL", (n_sec, gnd), resistance=100))
+# V_sec ≈ 339.4 / 20 ≈ 17 V peak (≈ 12 V RMS)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sources"><a class="header" href="#sources">Sources</a></h1>
+<p>PyEEL provides independent and dependent (controlled) voltage and current
+sources.</p>
+<div class="table-wrapper"><table><thead><tr><th>Source</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><a href="components/voltage-source.html">Voltage Source</a></td><td>Independent</td><td>Forces a specified voltage waveform</td></tr>
+<tr><td><a href="components/dependent-sources.html">Dependent Sources</a></td><td>Controlled</td><td>Output depends on a voltage or current elsewhere</td></tr>
+</tbody></table>
+</div>
+<h2 id="import-3"><a class="header" href="#import-3">Import</a></h2>
+<pre><code class="language-python">from PyEEL import (
+    VoltageSource, DCVoltageSource, ACVoltageSource,
+    Waveform, ConstantWave, SineWave,
+    VCVS, VCCS, CCVS, CCCS,
+)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="voltage-source--waveforms"><a class="header" href="#voltage-source--waveforms">Voltage Source &amp; Waveforms</a></h1>
+<p>An ideal independent voltage source that forces
+$V(n_+) - V(n_-) = v(t)$.</p>
+<pre><code class="language-python">from PyEEL import DCVoltageSource, ACVoltageSource
+
+ckt.AddComponent(DCVoltageSource("V1", (n1, gnd), voltage=5))
+ckt.AddComponent(ACVoltageSource("Vac", (n1, gnd), amplitude=10, frequency=1e3))
+</code></pre>
+<h2 id="factory-functions"><a class="header" href="#factory-functions">Factory Functions</a></h2>
+<h3 id="dcvoltagesource"><a class="header" href="#dcvoltagesource"><code>DCVoltageSource</code></a></h3>
+<pre><code class="language-python">DCVoltageSource(name: str, nodes: tuple[Node, Node], voltage: float) -&gt; VoltageSource
+</code></pre>
+<p>Creates a constant-voltage source.</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>voltage</code></td><td>DC voltage in <strong>Volts</strong></td></tr>
+</tbody></table>
+</div>
+<h3 id="acvoltagesource"><a class="header" href="#acvoltagesource"><code>ACVoltageSource</code></a></h3>
+<pre><code class="language-python">ACVoltageSource(name: str, nodes: tuple[Node, Node],
+                amplitude: float, frequency: float) -&gt; VoltageSource
+</code></pre>
+<p>Creates a sinusoidal voltage source: $v(t) = A \sin(2\pi f t)$.</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>amplitude</code></td><td>Peak voltage in <strong>Volts</strong> (not RMS)</td></tr>
+<tr><td><code>frequency</code></td><td>Frequency in <strong>Hz</strong></td></tr>
+</tbody></table>
+</div>
+<h2 id="full-constructor-custom-waveforms"><a class="header" href="#full-constructor-custom-waveforms">Full Constructor (Custom Waveforms)</a></h2>
+<pre><code class="language-python">VoltageSource(name: str, nodes: tuple[Node, Node], waveform: Waveform)
+</code></pre>
+<p>You can build any time-varying source by providing a <code>Waveform</code> object.</p>
+<h2 id="waveform-classes"><a class="header" href="#waveform-classes">Waveform Classes</a></h2>
+<h3 id="constantwave"><a class="header" href="#constantwave"><code>ConstantWave</code></a></h3>
+<pre><code class="language-python">ConstantWave(value: float)
+</code></pre>
+<p>Returns the same value at all times. Used internally by <code>DCVoltageSource</code>.</p>
+<h3 id="sinewave"><a class="header" href="#sinewave"><code>SineWave</code></a></h3>
+<pre><code class="language-python">SineWave(frequency: float, amplitude: float = 1.0,
+         phase: float = 0.0, dc_offset: float = 0.0)
+</code></pre>
+<p>$$
+v(t) = A \sin(2\pi f t + \varphi) + V_{DC}
+$$</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>frequency</code></td><td>$f$</td><td>—</td><td>Frequency in Hz</td></tr>
+<tr><td><code>amplitude</code></td><td>$A$</td><td><code>1.0</code></td><td>Peak amplitude in Volts</td></tr>
+<tr><td><code>phase</code></td><td>$\varphi$</td><td><code>0.0</code></td><td>Phase offset in <strong>radians</strong></td></tr>
+<tr><td><code>dc_offset</code></td><td>$V_{DC}$</td><td><code>0.0</code></td><td>DC bias added to the sine</td></tr>
+</tbody></table>
+</div>
+<h3 id="creating-custom-waveforms"><a class="header" href="#creating-custom-waveforms">Creating Custom Waveforms</a></h3>
+<p>Subclass <code>Waveform</code> and implement <code>GetValue(context)</code>:</p>
+<pre><code class="language-python">from PyEEL.Components.Sources.Waveform import Waveform
+
+class SquareWave(Waveform):
+    def __init__(self, frequency, amplitude=1.0):
+        self._f = frequency
+        self._A = amplitude
+
+    def GetValue(self, context):
+        import math
+        return self._A if math.sin(2 * math.pi * self._f * context.Time) &gt;= 0 else -self._A
+
+    @property
+    def StaticValue(self):
+        return 0.0
+</code></pre>
+<h2 id="mna-stamp-2"><a class="header" href="#mna-stamp-2">MNA Stamp</a></h2>
+<p>A voltage source introduces one <strong>auxiliary unknown</strong> (the branch current
+$I_{src}$) and stamps a KVL constraint row:</p>
+<p>$$
+V(n_+) - V(n_-) = v(t)
+$$</p>
+<p>The auxiliary unknown represents the current flowing <strong>from $n_+$ to $n_-$
+through the source</strong> (conventional current direction).</p>
+<h2 id="source-stepping-1"><a class="header" href="#source-stepping-1">Source Stepping</a></h2>
+<p>During DC operating-point analysis, the source voltage is multiplied by a
+<code>source_factor</code> that ramps from 0 to 1 over several steps.  This aids
+convergence for circuits with strong non-linearities.</p>
+<h2 id="getting-source-current"><a class="header" href="#getting-source-current">Getting Source Current</a></h2>
+<pre><code class="language-python">probe = CurrentProbe("I_V1", v1)
+# or after solving:
+i = v1.GetCurrent(solution_vector)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="dependent-sources-vcvs-vccs-ccvs-cccs"><a class="header" href="#dependent-sources-vcvs-vccs-ccvs-cccs">Dependent Sources (VCVS, VCCS, CCVS, CCCS)</a></h1>
+<p>Dependent (controlled) sources produce an output that is proportional to a
+voltage or current elsewhere in the circuit.  They are used to model
+amplifiers, transconductance stages, and feedback networks.</p>
+<pre><code class="language-python">from PyEEL import VCVS, VCCS, CCVS, CCCS
+</code></pre>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Class</th><th>SPICE Name</th><th>Relation</th><th>Control</th><th>Output</th></tr></thead><tbody>
+<tr><td><code>VCVS</code></td><td>E</td><td>$V_{out} = A_v \cdot V_{ctrl}$</td><td>Voltage</td><td>Voltage</td></tr>
+<tr><td><code>VCCS</code></td><td>G</td><td>$I_{out} = g_m \cdot V_{ctrl}$</td><td>Voltage</td><td>Current</td></tr>
+<tr><td><code>CCVS</code></td><td>H</td><td>$V_{out} = R_m \cdot I_{ctrl}$</td><td>Current</td><td>Voltage</td></tr>
+<tr><td><code>CCCS</code></td><td>F</td><td>$I_{out} = A_i \cdot I_{ctrl}$</td><td>Current</td><td>Current</td></tr>
+</tbody></table>
+</div>
+<h2 id="vcvs--voltage-controlled-voltage-source"><a class="header" href="#vcvs--voltage-controlled-voltage-source">VCVS — Voltage-Controlled Voltage Source</a></h2>
+<pre><code class="language-python">VCVS(name: str, out_nodes: tuple[Node, Node],
+     ctrl_nodes: tuple[Node, Node], gain: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out−)</code> where the controlled voltage appears</td></tr>
+<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl−)</code> the sensed voltage</td></tr>
+<tr><td><code>gain</code></td><td>$A_v$</td><td><strong>Voltage gain</strong> (V/V) — dimensionless</td></tr>
+</tbody></table>
+</div>
+<p><strong>Auxiliary unknowns:</strong> 1 (output branch current)</p>
+<p><strong>Equation:</strong> $V_{out+} - V_{out-} = A_v \cdot (V_{ctrl+} - V_{ctrl-})$</p>
+<h2 id="vccs--voltage-controlled-current-source"><a class="header" href="#vccs--voltage-controlled-current-source">VCCS — Voltage-Controlled Current Source</a></h2>
+<pre><code class="language-python">VCCS(name: str, out_nodes: tuple[Node, Node],
+     ctrl_nodes: tuple[Node, Node], transconductance: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out−)</code> current flows from out+ to out−</td></tr>
+<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl−)</code> the sensed voltage</td></tr>
+<tr><td><code>transconductance</code></td><td>$g_m$</td><td><strong>Transconductance</strong> (A/V) — Siemens</td></tr>
+</tbody></table>
+</div>
+<p><strong>Auxiliary unknowns:</strong> 0</p>
+<p><strong>Equation:</strong> $I_{out} = g_m \cdot (V_{ctrl+} - V_{ctrl-})$</p>
+<h2 id="ccvs--current-controlled-voltage-source"><a class="header" href="#ccvs--current-controlled-voltage-source">CCVS — Current-Controlled Voltage Source</a></h2>
+<pre><code class="language-python">CCVS(name: str, out_nodes: tuple[Node, Node],
+     ctrl_nodes: tuple[Node, Node], transresistance: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out−)</code> where the controlled voltage appears</td></tr>
+<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl−)</code> a <strong>zero-volt sense source</strong> is inserted here</td></tr>
+<tr><td><code>transresistance</code></td><td>$R_m$</td><td><strong>Transresistance</strong> (V/A) — Ohms</td></tr>
+</tbody></table>
+</div>
+<p><strong>Auxiliary unknowns:</strong> 2 (sense branch current + output branch current)</p>
+<p><strong>Equation:</strong> $V_{out} = R_m \cdot I_{sense}$</p>
+<blockquote>
+<p>The CCVS inserts a zero-volt voltage source across <code>ctrl_nodes</code> to
+measure the control current.  This is the same technique used in SPICE.</p>
+</blockquote>
+<h2 id="cccs--current-controlled-current-source"><a class="header" href="#cccs--current-controlled-current-source">CCCS — Current-Controlled Current Source</a></h2>
+<pre><code class="language-python">CCCS(name: str, out_nodes: tuple[Node, Node],
+     ctrl_nodes: tuple[Node, Node], gain: float)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out−)</code> current flows from out+ to out−</td></tr>
+<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl−)</code> a <strong>zero-volt sense source</strong> is inserted here</td></tr>
+<tr><td><code>gain</code></td><td>$A_i$</td><td><strong>Current gain</strong> (A/A) — dimensionless</td></tr>
+</tbody></table>
+</div>
+<p><strong>Auxiliary unknowns:</strong> 1 (sense branch current)</p>
+<p><strong>Equation:</strong> $I_{out} = A_i \cdot I_{sense}$</p>
+<h2 id="query-methods-1"><a class="header" href="#query-methods-1">Query Methods</a></h2>
+<p>All dependent sources provide:</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody>
+<tr><td><code>GetCurrent(solution)</code></td><td>Output branch current</td></tr>
+<tr><td><code>GetVoltage(solution)</code></td><td>Output voltage</td></tr>
+</tbody></table>
+</div>
+<p>Current-controlled sources also provide:</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody>
+<tr><td><code>GetSenseCurrent(solution)</code></td><td>Current through the zero-volt sense source</td></tr>
+</tbody></table>
+</div>
+<h2 id="example--vcvs-gain-of-3"><a class="header" href="#example--vcvs-gain-of-3">Example — VCVS (Gain of 3)</a></h2>
+<pre><code class="language-python">n_in  = nm.AddNode("in")
+n_out = nm.AddNode("out")
+
+ckt.AddComponent(ACVoltageSource("Vin", (n_in, gnd), amplitude=1, frequency=100))
+ckt.AddComponent(VCVS("E1", (n_out, gnd), (n_in, gnd), gain=3.0))
+ckt.AddComponent(Resistor("RL", (n_out, gnd), resistance=1e3))
+# V_out = 3 × V_in → 3 V peak
+</code></pre>
+<h2 id="example--vccs-transconductance-amplifier"><a class="header" href="#example--vccs-transconductance-amplifier">Example — VCCS (Transconductance Amplifier)</a></h2>
+<pre><code class="language-python">ckt.AddComponent(VCCS("G1", (n_out, gnd), (n_in, gnd), transconductance=2e-3))
+ckt.AddComponent(Resistor("RL", (n_out, gnd), resistance=2e3))
+# V_out = gm × V_in × RL = 2e-3 × 1 × 2e3 = 4 V peak
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="how-simulation-works"><a class="header" href="#how-simulation-works">How Simulation Works</a></h1>
+<p>PyEEL uses <strong>Modified Nodal Analysis (MNA)</strong> — the same mathematical
+framework used by SPICE — to convert a circuit description into a system
+of linear equations that can be solved numerically.</p>
+<h2 id="the-simulation-pipeline"><a class="header" href="#the-simulation-pipeline">The Simulation Pipeline</a></h2>
+<pre><code>┌─────────────┐     ┌──────────────┐     ┌──────────────┐
+│  Build the  │────→│  Finalize &amp;  │────→│   DC OP      │
+│   Circuit   │     │  Validate    │     │   Solve      │
+└─────────────┘     └──────────────┘     └──────┬───────┘
+                                                │
+                                    ┌───────────▼───────────┐
+                                    │   Transient Loop      │
+                                    │                       │
+                                    │  1. Build A, b        │
+                                    │  2. Stamp components  │
+                                    │  3. Solve (linear or  │
+                                    │     Newton–Raphson)   │
+                                    │  4. Update states     │
+                                    │  5. Record probes     │
+                                    │  6. Advance clock     │
+                                    │                       │
+                                    │  Repeat for each dt   │
+                                    └───────────────────────┘
+</code></pre>
+<h2 id="analysis-types"><a class="header" href="#analysis-types">Analysis Types</a></h2>
+<h3 id="dc-operating-point-2"><a class="header" href="#dc-operating-point-2">DC Operating Point</a></h3>
+<p>Solves the circuit with all time-derivative terms set to zero:</p>
+<ul>
+<li>Capacitors → open circuits</li>
+<li>Inductors → short circuits (tiny resistance)</li>
+<li>AC sources → their DC value (0 for pure sine)</li>
+</ul>
+<p>Uses Newton–Raphson for non-linear circuits, with <strong>source stepping</strong> and
+<strong>gmin stepping</strong> as convergence aids.</p>
+<h3 id="transient-analysis"><a class="header" href="#transient-analysis">Transient Analysis</a></h3>
+<p>Advances the simulation one time step at a time using the <strong>Backward Euler</strong>
+(or Trapezoidal) integration method.  At each step:</p>
+<ol>
+<li>Energy-storing elements (C, L) are replaced by their companion models.</li>
+<li>The MNA system is assembled and solved.</li>
+<li>Component states are updated for the next step.</li>
+</ol>
+<h2 id="key-classes"><a class="header" href="#key-classes">Key Classes</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Class</th><th>Role</th></tr></thead><tbody>
+<tr><td><a href="simulation/../core/circuit.html"><code>Circuit</code></a></td><td>Top-level engine; owns everything</td></tr>
+<tr><td><code>MNASystemBuilder</code></td><td>Zeros and stamps the A matrix and b vector</td></tr>
+<tr><td><code>NewtonRaphsonSolver</code></td><td>Iterative solver for non-linear circuits</td></tr>
+<tr><td><code>DCOperatingPointSolver</code></td><td>Computes the initial DC bias</td></tr>
+<tr><td><code>TopologyValidator</code></td><td>Checks for common wiring mistakes</td></tr>
+<tr><td><code>AdaptiveTimestep</code></td><td>Adjusts dt based on solution changes</td></tr>
+<tr><td><code>EnergyChecker</code></td><td>Warns about unreasonable stored energy</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="mna-formulation"><a class="header" href="#mna-formulation">MNA Formulation</a></h1>
+<p><strong>Modified Nodal Analysis (MNA)</strong> is the mathematical framework at the
+heart of PyEEL.  It extends standard nodal analysis to handle voltage
+sources and current-measuring elements.</p>
+<h2 id="the-mna-equation"><a class="header" href="#the-mna-equation">The MNA Equation</a></h2>
+<p>$$
+\mathbf{A} \cdot \mathbf{x} = \mathbf{b}
+$$</p>
+<p>where:</p>
+<div class="table-wrapper"><table><thead><tr><th>Symbol</th><th>Size</th><th>Contents</th></tr></thead><tbody>
+<tr><td>$\mathbf{A}$</td><td>$N \times N$</td><td>Conductance matrix (stamps from all components)</td></tr>
+<tr><td>$\mathbf{x}$</td><td>$N \times 1$</td><td>Unknown vector: node voltages + auxiliary currents</td></tr>
+<tr><td>$\mathbf{b}$</td><td>$N \times 1$</td><td>Right-hand-side: known currents + voltage constraints</td></tr>
+</tbody></table>
+</div>
+<p>$N = $ <code>NodeManager.TotalUnknownCount</code> = (number of nodes − 1) + (auxiliary unknowns).</p>
+<h2 id="solution-vector-layout-1"><a class="header" href="#solution-vector-layout-1">Solution Vector Layout</a></h2>
+<pre><code>x = [ V_0, V_1, …, V_{n-1},  I_aux0, I_aux1, … ]
+     └── node voltages ──┘   └── branch currents ──┘
+</code></pre>
+<p>Ground voltage is always 0 and is <strong>not</strong> included in the system.</p>
+<h2 id="stamping"><a class="header" href="#stamping">Stamping</a></h2>
+<p>Each component writes its contribution into <code>A</code> and <code>b</code> through its
+<code>Stamp(A, b, context)</code> method.  The <code>MNASystemBuilder</code> zeroes both
+arrays, then calls every component's stamp in sequence.</p>
+<h3 id="resistor-stamp"><a class="header" href="#resistor-stamp">Resistor Stamp</a></h3>
+<p>For a resistor $R$ between nodes <code>i</code> and <code>j</code>, conductance $G = 1/R$:</p>
+<div class="table-wrapper"><table><thead><tr><th></th><th>col <code>i</code></th><th>col <code>j</code></th></tr></thead><tbody>
+<tr><td><strong>row <code>i</code></strong></td><td>$+G$</td><td>$-G$</td></tr>
+<tr><td><strong>row <code>j</code></strong></td><td>$-G$</td><td>$+G$</td></tr>
+</tbody></table>
+</div>
+<h3 id="voltage-source-stamp"><a class="header" href="#voltage-source-stamp">Voltage Source Stamp</a></h3>
+<p>A voltage source $V_s$ between nodes <code>i</code> and <code>j</code> with auxiliary index <code>k</code>:</p>
+<div class="table-wrapper"><table><thead><tr><th></th><th>col <code>i</code></th><th>col <code>j</code></th><th>col <code>k</code></th></tr></thead><tbody>
+<tr><td><strong>row <code>i</code></strong></td><td></td><td></td><td>$+1$</td></tr>
+<tr><td><strong>row <code>j</code></strong></td><td></td><td></td><td>$-1$</td></tr>
+<tr><td><strong>row <code>k</code></strong></td><td>$+1$</td><td>$-1$</td><td></td></tr>
+</tbody></table>
+</div>
+<p>And $b[k] = V_s$.</p>
+<h3 id="capacitor-companion-stamp-backward-euler"><a class="header" href="#capacitor-companion-stamp-backward-euler">Capacitor Companion Stamp (Backward Euler)</a></h3>
+<p>Equivalent conductance $G_{eq} = C/\Delta t$, stamped like a resistor,
+plus a history current source $I_h = G_{eq} \cdot V_{prev}$ in <code>b</code>.</p>
+<h3 id="non-linear-device-stamp"><a class="header" href="#non-linear-device-stamp">Non-Linear Device Stamp</a></h3>
+<p>Diodes, BJTs, MOSFETs stamp a <strong>linearised companion model</strong> at each
+Newton–Raphson iteration:</p>
+<ul>
+<li>$g_d$ (differential conductance) → into <code>A</code></li>
+<li>$I_{eq}$ (equivalent current source) → into <code>b</code></li>
+</ul>
+<h2 id="gmin"><a class="header" href="#gmin">Gmin</a></h2>
+<p>A small conductance <code>gmin</code> (default <code>1e-12</code> S) is added from every node
+to ground to prevent singular matrices.  This is a standard SPICE technique.</p>
+<h2 id="building-the-system"><a class="header" href="#building-the-system">Building the System</a></h2>
+<pre><code class="language-python">builder = MNASystemBuilder(components, node_manager, gmin=1e-12)
+A, b = builder.build(context)
+</code></pre>
+<p>The <code>Circuit</code> class handles this automatically — you don't call it directly.</p>
+<h2 id="solving"><a class="header" href="#solving">Solving</a></h2>
+<p>For <strong>linear</strong> circuits (only resistors, sources, companion models), a
+single <code>numpy.linalg.solve(A, b)</code> call suffices.</p>
+<p>For <strong>non-linear</strong> circuits, the system is solved iteratively by the
+<a href="simulation/newton-raphson.html">Newton–Raphson solver</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="newtonraphson-solver"><a class="header" href="#newtonraphson-solver">Newton–Raphson Solver</a></h1>
+<p>The Newton–Raphson (NR) solver handles circuits containing <strong>non-linear</strong>
+components (diodes, BJTs, MOSFETs).  It iteratively linearises the
+non-linear device equations until the solution converges.</p>
+<h2 id="algorithm"><a class="header" href="#algorithm">Algorithm</a></h2>
+<pre><code>x = x_initial (previous time-step solution)
+for iteration = 1, 2, …, max_iterations:
+    1. Build A, b with components stamped at current x
+    2. Solve:  Δx = A⁻¹ b − x
+    3. Apply damping:  x_new = x + α · Δx
+    4. Check convergence:
+       - |Δx| &lt; abs_tolerance  AND
+       - |Δx| / |x_new| &lt; rel_tolerance
+    5. If converged → return x_new
+       If not     → x = x_new, repeat
+</code></pre>
+<h2 id="configuration-parameters-1"><a class="header" href="#configuration-parameters-1">Configuration Parameters</a></h2>
+<p>These are set via <code>SimulationConfig</code>:</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>nr_max_iterations</code></td><td><code>50</code></td><td>Maximum iterations before giving up</td></tr>
+<tr><td><code>nr_abs_tolerance</code></td><td><code>1e-9</code></td><td>Absolute convergence: max ΔV or ΔI</td></tr>
+<tr><td><code>nr_rel_tolerance</code></td><td><code>1e-6</code></td><td>Relative convergence: max ΔV/V or ΔI/I</td></tr>
+<tr><td><code>nr_damping_enabled</code></td><td><code>True</code></td><td>Use damped steps to prevent oscillation</td></tr>
+<tr><td><code>nr_initial_damping</code></td><td><code>1.0</code></td><td>Starting damping factor (1.0 = full Newton step)</td></tr>
+<tr><td><code>nr_min_damping</code></td><td><code>0.01</code></td><td>Minimum damping factor</td></tr>
+<tr><td><code>nr_vt_limit</code></td><td><code>0.25</code></td><td>Max voltage change per step in $V_T$ units</td></tr>
+</tbody></table>
+</div>
+<h2 id="damping"><a class="header" href="#damping">Damping</a></h2>
+<p>Full Newton steps can overshoot, especially near exponential I–V curves
+(diode knee).  <strong>Damped Newton</strong> limits the step size:</p>
+<p>$$
+x_{k+1} = x_k + \alpha \cdot \Delta x
+$$</p>
+<p>where $\alpha \in [0.01, 1.0]$.  The damping factor is automatically
+adjusted based on convergence progress.</p>
+<h2 id="voltage-limiting"><a class="header" href="#voltage-limiting">Voltage Limiting</a></h2>
+<p>For devices with exponential characteristics (diodes, BJT junctions), the
+junction voltage change per NR iteration is limited to <code>nr_vt_limit × Vt</code>
+to prevent numerical overflow in $e^{V/V_T}$.</p>
+<h2 id="dual-convergence-check"><a class="header" href="#dual-convergence-check">Dual Convergence Check</a></h2>
+<p>Convergence requires <strong>both</strong>:</p>
+<ol>
+<li><strong>Absolute:</strong> $|\Delta x|_\infty &lt; $ <code>nr_abs_tolerance</code></li>
+<li><strong>Relative:</strong> $|\Delta x|<em>\infty / |x</em>{new}|_\infty &lt; $ <code>nr_rel_tolerance</code></li>
+</ol>
+<p>This ensures convergence on both small signals (mV) and large voltages (kV).</p>
+<h2 id="fallback-gmin-stepping"><a class="header" href="#fallback-gmin-stepping">Fallback: Gmin Stepping</a></h2>
+<p>If NR fails to converge, PyEEL can fall back to <strong>gmin stepping</strong>:</p>
+<ol>
+<li>Start with a large gmin (e.g. <code>1e-3</code> S) — this linearises the circuit.</li>
+<li>Solve with this artificially large leakage.</li>
+<li>Gradually reduce gmin by a factor of 10 until reaching the target.</li>
+<li>Each step uses the previous solution as the initial guess.</li>
+</ol>
+<p>See <a href="simulation/convergence.html">Convergence Helpers</a> for more details.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="dc-operating-point-3"><a class="header" href="#dc-operating-point-3">DC Operating Point</a></h1>
+<p>The DC operating-point solver finds the <strong>steady-state bias</strong> of the circuit
+with all time-varying terms removed.  This is the starting point for
+transient analysis.</p>
+<h2 id="what-happens-during-dc-op"><a class="header" href="#what-happens-during-dc-op">What Happens During DC OP</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Component</th><th>DC Behaviour</th></tr></thead><tbody>
+<tr><td>Resistor</td><td>Normal</td></tr>
+<tr><td>Capacitor</td><td><strong>Open circuit</strong> (removed from MNA)</td></tr>
+<tr><td>Inductor</td><td><strong>Short circuit</strong> (tiny resistance <code>dc_inductor_resistance</code>)</td></tr>
+<tr><td>DC Source</td><td>Normal</td></tr>
+<tr><td>AC Source</td><td>Evaluates to its DC offset (0 for pure sine)</td></tr>
+<tr><td>Diode / BJT / MOSFET</td><td>Solved by Newton–Raphson</td></tr>
+</tbody></table>
+</div>
+<h2 id="solver-flow"><a class="header" href="#solver-flow">Solver Flow</a></h2>
+<pre><code>1. Set SimulationMode = DC
+2. If circuit is purely linear:
+      → Single A·x = b solve
+3. If circuit has non-linear components:
+      a. Try Newton–Raphson from zero initial guess
+      b. If NR fails → try source stepping:
+         - Ramp source amplitudes from 0% → 100%
+         - Solve at each step, using previous as initial guess
+      c. If source stepping fails → try gmin stepping
+4. Store solution as x_prev for transient analysis
+</code></pre>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>dc_operating_point</code></td><td><code>True</code></td><td>Set to <code>False</code> to skip DC OP and start transient from zero</td></tr>
+<tr><td><code>dc_inductor_resistance</code></td><td><code>1e-9</code></td><td>Resistance for inductor DC model (prevents singular matrix)</td></tr>
+<tr><td><code>source_stepping_enabled</code></td><td><code>True</code></td><td>Enable source ramping fallback</td></tr>
+<tr><td><code>source_stepping_steps</code></td><td><code>10</code></td><td>Number of ramp steps (more = slower but more robust)</td></tr>
+<tr><td><code>gmin_stepping_enabled</code></td><td><code>True</code></td><td>Enable gmin ramping fallback</td></tr>
+</tbody></table>
+</div>
+<h2 id="when-to-disable-dc-op"><a class="header" href="#when-to-disable-dc-op">When to Disable DC OP</a></h2>
+<p>Set <code>dc_operating_point=False</code> when:</p>
+<ul>
+<li>The circuit has <strong>no DC bias</strong> (e.g. purely AC-coupled).</li>
+<li>You want to observe the natural <strong>start-up transient</strong> from zero.</li>
+<li>The DC point is <strong>not meaningful</strong> (e.g. oscillator circuits).</li>
+</ul>
+<h2 id="debugging-dc-op-failures"><a class="header" href="#debugging-dc-op-failures">Debugging DC OP Failures</a></h2>
+<p>If the DC operating point fails to converge:</p>
+<ol>
+<li><strong>Increase source stepping steps:</strong> <code>source_stepping_steps=20</code> or <code>50</code>.</li>
+<li><strong>Increase NR iterations:</strong> <code>nr_max_iterations=100</code>.</li>
+<li><strong>Check topology:</strong> Ensure no floating nodes, no voltage-source loops.</li>
+<li><strong>Add bias resistors:</strong> High-value resistors to ground on floating gate
+nodes (MOSFET circuits commonly need this).</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="transient-analysis-1"><a class="header" href="#transient-analysis-1">Transient Analysis</a></h1>
+<p>Transient analysis simulates the circuit's behaviour over time by advancing
+the solution in discrete time steps using numerical integration.</p>
+<h2 id="integration-methods"><a class="header" href="#integration-methods">Integration Methods</a></h2>
+<h3 id="backward-euler-default"><a class="header" href="#backward-euler-default">Backward Euler (Default)</a></h3>
+<p>$$
+\frac{dx}{dt} \approx \frac{x_n - x_{n-1}}{\Delta t}
+$$</p>
+<ul>
+<li><strong>First-order</strong> accurate ($O(\Delta t)$)</li>
+<li><strong>Unconditionally stable</strong> — will not oscillate regardless of time step</li>
+<li>Introduces numerical <strong>damping</strong> (high-frequency transients decay faster)</li>
+<li>Best choice for circuits with switching, power electronics, start-up</li>
+</ul>
+<h3 id="trapezoidal"><a class="header" href="#trapezoidal">Trapezoidal</a></h3>
+<p>$$
+\frac{dx}{dt} \approx \frac{2(x_n - x_{n-1})}{\Delta t} - \left.\frac{dx}{dt}\right|_{n-1}
+$$</p>
+<ul>
+<li><strong>Second-order</strong> accurate ($O(\Delta t^2)$)</li>
+<li>Less numerical damping — better for oscillatory circuits (LCR)</li>
+<li>Can introduce <strong>ringing</strong> on stiff circuits (power supplies, switching)</li>
+</ul>
+<h3 id="choosing-a-method"><a class="header" href="#choosing-a-method">Choosing a Method</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Circuit Type</th><th>Recommended Method</th></tr></thead><tbody>
+<tr><td>Power supplies, rectifiers</td><td>Backward Euler</td></tr>
+<tr><td>Oscillators, LCR resonance</td><td>Trapezoidal</td></tr>
+<tr><td>General purpose</td><td>Backward Euler</td></tr>
+</tbody></table>
+</div>
+<pre><code class="language-python">config = SimulationConfig(integration_method=IntegrationMethod.TRAPEZOIDAL)
+</code></pre>
+<h2 id="companion-models"><a class="header" href="#companion-models">Companion Models</a></h2>
+<p>During transient analysis, energy-storage elements are replaced by
+<strong>companion models</strong> — equivalent circuits made of resistors and current
+sources:</p>
+<h3 id="capacitor-backward-euler"><a class="header" href="#capacitor-backward-euler">Capacitor (Backward Euler)</a></h3>
+<p>$$
+G_{eq} = \frac{C}{\Delta t}, \qquad I_{hist} = G_{eq} \cdot V_{n-1}
+$$</p>
+<p>Stamps as a conductance $G_{eq}$ in parallel with a current source $I_{hist}$.</p>
+<h3 id="inductor-backward-euler"><a class="header" href="#inductor-backward-euler">Inductor (Backward Euler)</a></h3>
+<p>$$
+G_{eq} = \frac{\Delta t}{L}, \qquad I_{hist} = I_{n-1}
+$$</p>
+<p>The inductor's auxiliary current unknown carries the history.</p>
+<h2 id="choosing-the-time-step"><a class="header" href="#choosing-the-time-step">Choosing the Time Step</a></h2>
+<p>The time step <code>dt</code> determines accuracy and speed:</p>
+<div class="table-wrapper"><table><thead><tr><th>Guideline</th><th>Rule of Thumb</th></tr></thead><tbody>
+<tr><td><strong>Nyquist</strong></td><td>$\Delta t &lt; \frac{1}{10 f_{max}}$ for accurate waveforms</td></tr>
+<tr><td><strong>Power-line circuits</strong> (50/60 Hz)</td><td>$\Delta t = 10^{-4}$ to $10^{-5}$ s</td></tr>
+<tr><td><strong>Audio circuits</strong> (20 kHz)</td><td>$\Delta t = 10^{-6}$ s</td></tr>
+<tr><td><strong>RF circuits</strong> (MHz)</td><td>$\Delta t = 10^{-8}$ to $10^{-9}$ s</td></tr>
+</tbody></table>
+</div>
+<p>Too large → inaccurate waveforms.  Too small → simulation runs slowly.</p>
+<h2 id="adaptive-time-step-1"><a class="header" href="#adaptive-time-step-1">Adaptive Time-Step</a></h2>
+<p>Enable automatic step-size control:</p>
+<pre><code class="language-python">config = SimulationConfig(
+    adaptive_timestep=True,
+    adaptive_threshold=0.5,    # normalised change threshold
+    adaptive_shrink=0.5,       # shrink factor on rejection
+    adaptive_grow=1.05,        # grow factor on acceptance
+    max_grow_factor=2.0,       # max single-step growth
+)
+</code></pre>
+<p>The adaptive controller compares the solution change between steps; if
+the change exceeds <code>adaptive_threshold</code>, the step is shrunk.  Otherwise
+it gradually grows.</p>
+<h2 id="running-transient-analysis"><a class="header" href="#running-transient-analysis">Running Transient Analysis</a></h2>
+<h3 id="option-1--livesimulation-interactive"><a class="header" href="#option-1--livesimulation-interactive">Option 1 — LiveSimulation (interactive)</a></h3>
+<pre><code class="language-python">plotter = LivePlotter([voltage_probe, current_probe])
+sim     = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
+sim.Run()    # blocks until window is closed
+</code></pre>
+<h3 id="option-2--manual-loop-headless"><a class="header" href="#option-2--manual-loop-headless">Option 2 — Manual Loop (headless)</a></h3>
+<pre><code class="language-python">for _ in range(100_000):
+    ckt.Simulate(dt=1e-4)
+
+# Access probe data
+times  = voltage_probe.TimeData
+values = voltage_probe.ValueData
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="convergence-helpers"><a class="header" href="#convergence-helpers">Convergence Helpers</a></h1>
+<p>Non-linear circuits can be difficult to solve.  PyEEL provides several
+convergence aids that activate automatically when Newton–Raphson struggles.</p>
+<h2 id="gmin-stepping-1"><a class="header" href="#gmin-stepping-1">Gmin Stepping</a></h2>
+<p><strong>Problem:</strong> With very small <code>gmin</code>, some circuits have nearly singular
+matrices and NR cannot find a starting point.</p>
+<p><strong>Solution:</strong> Start with a large gmin (e.g. <code>1e-3</code> S — significant leakage)
+and solve.  Then gradually reduce gmin by a factor of 10 toward the target
+value, using each solution as the starting point for the next.</p>
+<pre><code class="language-python">config = SimulationConfig(
+    gmin_stepping_enabled=True,      # default: True
+    gmin_stepping_start=1e-3,        # initial gmin
+    gmin_stepping_factor=10.0,       # divide by this each step
+    gmin_stepping_min=1e-12,         # final target gmin
+)
+</code></pre>
+<h3 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h3>
+<pre><code>gmin = 1e-3   → solve → converges ✓
+gmin = 1e-4   → solve → converges ✓
+gmin = 1e-5   → solve → converges ✓
+   …
+gmin = 1e-12  → solve → converges ✓  (final answer)
+</code></pre>
+<h2 id="source-stepping-2"><a class="header" href="#source-stepping-2">Source Stepping</a></h2>
+<p><strong>Problem:</strong> Large source voltages applied to non-linear circuits can
+cause NR to diverge from a zero initial guess.</p>
+<p><strong>Solution:</strong> Ramp all source amplitudes from 0 to their full value over
+several steps.</p>
+<pre><code class="language-python">config = SimulationConfig(
+    source_stepping_enabled=True,    # default: True
+    source_stepping_steps=10,        # number of ramp steps
+)
+</code></pre>
+<h3 id="how-it-works-1"><a class="header" href="#how-it-works-1">How It Works</a></h3>
+<pre><code>source_factor = 0.1  → all sources at 10%  → solve ✓
+source_factor = 0.2  → all sources at 20%  → solve ✓
+   …
+source_factor = 1.0  → all sources at 100% → solve ✓  (final answer)
+</code></pre>
+<h2 id="voltage-limiting-1"><a class="header" href="#voltage-limiting-1">Voltage Limiting</a></h2>
+<p>For exponential devices (diodes, BJT junctions), the voltage change per NR
+iteration is clamped:</p>
+<p>$$
+\Delta V_{junction} \leq n_{vt_limit} \cdot V_T
+$$</p>
+<p>Default: <code>nr_vt_limit = 0.25</code> (about 6.5 mV change per iteration). This
+prevents $e^{V/V_T}$ from overflowing.</p>
+<h2 id="damped-newton"><a class="header" href="#damped-newton">Damped Newton</a></h2>
+<p>The Newton step is scaled by a factor $\alpha$:</p>
+<p>$$
+x_{k+1} = x_k + \alpha \cdot \Delta x
+$$</p>
+<p>$\alpha$ starts at <code>nr_initial_damping</code> (default 1.0 = full step) and is
+reduced if the residual increases.</p>
+<h2 id="topology-validation"><a class="header" href="#topology-validation">Topology Validation</a></h2>
+<p><code>Finalize()</code> runs a topology check that catches common wiring mistakes:</p>
+<div class="table-wrapper"><table><thead><tr><th>Check</th><th>What It Catches</th></tr></thead><tbody>
+<tr><td>Isolated nodes</td><td>Nodes connected to only one component terminal</td></tr>
+<tr><td>Capacitor-only nodes</td><td>Nodes connected only to capacitors (infinite impedance at DC)</td></tr>
+<tr><td>Voltage source loops</td><td>Two voltage sources in parallel (contradictory constraints)</td></tr>
+<tr><td>Extreme values</td><td>Very large or very small component values that may cause numerical issues</td></tr>
+</tbody></table>
+</div>
+<h2 id="energy-check"><a class="header" href="#energy-check">Energy Check</a></h2>
+<p>Each transient step, the total stored energy in capacitors and inductors is
+computed:</p>
+<p>$$
+E_{total} = \sum \frac{1}{2} C V^2 + \sum \frac{1}{2} L I^2
+$$</p>
+<p>If <code>E_total &gt; max_energy</code> (default <code>1e12</code>), a warning is logged.  This
+catches runaway simulations early.</p>
+<h2 id="troubleshooting-guide"><a class="header" href="#troubleshooting-guide">Troubleshooting Guide</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th></tr></thead><tbody>
+<tr><td>"NR failed to converge"</td><td>Stiff circuit, bad initial guess</td><td>Increase <code>nr_max_iterations</code>; enable source stepping</td></tr>
+<tr><td>Oscillating NR</td><td>Large voltage swings</td><td>Reduce <code>nr_vt_limit</code>; enable damping</td></tr>
+<tr><td>Singular matrix</td><td>Floating node, VS loop</td><td>Check wiring; add bias resistors</td></tr>
+<tr><td>Energy warning</td><td>Unstable simulation</td><td>Reduce <code>dt</code>; check component values</td></tr>
+<tr><td>Slow convergence</td><td>Tight tolerances</td><td>Relax <code>nr_abs_tolerance</code> slightly</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="probes"><a class="header" href="#probes">Probes</a></h1>
+<p>Probes record simulation data (voltages and currents) at each time step
+for later plotting or analysis.</p>
+<pre><code class="language-python">from PyEEL import VoltageProbe, CurrentProbe
+</code></pre>
+<h2 id="creating-probes"><a class="header" href="#creating-probes">Creating Probes</a></h2>
+<h3 id="voltage-probe"><a class="header" href="#voltage-probe">Voltage Probe</a></h3>
+<pre><code class="language-python">VoltageProbe(name: str, *nodes: Node) -&gt; Probe
+</code></pre>
+<p>Measures the voltage between one or two nodes:</p>
+<pre><code class="language-python"># Voltage at a node (relative to GND)
+v_out = VoltageProbe("V_out", n_out)
+
+# Voltage across two nodes (V_a − V_b)
+v_ab = VoltageProbe("V_ab", n_a, n_b)
+</code></pre>
+<h3 id="current-probe"><a class="header" href="#current-probe">Current Probe</a></h3>
+<pre><code class="language-python">CurrentProbe(name: str, component: Component) -&gt; Probe
+</code></pre>
+<p>Measures the branch current through a component that has an <strong>auxiliary
+unknown</strong> (voltage sources, inductors, dependent sources with sense elements):</p>
+<pre><code class="language-python">i_v1 = CurrentProbe("I_V1", v1_source)
+i_L1 = CurrentProbe("I_L1", L1_inductor)
+</code></pre>
+<h2 id="registering-probes"><a class="header" href="#registering-probes">Registering Probes</a></h2>
+<pre><code class="language-python">ckt.AddProbe(v_out)
+ckt.AddProbe(i_v1)
+</code></pre>
+<p>Probes must be added <strong>before</strong> <code>Finalize()</code>.</p>
+<h2 id="accessing-data"><a class="header" href="#accessing-data">Accessing Data</a></h2>
+<p>After simulation, each probe stores time-stamped data:</p>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>TimeData</code></td><td><code>list[float]</code></td><td>Time values (seconds)</td></tr>
+<tr><td><code>ValueData</code></td><td><code>list[float]</code></td><td>Measured values (V or A)</td></tr>
+<tr><td><code>Name</code></td><td><code>str</code></td><td>Probe name</td></tr>
+<tr><td><code>Type</code></td><td><code>ProbeType</code></td><td><code>VOLTAGE</code> or <code>CURRENT</code></td></tr>
+</tbody></table>
+</div>
+<pre><code class="language-python">import matplotlib.pyplot as plt
+
+plt.plot(v_out.TimeData, v_out.ValueData)
+plt.xlabel("Time (s)")
+plt.ylabel("Voltage (V)")
+plt.show()
+</code></pre>
+<h2 id="methods-2"><a class="header" href="#methods-2">Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Record(time, solution)</code></td><td>Record a data point (called automatically by <code>Circuit.Simulate</code>)</td></tr>
+<tr><td><code>Clear()</code></td><td>Clear all recorded data</td></tr>
+<tr><td><code>Print()</code></td><td>Print the last few data points to console</td></tr>
+<tr><td><code>Save(file_path=None)</code></td><td>Save data to a CSV file</td></tr>
+<tr><td><code>Plot(window=None)</code></td><td>Quick matplotlib plot</td></tr>
+</tbody></table>
+</div>
+<h2 id="probetype-enum"><a class="header" href="#probetype-enum"><code>ProbeType</code> Enum</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>VOLTAGE</code></td><td>Voltage measurement</td></tr>
+<tr><td><code>CURRENT</code></td><td>Current measurement</td></tr>
+</tbody></table>
+</div>
+<h2 id="the-probe-constructor-advanced"><a class="header" href="#the-probe-constructor-advanced">The <code>Probe</code> Constructor (Advanced)</a></h2>
+<pre><code class="language-python">Probe(name: str, probe_type: ProbeType, *nodes: Node,
+      component: Component | None = None)
+</code></pre>
+<p>The <code>VoltageProbe</code> and <code>CurrentProbe</code> factories are preferred, but you
+can create a Probe directly if needed.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="live-plotting"><a class="header" href="#live-plotting">Live Plotting</a></h1>
+<p><code>LivePlotter</code> provides real-time animated matplotlib plots that update
+as the simulation runs.</p>
+<pre><code class="language-python">from PyEEL import LivePlotter
+</code></pre>
+<h2 id="constructor-11"><a class="header" href="#constructor-11">Constructor</a></h2>
+<pre><code class="language-python">LivePlotter(*groups: list[Probe], window: float | None = None,
+            update_interval: float = 0.03)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>*groups</code></td><td>—</td><td>Each positional argument is a <code>list[Probe]</code> that shares one subplot</td></tr>
+<tr><td><code>window</code></td><td><code>None</code></td><td>Sliding time window in seconds. <code>None</code> shows the full history.</td></tr>
+<tr><td><code>update_interval</code></td><td><code>0.03</code></td><td>Minimum seconds between plot refreshes (≈ 33 fps)</td></tr>
+</tbody></table>
+</div>
+<h2 id="subplot-groups"><a class="header" href="#subplot-groups">Subplot Groups</a></h2>
+<p>Each positional argument to <code>LivePlotter</code> creates a <strong>separate subplot</strong>:</p>
+<pre><code class="language-python">plotter = LivePlotter(
+    [v_in_probe, v_out_probe],      # subplot 1: two voltage traces
+    [i_probe],                       # subplot 2: one current trace
+    window=0.05,                     # show last 50 ms
+)
+</code></pre>
+<p>This creates a figure with 2 vertically stacked subplots.</p>
+<h2 id="properties-12"><a class="header" href="#properties-12">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>IsOpen</code></td><td><code>bool</code></td><td>Whether the plot window is still open</td></tr>
+</tbody></table>
+</div>
+<h2 id="methods-3"><a class="header" href="#methods-3">Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Update()</code></td><td>Refresh the plot with latest probe data. Called automatically by <code>LiveSimulation</code>.</td></tr>
+<tr><td><code>Close()</code></td><td>Close the matplotlib window</td></tr>
+<tr><td><code>KeepOpen()</code></td><td>Block until the user closes the window (useful at script end)</td></tr>
+</tbody></table>
+</div>
+<h2 id="standalone-usage"><a class="header" href="#standalone-usage">Standalone Usage</a></h2>
+<p>You can use <code>LivePlotter</code> without <code>LiveSimulation</code> by calling <code>Update()</code>
+manually:</p>
+<pre><code class="language-python">plotter = LivePlotter([v_probe], window=0.1)
+
+for _ in range(50_000):
+    ckt.Simulate(dt=1e-4)
+    plotter.Update()
+
+plotter.KeepOpen()
+</code></pre>
+<h2 id="tips"><a class="header" href="#tips">Tips</a></h2>
+<ul>
+<li><strong>Window size:</strong> Set <code>window</code> to 2–3 periods of your signal for a clean
+display.  For 50 Hz → <code>window=0.06</code>.</li>
+<li><strong>Performance:</strong> The <code>update_interval</code> throttles redraws.  Increase it
+if the simulation is slow.</li>
+<li><strong>Multiple windows:</strong> Create multiple <code>LivePlotter</code> instances for
+separate windows.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="live-simulation"><a class="header" href="#live-simulation">Live Simulation</a></h1>
+<p><code>LiveSimulation</code> ties together a <code>Circuit</code> and a <code>LivePlotter</code> into a
+blocking simulation loop with interactive controls.</p>
+<pre><code class="language-python">from PyEEL import LiveSimulation
+
+sim = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
+sim.Run()
+</code></pre>
+<h2 id="constructor-12"><a class="header" href="#constructor-12">Constructor</a></h2>
+<pre><code class="language-python">LiveSimulation(circuit: Circuit, plotter: LivePlotter, *,
+               dt: float = 0.0005, speed: int = 60,
+               use_adaptive_dt: bool = False)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>circuit</code></td><td>—</td><td>A finalised <code>Circuit</code> instance</td></tr>
+<tr><td><code>plotter</code></td><td>—</td><td>A <code>LivePlotter</code> instance</td></tr>
+<tr><td><code>dt</code></td><td><code>0.0005</code></td><td>Time step in seconds</td></tr>
+<tr><td><code>speed</code></td><td><code>60</code></td><td>Simulation steps per frame</td></tr>
+<tr><td><code>use_adaptive_dt</code></td><td><code>False</code></td><td>Use adaptive time-step control</td></tr>
+</tbody></table>
+</div>
+<h3 id="speed-parameter"><a class="header" href="#speed-parameter"><code>speed</code> Parameter</a></h3>
+<p><code>speed</code> controls how many <code>Simulate(dt)</code> calls are made between each plot
+update.  Higher values = faster simulation time progression, but less
+responsive UI.</p>
+<div class="table-wrapper"><table><thead><tr><th>speed</th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>20</code></td><td>Slow, smooth — good for observing start-up</td></tr>
+<tr><td><code>60</code></td><td>Balanced</td></tr>
+<tr><td><code>200</code></td><td>Fast — good for reaching steady state quickly</td></tr>
+</tbody></table>
+</div>
+<h2 id="methods-4"><a class="header" href="#methods-4">Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Run()</code></td><td>Start the simulation loop (blocking)</td></tr>
+<tr><td><code>Pause()</code></td><td>Pause the simulation</td></tr>
+<tr><td><code>Resume()</code></td><td>Resume from pause</td></tr>
+<tr><td><code>TogglePause()</code></td><td>Toggle pause state</td></tr>
+</tbody></table>
+</div>
+<h2 id="properties-13"><a class="header" href="#properties-13">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>IsPaused</code></td><td><code>bool</code></td><td>Current pause state</td></tr>
+<tr><td><code>dt</code></td><td><code>float</code></td><td>Time step (settable at runtime)</td></tr>
+<tr><td><code>Speed</code></td><td><code>int</code></td><td>Steps per frame (settable at runtime)</td></tr>
+</tbody></table>
+</div>
+<h2 id="keyboard-controls"><a class="header" href="#keyboard-controls">Keyboard Controls</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+<tr><td><strong>Space</strong></td><td>Toggle pause/resume</td></tr>
+</tbody></table>
+</div>
+<h2 id="lifecycle"><a class="header" href="#lifecycle">Lifecycle</a></h2>
+<pre><code>sim.Run()
+  ├── If dc_operating_point: SolveDCOperatingPoint()
+  └── Loop:
+       ├── for i in range(speed): circuit.Simulate(dt)
+       ├── plotter.Update()
+       └── Check if window closed → exit
+</code></pre>
+<p>The loop runs until the user closes the matplotlib window.</p>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-python">config  = SimulationConfig(dc_operating_point=True)
+ckt     = Circuit(solver=NumpySolver(), config=config)
+# … add components and probes …
+ckt.Finalize()
+
+plotter = LivePlotter(
+    [v_in, v_out],    # subplot 1
+    [i_diode],         # subplot 2
+    window=0.05,
+)
+sim = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
+sim.Run()
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="component-library"><a class="header" href="#component-library">Component Library</a></h1>
+<p>The <strong>pre-built component library</strong> provides factory functions for
+real-world electronic parts with <strong>datasheet parameters already filled in</strong>.
+Each function takes only a <code>name</code> and <code>nodes</code> tuple — no need to look up
+$I_S$, $\beta_F$, or $V_Z$ values.</p>
+<pre><code class="language-python">from PyEEL.Components.library import IN4007, BC547, R1k, LED_Red
+
+ckt.AddComponent(R1k("R1", (n1, n2)))
+ckt.AddComponent(IN4007("D1", (n_anode, n_cathode)))
+ckt.AddComponent(BC547("Q1", (n_c, n_b, n_e)))
+ckt.AddComponent(LED_Red("LED1", (n_a, n_k)))
+</code></pre>
+<h2 id="available-parts"><a class="header" href="#available-parts">Available Parts</a></h2>
+<h3 id="power-sources"><a class="header" href="#power-sources">Power Sources</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>DC3V3(name, nodes)</code></td><td>3.3 V DC supply</td></tr>
+<tr><td><code>DC5V(name, nodes)</code></td><td>5 V DC supply</td></tr>
+<tr><td><code>DC12V(name, nodes)</code></td><td>12 V DC supply</td></tr>
+<tr><td><code>DC24V(name, nodes)</code></td><td>24 V DC supply</td></tr>
+<tr><td><code>AC240V_50Hz(name, nodes)</code></td><td>240 V RMS 50 Hz mains (peak ≈ 339 V)</td></tr>
+<tr><td><code>AC120V_60Hz(name, nodes)</code></td><td>120 V RMS 60 Hz mains (peak ≈ 170 V)</td></tr>
+</tbody></table>
+</div>
+<h3 id="standard-resistors"><a class="header" href="#standard-resistors">Standard Resistors</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th></tr></thead><tbody>
+<tr><td><code>R10</code></td><td>10 Ω</td></tr>
+<tr><td><code>R100</code></td><td>100 Ω</td></tr>
+<tr><td><code>R220</code></td><td>220 Ω</td></tr>
+<tr><td><code>R330</code></td><td>330 Ω</td></tr>
+<tr><td><code>R470</code></td><td>470 Ω</td></tr>
+<tr><td><code>R1k</code></td><td>1 kΩ</td></tr>
+<tr><td><code>R2k2</code></td><td>2.2 kΩ</td></tr>
+<tr><td><code>R4k7</code></td><td>4.7 kΩ</td></tr>
+<tr><td><code>R5k</code></td><td>5 kΩ</td></tr>
+<tr><td><code>R10k</code></td><td>10 kΩ</td></tr>
+<tr><td><code>R22k</code></td><td>22 kΩ</td></tr>
+<tr><td><code>R47k</code></td><td>47 kΩ</td></tr>
+<tr><td><code>R100k</code></td><td>100 kΩ</td></tr>
+<tr><td><code>R1M</code></td><td>1 MΩ</td></tr>
+</tbody></table>
+</div>
+<h3 id="standard-capacitors"><a class="header" href="#standard-capacitors">Standard Capacitors</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th><th>Typical Use</th></tr></thead><tbody>
+<tr><td><code>C100p</code></td><td>100 pF</td><td>RF, high-frequency</td></tr>
+<tr><td><code>C1n</code></td><td>1 nF</td><td>Timing</td></tr>
+<tr><td><code>C10n</code></td><td>10 nF</td><td>Filtering</td></tr>
+<tr><td><code>C100n</code></td><td>100 nF</td><td>Universal decoupling</td></tr>
+<tr><td><code>C1u</code></td><td>1 µF</td><td>Coupling, timing</td></tr>
+<tr><td><code>C10u</code></td><td>10 µF</td><td>Bypass</td></tr>
+<tr><td><code>C100u</code></td><td>100 µF</td><td>PSU filtering</td></tr>
+<tr><td><code>C470u</code></td><td>470 µF</td><td>PSU filtering</td></tr>
+<tr><td><code>C1000u</code></td><td>1000 µF</td><td>PSU bulk filter</td></tr>
+</tbody></table>
+</div>
+<h3 id="rectifier-diodes"><a class="header" href="#rectifier-diodes">Rectifier Diodes</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>Rating</th></tr></thead><tbody>
+<tr><td><code>IN4001</code></td><td>1N4001</td><td><code>2.55e-9</code></td><td><code>1.75</code></td><td>50 V, 1 A</td></tr>
+<tr><td><code>IN4007</code></td><td>1N4007</td><td><code>7.02e-9</code></td><td><code>1.77</code></td><td>1000 V, 1 A</td></tr>
+</tbody></table>
+</div>
+<h3 id="signal-diodes"><a class="header" href="#signal-diodes">Signal Diodes</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>Application</th></tr></thead><tbody>
+<tr><td><code>IN4148</code></td><td>1N4148</td><td><code>2.52e-9</code></td><td><code>1.75</code></td><td>Fast signal, 75 V</td></tr>
+<tr><td><code>IN914</code></td><td>1N914</td><td><code>2.52e-9</code></td><td><code>1.75</code></td><td>Same as 1N4148</td></tr>
+</tbody></table>
+</div>
+<h3 id="schottky-diodes"><a class="header" href="#schottky-diodes">Schottky Diodes</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>$V_f$</th></tr></thead><tbody>
+<tr><td><code>IN5817</code></td><td>1N5817</td><td><code>3.19e-5</code></td><td><code>1.05</code></td><td>≈ 0.32 V</td></tr>
+<tr><td><code>IN5819</code></td><td>1N5819</td><td><code>2.5e-5</code></td><td><code>1.05</code></td><td>≈ 0.34 V</td></tr>
+<tr><td><code>BAT54</code></td><td>BAT54</td><td><code>1.0e-5</code></td><td><code>1.03</code></td><td>≈ 0.24 V</td></tr>
+</tbody></table>
+</div>
+<h3 id="zener-diodes"><a class="header" href="#zener-diodes">Zener Diodes</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Alias</th><th>$V_Z$</th><th>$I_{BV}$</th></tr></thead><tbody>
+<tr><td><code>BZX55C3V3</code></td><td><code>Zener3V3</code></td><td>3.3 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C5V1</code></td><td><code>Zener5V1</code></td><td>5.1 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C6V2</code></td><td><code>Zener6V2</code></td><td>6.2 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C12</code></td><td><code>Zener12V</code></td><td>12 V</td><td>1 mA</td></tr>
+<tr><td><code>BZX55C15</code></td><td><code>Zener15V</code></td><td>15 V</td><td>1 mA</td></tr>
+</tbody></table>
+</div>
+<h3 id="leds"><a class="header" href="#leds">LEDs</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Colour</th><th>$V_f$ approx</th><th>$I_S$</th><th>$n$</th></tr></thead><tbody>
+<tr><td><code>LED_Red</code></td><td>Red</td><td>1.8 V</td><td><code>1.2e-20</code></td><td><code>1.8</code></td></tr>
+<tr><td><code>LED_Green</code></td><td>Green</td><td>2.1 V</td><td><code>1.0e-22</code></td><td><code>1.9</code></td></tr>
+<tr><td><code>LED_Blue</code></td><td>Blue</td><td>3.2 V</td><td><code>1.0e-30</code></td><td><code>2.1</code></td></tr>
+<tr><td><code>LED_Yellow</code></td><td>Yellow</td><td>2.0 V</td><td><code>5.0e-22</code></td><td><code>1.85</code></td></tr>
+<tr><td><code>LED_White</code></td><td>White</td><td>3.2 V</td><td><code>1.0e-30</code></td><td><code>2.1</code></td></tr>
+</tbody></table>
+</div>
+<h3 id="npn-transistors"><a class="header" href="#npn-transistors">NPN Transistors</a></h3>
+<p>All use <code>nodes = (collector, base, emitter)</code>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$\beta_F$</th><th>$I_S$</th><th>$V_{AF}$</th><th>Application</th></tr></thead><tbody>
+<tr><td><code>N2N2222</code></td><td>2N2222</td><td>256</td><td><code>14.34e-15</code></td><td>74 V</td><td>General purpose</td></tr>
+<tr><td><code>BC547</code></td><td>BC547</td><td>400</td><td><code>1.8e-14</code></td><td>80 V</td><td>Small signal</td></tr>
+<tr><td><code>BC548</code></td><td>BC548</td><td>400</td><td><code>1.8e-14</code></td><td>80 V</td><td>Small signal</td></tr>
+<tr><td><code>BC549</code></td><td>BC549</td><td>420</td><td><code>1.8e-14</code></td><td>80 V</td><td>Low noise</td></tr>
+<tr><td><code>N2N3904</code></td><td>2N3904</td><td>416</td><td><code>6.73e-15</code></td><td>74 V</td><td>General purpose</td></tr>
+<tr><td><code>TIP31C</code></td><td>TIP31C</td><td>50</td><td><code>1e-12</code></td><td>100 V</td><td>Medium power</td></tr>
+<tr><td><code>TIP41C</code></td><td>TIP41C</td><td>60</td><td><code>1e-12</code></td><td>100 V</td><td>High power</td></tr>
+<tr><td><code>N2N3055</code></td><td>2N3055</td><td>50</td><td><code>2e-11</code></td><td>100 V</td><td>Power (115 W)</td></tr>
+<tr><td><code>BD139</code></td><td>BD139</td><td>100</td><td><code>1e-13</code></td><td>80 V</td><td>Audio driver</td></tr>
+<tr><td><code>S8050</code></td><td>S8050</td><td>200</td><td><code>1e-14</code></td><td>50 V</td><td>Low-voltage</td></tr>
+</tbody></table>
+</div>
+<h3 id="pnp-transistors-1"><a class="header" href="#pnp-transistors-1">PNP Transistors</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$\beta_F$</th><th>$I_S$</th><th>$V_{AF}$</th><th>Complement</th></tr></thead><tbody>
+<tr><td><code>N2N3906</code></td><td>2N3906</td><td>181</td><td><code>1.3e-14</code></td><td>18.7 V</td><td>2N3904</td></tr>
+<tr><td><code>BC557</code></td><td>BC557</td><td>330</td><td><code>1.8e-14</code></td><td>60 V</td><td>BC547</td></tr>
+<tr><td><code>BC558</code></td><td>BC558</td><td>330</td><td><code>1.8e-14</code></td><td>60 V</td><td>BC548</td></tr>
+<tr><td><code>N2N2907</code></td><td>2N2907</td><td>200</td><td><code>6.5e-15</code></td><td>115 V</td><td>2N2222</td></tr>
+<tr><td><code>TIP32C</code></td><td>TIP32C</td><td>50</td><td><code>1e-12</code></td><td>100 V</td><td>TIP31C</td></tr>
+<tr><td><code>TIP42C</code></td><td>TIP42C</td><td>60</td><td><code>1e-12</code></td><td>100 V</td><td>TIP41C</td></tr>
+<tr><td><code>BD140</code></td><td>BD140</td><td>100</td><td><code>1e-13</code></td><td>80 V</td><td>BD139</td></tr>
+<tr><td><code>S8550</code></td><td>S8550</td><td>200</td><td><code>1e-14</code></td><td>50 V</td><td>S8050</td></tr>
+</tbody></table>
+</div>
+<h3 id="darlington-transistors"><a class="header" href="#darlington-transistors">Darlington Transistors</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>Type</th><th>$\beta_F$</th><th>Application</th></tr></thead><tbody>
+<tr><td><code>TIP120</code></td><td>TIP120</td><td>NPN</td><td>1000</td><td>Switching heavy loads</td></tr>
+<tr><td><code>TIP125</code></td><td>TIP125</td><td>PNP</td><td>1000</td><td>Complement of TIP120</td></tr>
+<tr><td><code>N2N5306</code></td><td>2N5306</td><td>NPN</td><td>2500</td><td>Small-signal Darlington</td></tr>
+</tbody></table>
+</div>
+<h3 id="transformers-240-v-primary"><a class="header" href="#transformers-240-v-primary">Transformers (240 V Primary)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Ratio</th><th>$L_1$</th><th>$L_2$</th><th>$k$</th></tr></thead><tbody>
+<tr><td><code>Transformer_240_to_5(name, primary_nodes, secondary_nodes)</code></td><td>48:1</td><td>100 H</td><td>0.0434 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_12(name, primary_nodes, secondary_nodes)</code></td><td>20:1</td><td>100 H</td><td>0.25 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_24(name, primary_nodes, secondary_nodes)</code></td><td>10:1</td><td>100 H</td><td>1.0 H</td><td>0.999</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p>Transformer functions take <code>(name, primary_nodes, secondary_nodes)</code> instead
+of <code>(name, nodes)</code>.</p>
+</blockquote>
+<h2 id="adding-your-own-parts"><a class="header" href="#adding-your-own-parts">Adding Your Own Parts</a></h2>
+<p>See <a href="library/../extending/new-library-parts.html">Adding Library Parts</a> for how to
+extend this library with new components.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="common-building-blocks"><a class="header" href="#common-building-blocks">Common Building Blocks</a></h1>
+<p>The <code>common</code> module provides <strong>circuit-topology factory functions</strong> that
+create groups of pre-wired components for standard sub-circuits.  Unlike
+the <a href="library/overview.html">component library</a> which provides individual parts,
+<code>common</code> builds <strong>complete sub-circuits</strong>.</p>
+<pre><code class="language-python">from PyEEL.Components.common import voltage_divider, half_wave_rectifier, add_all
+</code></pre>
+<h2 id="usage-pattern"><a class="header" href="#usage-pattern">Usage Pattern</a></h2>
+<p>Most functions return a <code>list[Component]</code> that you add to the circuit:</p>
+<pre><code class="language-python">components = voltage_divider("DIV", n_in, n_out, gnd, r_top=10e3, r_bottom=10e3)
+add_all(ckt, components)
+</code></pre>
+<p>Some complex functions return a <code>(list[Component], dict)</code> tuple where the
+dict contains internal nodes you may want to probe.</p>
+<h2 id="available-functions"><a class="header" href="#available-functions">Available Functions</a></h2>
+<h3 id="passive-networks"><a class="header" href="#passive-networks">Passive Networks</a></h3>
+<h4 id="voltage_divider"><a class="header" href="#voltage_divider"><code>voltage_divider</code></a></h4>
+<pre><code class="language-python">voltage_divider(prefix, n_in, n_out, n_gnd, *, r_top, r_bottom) -&gt; list[Component]
+</code></pre>
+<p>Two resistors forming a voltage divider: $V_{out} = V_{in} \cdot \dfrac{R_{bottom}}{R_{top} + R_{bottom}}$.</p>
+<h4 id="rc_low_pass"><a class="header" href="#rc_low_pass"><code>rc_low_pass</code></a></h4>
+<pre><code class="language-python">rc_low_pass(prefix, n_in, n_out, n_gnd, *, resistance, capacitance) -&gt; list[Component]
+</code></pre>
+<p>First-order low-pass filter.  Cutoff: $f_c = \dfrac{1}{2\pi RC}$.</p>
+<h4 id="rc_high_pass"><a class="header" href="#rc_high_pass"><code>rc_high_pass</code></a></h4>
+<pre><code class="language-python">rc_high_pass(prefix, n_in, n_out, n_gnd, *, resistance, capacitance) -&gt; list[Component]
+</code></pre>
+<p>First-order high-pass filter (coupling capacitor + resistor to ground).</p>
+<h4 id="series_lcr"><a class="header" href="#series_lcr"><code>series_lcr</code></a></h4>
+<pre><code class="language-python">series_lcr(prefix, n_in, n_L_out, n_C_out, n_gnd, *,
+           inductance, capacitance, resistance) -&gt; list[Component]
+</code></pre>
+<p>Series L-C-R circuit.  Resonant frequency: $f_0 = \dfrac{1}{2\pi\sqrt{LC}}$.</p>
+<h4 id="parallel_rc"><a class="header" href="#parallel_rc"><code>parallel_rc</code></a></h4>
+<pre><code class="language-python">parallel_rc(prefix, n_pos, n_neg, *, resistance, capacitance) -&gt; list[Component]
+</code></pre>
+<p>Resistor and capacitor in parallel.</p>
+<h3 id="rectifiers"><a class="header" href="#rectifiers">Rectifiers</a></h3>
+<h4 id="half_wave_rectifier"><a class="header" href="#half_wave_rectifier"><code>half_wave_rectifier</code></a></h4>
+<pre><code class="language-python">half_wave_rectifier(prefix, n_ac, n_dc, n_gnd, *,
+                    r_load, Is=1e-14, n_diode=1.0) -&gt; list[Component]
+</code></pre>
+<p>Single diode + load resistor.</p>
+<h4 id="full_bridge_rectifier"><a class="header" href="#full_bridge_rectifier"><code>full_bridge_rectifier</code></a></h4>
+<pre><code class="language-python">full_bridge_rectifier(prefix, n_ac_p, n_ac_n, n_dc_p, n_dc_n, *,
+                      Is=1e-14, n_diode=1.0) -&gt; list[Component]
+</code></pre>
+<p>Four diodes in a bridge configuration.</p>
+<h3 id="voltage-regulators"><a class="header" href="#voltage-regulators">Voltage Regulators</a></h3>
+<h4 id="zener_clamp"><a class="header" href="#zener_clamp"><code>zener_clamp</code></a></h4>
+<pre><code class="language-python">zener_clamp(prefix, n_in, n_out, n_gnd, *,
+            r_series, Vz=5.1, Is=1e-14) -&gt; list[Component]
+</code></pre>
+<p>Series resistor + Zener diode clipper.</p>
+<h4 id="zener_regulator"><a class="header" href="#zener_regulator"><code>zener_regulator</code></a></h4>
+<pre><code class="language-python">zener_regulator(prefix, n_in, n_out, n_gnd, *,
+                r_series, r_load, Vz=5.1, Is=1e-14) -&gt; list[Component]
+</code></pre>
+<p>Shunt Zener regulator with load.</p>
+<h3 id="amplifiers"><a class="header" href="#amplifiers">Amplifiers</a></h3>
+<h4 id="ce_amplifier_with_nodes"><a class="header" href="#ce_amplifier_with_nodes"><code>ce_amplifier_with_nodes</code></a></h4>
+<pre><code class="language-python">ce_amplifier_with_nodes(prefix, node_manager, n_vcc, n_in, n_out, n_gnd, *,
+                        r1, r2, rc, re, c_in, c_out,
+                        BF=200, Is=1e-15, Vaf=None) -&gt; (list, dict)
+</code></pre>
+<p>Complete voltage-divider-biased common-emitter NPN amplifier with coupling
+capacitors.  Returns <code>(components, {'base': Node, 'collector': Node, 'emitter': Node})</code>.</p>
+<h4 id="common_source_amplifier"><a class="header" href="#common_source_amplifier"><code>common_source_amplifier</code></a></h4>
+<pre><code class="language-python">common_source_amplifier(prefix, node_manager, n_vdd, n_in, n_out, n_gnd, *,
+                        rd, rs, rg, c_in, c_out,
+                        Kp=2e-5, Vth=1.0, lambda_=0.0,
+                        mosfet_type=MOSFETType.NMOS) -&gt; (list, dict)
+</code></pre>
+<p>MOSFET common-source amplifier.  Returns <code>(components, {'drain', 'gate', 'source'})</code>.</p>
+<h3 id="power-supplies"><a class="header" href="#power-supplies">Power Supplies</a></h3>
+<h4 id="dc_supply"><a class="header" href="#dc_supply"><code>dc_supply</code></a></h4>
+<pre><code class="language-python">dc_supply(prefix, n_vcc, n_gnd, *, voltage) -&gt; list[Component]
+</code></pre>
+<p>Simple DC voltage source.</p>
+<h4 id="ac_supply"><a class="header" href="#ac_supply"><code>ac_supply</code></a></h4>
+<pre><code class="language-python">ac_supply(prefix, n_out, n_gnd, *, amplitude, frequency) -&gt; list[Component]
+</code></pre>
+<p>Simple AC voltage source.</p>
+<h4 id="linear_power_supply"><a class="header" href="#linear_power_supply"><code>linear_power_supply</code></a></h4>
+<pre><code class="language-python">linear_power_supply(prefix, node_manager, n_ac_p, n_ac_n, n_dc_out, n_gnd, *,
+                    r_load, c_filter=1000e-6, Is=1e-14) -&gt; (list, dict)
+</code></pre>
+<p>Full-bridge rectifier + filter cap + load.</p>
+<h4 id="transformer_supply"><a class="header" href="#transformer_supply"><code>transformer_supply</code></a></h4>
+<pre><code class="language-python">transformer_supply(prefix, node_manager, n_mains_p, n_mains_n,
+                   n_dc_out, n_gnd, *, ...) -&gt; (list, dict)
+</code></pre>
+<p>Complete linear power supply: transformer + bridge + filter + load.</p>
+<h3 id="utility"><a class="header" href="#utility">Utility</a></h3>
+<h4 id="add_all"><a class="header" href="#add_all"><code>add_all</code></a></h4>
+<pre><code class="language-python">add_all(circuit: Circuit, components: list[Component]) -&gt; None
+</code></pre>
+<p>Convenience function to add a list of components to a circuit in one call.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-half-wave-rectifier"><a class="header" href="#example-half-wave-rectifier">Example: Half-Wave Rectifier</a></h1>
+<p>A simple half-wave rectifier converts AC to pulsating DC using a single
+diode.</p>
+<p><strong>File:</strong> <code>examples/half_wave_rectifier.py</code></p>
+<h2 id="circuit-1"><a class="header" href="#circuit-1">Circuit</a></h2>
+<pre><code>        D1 (1N4007)
+n1 ──────►|────── n2
+│                  │
+V_ac             R_load
+(5V 50Hz)        (1 kΩ)
+│                  │
+GND ──────────── GND
+</code></pre>
+<h2 id="code"><a class="header" href="#code">Code</a></h2>
+<pre><code class="language-python">from PyEEL import (
+    Circuit, NumpySolver, SimulationConfig,
+    Resistor, Diode, ACVoltageSource,
+    VoltageProbe, CurrentProbe,
+    LivePlotter, LiveSimulation,
+)
+
+config = SimulationConfig(dc_operating_point=True)
+ckt = Circuit(solver=NumpySolver(), config=config)
+nm  = ckt.NodeManager
+gnd = nm.GroundNode
+
+n1 = nm.AddNode("n1")
+n2 = nm.AddNode("n2")
+
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5, frequency=50))
+ckt.AddComponent(d1 := Diode("D1", (n1, n2), Is=7.02e-9, n=1.77))
+ckt.AddComponent(Resistor("R1", (n2, gnd), resistance=1000))
+
+ckt.AddProbe(VoltageProbe("V_in", n1))
+ckt.AddProbe(VoltageProbe("V_out", n2))
+ckt.AddProbe(CurrentProbe("I_D1", d1))
+ckt.Finalize()
+
+plotter = LivePlotter(
+    [ckt.Probes[0], ckt.Probes[1]],   # voltages
+    [ckt.Probes[2]],                    # diode current
+)
+sim = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
+sim.Run()
+</code></pre>
+<h2 id="what-to-observe"><a class="header" href="#what-to-observe">What to Observe</a></h2>
+<ul>
+<li><strong>V_out</strong> follows V_in during positive half-cycles (minus ~0.7 V diode drop).</li>
+<li>During negative half-cycles, the diode blocks and V_out ≈ 0.</li>
+<li>The diode current flows only during conduction.</li>
+</ul>
+<h2 id="key-concepts-demonstrated"><a class="header" href="#key-concepts-demonstrated">Key Concepts Demonstrated</a></h2>
+<ul>
+<li>Non-linear device (Diode) with Newton–Raphson</li>
+<li>AC voltage source</li>
+<li>Voltage and current probes</li>
+<li>Live plotting with multiple subplots</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-common-emitter-amplifier"><a class="header" href="#example-common-emitter-amplifier">Example: Common-Emitter Amplifier</a></h1>
+<p>A voltage-divider-biased NPN common-emitter amplifier — the fundamental
+transistor amplifier topology.</p>
+<p><strong>File:</strong> <code>examples/ce_amplifier.py</code></p>
+<h2 id="circuit-2"><a class="header" href="#circuit-2">Circuit</a></h2>
+<pre><code>         Vcc (12 V)
+          │
+     ┌────┤────┐
+     R1   Rc    │
+    (56k) (1k)  │
+     │    │     │
+     ├── Q1 (NPN 2N2222)
+     │    │
+     R2   Re
+    (10k) (220)
+     │    │
+    GND  GND
+
+    AC input (1 kHz, 20 mV) coupled through C_in
+    Output taken from collector through C_out
+</code></pre>
+<h2 id="code-1"><a class="header" href="#code-1">Code</a></h2>
+<pre><code class="language-python">from PyEEL import (
+    Circuit, NumpySolver, SimulationConfig,
+    Resistor, Capacitor, NPN,
+    DCVoltageSource, ACVoltageSource,
+    VoltageProbe, CurrentProbe,
+    LivePlotter, LiveSimulation,
+)
+
+config = SimulationConfig(dc_operating_point=True)
+ckt = Circuit(solver=NumpySolver(), config=config)
+nm  = ckt.NodeManager
+gnd = nm.GroundNode
+
+n_vcc = nm.AddNode("Vcc")
+n_in  = nm.AddNode("in")
+n_b   = nm.AddNode("base")
+n_c   = nm.AddNode("collector")
+n_e   = nm.AddNode("emitter")
+n_out = nm.AddNode("out")
+
+# Power supply
+ckt.AddComponent(DCVoltageSource("Vcc", (n_vcc, gnd), voltage=12))
+
+# Bias network
+ckt.AddComponent(Resistor("R1", (n_vcc, n_b), resistance=56e3))
+ckt.AddComponent(Resistor("R2", (n_b, gnd), resistance=10e3))
+
+# Transistor
+ckt.AddComponent(NPN("Q1", (n_c, n_b, n_e),
+                      Is=14.34e-15, BF=255.9, Vaf=74.03))
+
+# Collector and emitter resistors
+ckt.AddComponent(Resistor("Rc", (n_vcc, n_c), resistance=1e3))
+ckt.AddComponent(Resistor("Re", (n_e, gnd), resistance=220))
+
+# AC input with coupling capacitors
+ckt.AddComponent(ACVoltageSource("Vin", (n_in, gnd), amplitude=0.02, frequency=1000))
+ckt.AddComponent(Capacitor("Cin", (n_in, n_b), capacitance=10e-6))
+ckt.AddComponent(Capacitor("Cout", (n_c, n_out), capacitance=10e-6))
+ckt.AddComponent(Resistor("RL", (n_out, gnd), resistance=10e3))
+
+# Probes
+ckt.AddProbe(VoltageProbe("V_in", n_in))
+ckt.AddProbe(VoltageProbe("V_out", n_out))
+ckt.AddProbe(VoltageProbe("V_base", n_b))
+ckt.Finalize()
+
+plotter = LivePlotter(
+    [ckt.Probes[0], ckt.Probes[1]],   # input vs output
+    [ckt.Probes[2]],                    # base voltage
+)
+sim = LiveSimulation(ckt, plotter, dt=5e-6, speed=200)
+sim.Run()
+</code></pre>
+<h2 id="what-to-observe-1"><a class="header" href="#what-to-observe-1">What to Observe</a></h2>
+<ul>
+<li>The DC operating point sets V_base ≈ 1.8 V, V_collector ≈ 6–8 V.</li>
+<li>The 20 mV input is amplified and <strong>inverted</strong> at the output.</li>
+<li>Voltage gain: $A_v \approx -R_C / R_E \approx -4.5$.</li>
+<li>The coupling caps block DC — the output swings around 0 V.</li>
+</ul>
+<h2 id="key-concepts-demonstrated-1"><a class="header" href="#key-concepts-demonstrated-1">Key Concepts Demonstrated</a></h2>
+<ul>
+<li>DC operating-point analysis with BJT</li>
+<li>Voltage-divider biasing</li>
+<li>AC coupling with capacitors</li>
+<li>Non-linear Newton–Raphson convergence</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-zener-regulator"><a class="header" href="#example-zener-regulator">Example: Zener Regulator</a></h1>
+<p>A half-wave rectifier feeding a shunt Zener regulator to produce a
+regulated ~5.1 V DC from an AC source.</p>
+<p><strong>File:</strong> <code>examples/zener_regulator.py</code></p>
+<h2 id="circuit-3"><a class="header" href="#circuit-3">Circuit</a></h2>
+<pre><code>V_ac ──►|── D1 ──┬── C_filter ──┬── R_series ──┬── V_out
+(12V    (rect)   │   (470 µF)   │   (470 Ω)    │
+ 50Hz)           │              │               DZ (5.1V)
+                GND            GND              │    RL
+                                                │   (2k)
+                                               GND
+</code></pre>
+<h2 id="code-2"><a class="header" href="#code-2">Code</a></h2>
+<pre><code class="language-python">from PyEEL import (
+    Circuit, NumpySolver, SimulationConfig,
+    Resistor, Capacitor, Diode, ZenerDiode,
+    ACVoltageSource,
+    VoltageProbe, CurrentProbe,
+    LivePlotter, LiveSimulation,
+)
+
+config = SimulationConfig(dc_operating_point=True)
+ckt = Circuit(solver=NumpySolver(), config=config)
+nm  = ckt.NodeManager
+gnd = nm.GroundNode
+
+n_ac   = nm.AddNode("ac")
+n_rect = nm.AddNode("rect")
+n_out  = nm.AddNode("out")
+
+# AC source
+ckt.AddComponent(ACVoltageSource("Vac", (n_ac, gnd), amplitude=12, frequency=50))
+
+# Rectifier + filter
+ckt.AddComponent(Diode("D1", (n_ac, n_rect), Is=7.02e-9, n=1.77))
+ckt.AddComponent(Capacitor("C1", (n_rect, gnd), capacitance=470e-6))
+
+# Zener regulator
+ckt.AddComponent(Resistor("Rs", (n_rect, n_out), resistance=470))
+ckt.AddComponent(dz := ZenerDiode("DZ1", (gnd, n_out), Vz=5.1))
+ckt.AddComponent(Resistor("RL", (n_out, gnd), resistance=2000))
+
+# Probes
+ckt.AddProbe(VoltageProbe("V_unreg", n_rect))
+ckt.AddProbe(VoltageProbe("V_reg", n_out))
+ckt.AddProbe(CurrentProbe("I_zener", dz))
+ckt.Finalize()
+
+plotter = LivePlotter(
+    [ckt.Probes[0], ckt.Probes[1]],
+    [ckt.Probes[2]],
+)
+sim = LiveSimulation(ckt, plotter, dt=2e-4, speed=50)
+sim.Run()
+</code></pre>
+<h2 id="what-to-observe-2"><a class="header" href="#what-to-observe-2">What to Observe</a></h2>
+<ul>
+<li><strong>V_unreg</strong> shows the rectified + filtered waveform (~11 V with ripple).</li>
+<li><strong>V_reg</strong> is clamped at ~5.1 V by the Zener diode.</li>
+<li>The Zener current varies to absorb excess current from the series resistor.</li>
+</ul>
+<h2 id="key-concepts-demonstrated-2"><a class="header" href="#key-concepts-demonstrated-2">Key Concepts Demonstrated</a></h2>
+<ul>
+<li>Zener diode reverse breakdown regulation</li>
+<li>Capacitor filtering</li>
+<li>Half-wave rectification</li>
+<li>Multiple non-linear devices converging together</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-linear-power-supply"><a class="header" href="#example-linear-power-supply">Example: Linear Power Supply</a></h1>
+<p>A complete mains-powered linear power supply: transformer step-down →
+full-bridge rectifier → capacitor filter → resistive load.</p>
+<p><strong>File:</strong> <code>examples/linear_power_supply.py</code></p>
+<h2 id="circuit-4"><a class="header" href="#circuit-4">Circuit</a></h2>
+<pre><code>AC Mains         Transformer        Bridge Rectifier      Filter    Load
+(240V 50Hz) ──── 20:1 step-down ──── 4× Diode bridge ──── 1000µF ── 100Ω
+                 (100H → 0.25H)                           │
+                                                         GND
+</code></pre>
+<h2 id="code-highlights"><a class="header" href="#code-highlights">Code Highlights</a></h2>
+<pre><code class="language-python">config = SimulationConfig(
+    dc_operating_point=True,
+    source_stepping_steps=20,    # more ramp steps for this large circuit
+    nr_max_iterations=100,
+)
+ckt = Circuit(solver=NumpySolver(), config=config)
+nm  = ckt.NodeManager
+gnd = nm.GroundNode
+
+n_pri = nm.AddNode("primary")
+n_sec = nm.AddNode("secondary")
+n_dc  = nm.AddNode("dc_out")
+
+# 240 V RMS → 339 V peak
+ckt.AddComponent(ACVoltageSource("Vmains", (n_pri, gnd),
+                                 amplitude=339.4, frequency=50))
+
+# Step-down transformer: 240 V → 12 V
+T1 = Transformer("T1", (n_pri, gnd), (n_sec, gnd),
+                 primary_inductance=100, secondary_inductance=0.25, k=0.999)
+ckt.AddComponent(T1)
+
+# Full bridge (4 diodes)
+ckt.AddComponent(Diode("D1", (n_sec, n_dc)))
+ckt.AddComponent(Diode("D2", (gnd, n_dc)))
+ckt.AddComponent(Diode("D3", (gnd, n_sec)))   # reverse path
+ckt.AddComponent(Diode("D4", (n_dc_neg, n_sec)))  # (simplified)
+
+# Filter + load
+ckt.AddComponent(Capacitor("C1", (n_dc, gnd), capacitance=1000e-6))
+ckt.AddComponent(Resistor("RL", (n_dc, gnd), resistance=100))
+</code></pre>
+<h2 id="what-to-observe-3"><a class="header" href="#what-to-observe-3">What to Observe</a></h2>
+<ul>
+<li>The secondary shows a ~17 V peak sine (12 V RMS).</li>
+<li>The bridge rectifier produces full-wave rectified pulses.</li>
+<li>The filter capacitor smooths the output to ~15 V DC with ripple.</li>
+<li>Increasing the load resistance reduces ripple.</li>
+</ul>
+<h2 id="key-concepts-demonstrated-3"><a class="header" href="#key-concepts-demonstrated-3">Key Concepts Demonstrated</a></h2>
+<ul>
+<li>Transformer coupling and turns ratio</li>
+<li>Full-bridge rectifier with 4 diodes</li>
+<li>Capacitor filtering and ripple</li>
+<li>Source stepping for robust DC operating point convergence</li>
+<li><code>speed=200</code> to fast-forward through start-up</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-series-lcr-circuit"><a class="header" href="#example-series-lcr-circuit">Example: Series LCR Circuit</a></h1>
+<p>A series inductor-capacitor-resistor circuit driven at resonance,
+demonstrating energy exchange and voltage magnification.</p>
+<p><strong>File:</strong> <code>examples/lcr.py</code></p>
+<h2 id="circuit-5"><a class="header" href="#circuit-5">Circuit</a></h2>
+<pre><code>V_ac ──── L (0.1H) ──── C (0.01F) ──── R (1Ω) ──── GND
+(5V, 5Hz)
+</code></pre>
+<h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>
+<ul>
+<li>$f_0 = \dfrac{1}{2\pi\sqrt{LC}} = \dfrac{1}{2\pi\sqrt{0.1 \times 0.01}} \approx 5.03$ Hz</li>
+<li>$Q = \dfrac{1}{R}\sqrt{\dfrac{L}{C}} = \sqrt{\dfrac{0.1}{0.01}} \approx 3.16$</li>
+<li>At resonance, $V_C = Q \times V_{source} \approx 15.8$ V peak</li>
+</ul>
+<h2 id="code-3"><a class="header" href="#code-3">Code</a></h2>
+<pre><code class="language-python">from PyEEL import *
+
+ckt = Circuit(solver=NumpySolver())
+nm  = ckt.NodeManager
+gnd = nm.GroundNode
+
+n1 = nm.AddNode("n1")
+n2 = nm.AddNode("n2")
+n3 = nm.AddNode("n3")
+
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5, frequency=5))
+ckt.AddComponent(L1 := Inductor("L1", (n1, n2), inductance=0.1))
+ckt.AddComponent(Capacitor("C1", (n2, n3), capacitance=0.01))
+ckt.AddComponent(Resistor("R1", (n3, gnd), resistance=1))
+
+ckt.AddProbe(VoltageProbe("V_source", n1))
+ckt.AddProbe(VoltageProbe("V_L", n1, n2))
+ckt.AddProbe(VoltageProbe("V_C", n2, n3))
+ckt.AddProbe(CurrentProbe("I", L1))
+ckt.Finalize()
+
+plotter = LivePlotter(
+    [ckt.Probes[0], ckt.Probes[1], ckt.Probes[2]],   # voltages
+    [ckt.Probes[3]],                                    # current
+    window=1.0,
+)
+sim = LiveSimulation(ckt, plotter, dt=0.0005, speed=60)
+sim.Run()
+</code></pre>
+<h2 id="what-to-observe-4"><a class="header" href="#what-to-observe-4">What to Observe</a></h2>
+<ul>
+<li>The capacitor and inductor voltages are <strong>180° out of phase</strong> at resonance.</li>
+<li>$V_C$ peaks at $Q$ times the source voltage.</li>
+<li>The current is <strong>in phase</strong> with the source at resonance (impedance is
+purely resistive).</li>
+<li>Energy oscillates between the inductor (magnetic) and capacitor (electric).</li>
+</ul>
+<h2 id="key-concepts-demonstrated-4"><a class="header" href="#key-concepts-demonstrated-4">Key Concepts Demonstrated</a></h2>
+<ul>
+<li>Inductor and capacitor transient companion models</li>
+<li>Resonance and quality factor</li>
+<li>Differential voltage probes (<code>VoltageProbe("V_L", n1, n2)</code>)</li>
+<li>Current probes on inductors</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-transformer"><a class="header" href="#example-transformer">Example: Transformer</a></h1>
+<p>A step-down transformer with a resistive load, demonstrating magnetic
+coupling and the turns ratio relationship.</p>
+<p><strong>File:</strong> <code>examples/transformer.py</code></p>
+<h2 id="circuit-6"><a class="header" href="#circuit-6">Circuit</a></h2>
+<pre><code>V_ac ──── R_pri (100Ω) ──── T1 primary ════ T1 secondary ──── R_load (5Ω)
+(240V       (winding       (L1=2.304H)    (L2=1mH, k=0.99)   │
+ 50Hz)       resistance)                                      GND
+</code></pre>
+<p>Turns ratio: $n = \sqrt{L_1/L_2} = \sqrt{2.304/0.001} \approx 48:1$</p>
+<p>Expected secondary voltage: $V_{sec} \approx 240/48 \approx 5$ V peak.</p>
+<h2 id="code-highlights-1"><a class="header" href="#code-highlights-1">Code Highlights</a></h2>
+<pre><code class="language-python">T1 = Transformer("T1",
+    primary_nodes=(n_pri, gnd),
+    secondary_nodes=(n_sec, gnd),
+    primary_inductance=2.304,
+    secondary_inductance=1e-3,
+    k=0.99,
+)
+ckt.AddComponent(T1)
+
+# Measure currents through the internal inductors
+ckt.AddProbe(CurrentProbe("I_pri", T1.Primary))
+ckt.AddProbe(CurrentProbe("I_sec", T1.Secondary))
+</code></pre>
+<h2 id="what-to-observe-5"><a class="header" href="#what-to-observe-5">What to Observe</a></h2>
+<ul>
+<li>The secondary voltage is approximately 48× smaller than the primary.</li>
+<li>The secondary current is approximately 48× larger (power conservation).</li>
+<li>With $k = 0.99$ (not perfect), there is some leakage — the voltage
+ratio is slightly less than ideal.</li>
+</ul>
+<h2 id="key-concepts-demonstrated-5"><a class="header" href="#key-concepts-demonstrated-5">Key Concepts Demonstrated</a></h2>
+<ul>
+<li>Transformer constructor with inductance values</li>
+<li>Accessing <code>T1.Primary</code> and <code>T1.Secondary</code> for current probes</li>
+<li>Relationship between inductance ratio and turns ratio</li>
+<li>Effect of coupling coefficient $k$</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="adding-new-components"><a class="header" href="#adding-new-components">Adding New Components</a></h1>
+<p>This guide shows how to implement a new component type in PyEEL by
+subclassing <code>Component</code>.</p>
+<h2 id="step-1--subclass-component"><a class="header" href="#step-1--subclass-component">Step 1 — Subclass <code>Component</code></a></h2>
+<pre><code class="language-python">from PyEEL.Components.Component import Component
+from PyEEL.Core.Node import Node
+from PyEEL.Core.NodeManager import NodeManager
+from PyEEL.Core.SimulationContext import SimulationContext, SimulationMode
+import numpy as np
+
+
+class MyComponent(Component):
+    """My custom component."""
+
+    def __init__(self, name: str, nodes: tuple[Node, Node], my_param: float):
+        super().__init__(name, nodes)
+        self._my_param = my_param
+</code></pre>
+<h2 id="step-2--implement-the-five-abstract-methods"><a class="header" href="#step-2--implement-the-five-abstract-methods">Step 2 — Implement the Five Abstract Methods</a></h2>
+<h3 id="registerunknowns"><a class="header" href="#registerunknowns"><code>RegisterUnknowns</code></a></h3>
+<p>Request auxiliary unknowns if your component needs branch currents:</p>
+<pre><code class="language-python">def RegisterUnknowns(self, nodeManager: NodeManager) -&gt; None:
+    # Only needed for voltage-forcing elements (voltage sources, inductors)
+    # For conductance-only elements (resistors, diodes), do nothing:
+    pass
+</code></pre>
+<h3 id="stamp"><a class="header" href="#stamp"><code>Stamp</code></a></h3>
+<p>Write your component's contribution into the MNA matrix:</p>
+<pre><code class="language-python">def Stamp(self, A: np.ndarray, b: np.ndarray,
+          context: SimulationContext) -&gt; None:
+    n1, n2 = self.Nodes
+    G = 1.0 / self._my_param  # example: conductance
+
+    # Stamp conductance (same pattern as Resistor)
+    if n1.Index is not None:
+        A[n1.Index, n1.Index] += G
+        if n2.Index is not None:
+            A[n1.Index, n2.Index] -= G
+    if n2.Index is not None:
+        A[n2.Index, n2.Index] += G
+        if n1.Index is not None:
+            A[n2.Index, n1.Index] -= G
+</code></pre>
+<h3 id="updatestate"><a class="header" href="#updatestate"><code>UpdateState</code></a></h3>
+<p>Store any state needed for the next time step:</p>
+<pre><code class="language-python">def UpdateState(self, solutionVector: np.ndarray,
+                context: SimulationContext) -&gt; None:
+    # For memoryless components, do nothing.
+    # For stateful components (capacitors, inductors), save history.
+    pass
+</code></pre>
+<h3 id="getcurrent-and-getvoltage"><a class="header" href="#getcurrent-and-getvoltage"><code>GetCurrent</code> and <code>GetVoltage</code></a></h3>
+<pre><code class="language-python">def GetCurrent(self, solutionVector: np.ndarray) -&gt; float:
+    v = self.GetVoltage(solutionVector)
+    return v / self._my_param
+
+def GetVoltage(self, solutionVector: np.ndarray) -&gt; float:
+    n1, n2 = self.Nodes
+    v1 = solutionVector[n1.Index] if n1.Index is not None else 0.0
+    v2 = solutionVector[n2.Index] if n2.Index is not None else 0.0
+    return float(v1 - v2)
+</code></pre>
+<h2 id="step-3--non-linear-components"><a class="header" href="#step-3--non-linear-components">Step 3 — Non-Linear Components</a></h2>
+<p>For non-linear devices, set <code>IsNonlinear = True</code> and stamp a linearised
+companion model:</p>
+<pre><code class="language-python">class MyNonlinearDevice(Component):
+    def __init__(self, name, nodes, ...):
+        super().__init__(name, nodes)
+        self.IsNonlinear = True
+
+    def Stamp(self, A, b, context):
+        # Read current operating point
+        vd = get_voltage_across(context.x_current, self.Nodes[0], self.Nodes[1])
+
+        # Compute device current and derivative
+        i_d = my_equation(vd)
+        g_d = my_derivative(vd)
+
+        # Stamp linearised companion: i = g_d * v + (i_d - g_d * vd)
+        i_eq = i_d - g_d * vd
+        stamp_conductance(A, self.Nodes[0], self.Nodes[1], g_d)
+        stamp_current_source(b, self.Nodes[0], self.Nodes[1], i_eq)
+</code></pre>
+<h2 id="step-4--place-the-file"><a class="header" href="#step-4--place-the-file">Step 4 — Place the File</a></h2>
+<p>Put your component in the appropriate subdirectory:</p>
+<ul>
+<li><code>Components/Passive/</code> — Linear, passive elements</li>
+<li><code>Components/Semiconductors/</code> — Non-linear semiconductor devices</li>
+<li><code>Components/Magnetic/</code> — Coupled magnetic components</li>
+<li><code>Components/Sources/</code> — Source elements</li>
+</ul>
+<p>Then add it to the relevant <code>__init__.py</code> for export.</p>
+<h2 id="step-5--handling-dc-vs-transient"><a class="header" href="#step-5--handling-dc-vs-transient">Step 5 — Handling DC vs Transient</a></h2>
+<p>Check <code>context.Mode</code> to behave differently in DC analysis:</p>
+<pre><code class="language-python">def Stamp(self, A, b, context):
+    if context.Mode == SimulationMode.DC:
+        # DC behaviour (e.g. capacitor = open, inductor = short)
+        ...
+    else:
+        # Transient behaviour with companion model
+        ...
+</code></pre>
+<h2 id="stamp-helpers-1"><a class="header" href="#stamp-helpers-1">Stamp Helpers</a></h2>
+<p>Use the utilities in <code>Components.stamp_helpers</code>:</p>
+<pre><code class="language-python">from PyEEL.Components.stamp_helpers import (
+    stamp_conductance,
+    stamp_transconductance,
+    stamp_current_source,
+    get_voltage_across,
+)
+</code></pre>
+<p>These handle the ground-node checks automatically.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="adding-library-parts"><a class="header" href="#adding-library-parts">Adding Library Parts</a></h1>
+<p>The pre-built component library at <code>PyEEL/Components/library.py</code> is
+designed to be easily extended with new real-world parts.</p>
+<h2 id="how-library-functions-work"><a class="header" href="#how-library-functions-work">How Library Functions Work</a></h2>
+<p>Each library function is a thin wrapper that creates a component with
+datasheet parameters pre-filled:</p>
+<pre><code class="language-python">def IN4007(name: str, nodes: tuple[Node, Node]) -&gt; Diode:
+    """1N4007 — general-purpose rectifier (1000 V, 1 A)."""
+    return Diode(name, nodes, Is=7.02e-9, n=1.77)
+</code></pre>
+<p>The pattern:</p>
+<ol>
+<li>Takes only <code>name</code> and <code>nodes</code> (no electrical parameters).</li>
+<li>Returns the appropriate component class with all parameters filled in.</li>
+<li>Has a docstring with the part name, key specs, and pin order.</li>
+</ol>
+<h2 id="adding-a-new-diode"><a class="header" href="#adding-a-new-diode">Adding a New Diode</a></h2>
+<pre><code class="language-python">def IN5408(name: str, nodes: tuple[Node, Node]) -&gt; Diode:
+    """
+    1N5408 — power rectifier (1000 V, 3 A).
+
+    ``nodes = (anode, cathode)``
+    """
+    return Diode(name, nodes, Is=4.5e-9, n=1.8)
+</code></pre>
+<h2 id="adding-a-new-bjt"><a class="header" href="#adding-a-new-bjt">Adding a New BJT</a></h2>
+<pre><code class="language-python">def BC337(name: str, nodes: tuple[Node, Node, Node]) -&gt; BJT:
+    """
+    BC337 — medium-current NPN (45 V, 800 mA).
+
+    ``nodes = (collector, base, emitter)``
+    """
+    return BJT(name, nodes, BJTType.NPN,
+               Is=1.5e-14, BF=350.0, BR=10.0, Nf=1.0, Nr=1.0, Vaf=90.0)
+</code></pre>
+<h2 id="adding-a-new-zener-diode"><a class="header" href="#adding-a-new-zener-diode">Adding a New Zener Diode</a></h2>
+<pre><code class="language-python">def BZX55C9V1(name: str, nodes: tuple[Node, Node]) -&gt; ZenerDiode:
+    """
+    BZX55C9V1 — 9.1 V Zener diode (500 mW).
+
+    ``nodes = (anode, cathode)``
+    """
+    return ZenerDiode(name, nodes, Vz=9.1, Is=1e-14, Ibv=2e-3, n_bv=1.0)
+</code></pre>
+<h2 id="adding-a-new-mosfet"><a class="header" href="#adding-a-new-mosfet">Adding a New MOSFET</a></h2>
+<pre><code class="language-python">def IRF540N(name: str, nodes: tuple[Node, Node, Node]) -&gt; MOSFET:
+    """
+    IRF540N — N-channel power MOSFET (100 V, 33 A).
+
+    ``nodes = (drain, gate, source)``
+    """
+    return MOSFET(name, nodes, MOSFETType.NMOS,
+                  Kp=20.0, Vth=3.0, lambda_=0.01)
+</code></pre>
+<h2 id="adding-a-new-transformer"><a class="header" href="#adding-a-new-transformer">Adding a New Transformer</a></h2>
+<pre><code class="language-python">def Transformer_120_to_12(
+    name: str,
+    primary_nodes: tuple[Node, Node],
+    secondary_nodes: tuple[Node, Node],
+) -&gt; Transformer:
+    """
+    120 V → 12 V step-down transformer (10:1).
+    """
+    # L_sec = L_pri × (V_out / V_in)²
+    return Transformer(name, primary_nodes, secondary_nodes,
+                       primary_inductance=100.0,
+                       secondary_inductance=1.0,
+                       k=0.999)
+</code></pre>
+<h2 id="where-to-find-datasheet-parameters"><a class="header" href="#where-to-find-datasheet-parameters">Where to Find Datasheet Parameters</a></h2>
+<h3 id="for-diodes-i_s-n"><a class="header" href="#for-diodes-i_s-n">For Diodes ($I_S$, $n$)</a></h3>
+<ul>
+<li>
+<p>Look for SPICE model parameters in the datasheet's "Simulation Model"
+section.</p>
+</li>
+<li>
+<p>Alternatively, use two points on the I–V curve to solve:</p>
+<p>$$I_S = \frac{I_D}{e^{V_D/(nV_T)} - 1}$$</p>
+</li>
+<li>
+<p>Typical $n$ values: 1.0–1.2 (Schottky), 1.5–2.0 (silicon), 1.8–2.1 (LED)</p>
+</li>
+</ul>
+<h3 id="for-bjts-i_s-beta_f-v_af"><a class="header" href="#for-bjts-i_s-beta_f-v_af">For BJTs ($I_S$, $\beta_F$, $V_{AF}$)</a></h3>
+<ul>
+<li>$\beta_F$ (hFE): Usually given directly in the datasheet as $h_{FE}$ at
+specified $I_C$ and $V_{CE}$.</li>
+<li>$I_S$: From SPICE model or calculated from $I_C = \beta_F \cdot I_B$.</li>
+<li>$V_{AF}$: From the slope of $I_C$ vs $V_{CE}$ curves, or from the SPICE model.</li>
+</ul>
+<h3 id="for-mosfets-k_p-v_th-lambda"><a class="header" href="#for-mosfets-k_p-v_th-lambda">For MOSFETs ($K_p$, $V_{th}$, $\lambda$)</a></h3>
+<ul>
+<li>
+<p>$V_{th}$: Given as $V_{GS(th)}$ in the datasheet.</p>
+</li>
+<li>
+<p>$K_p$: Calculated from $I_D$ at a known $V_{GS}$:</p>
+<p>$$K_p = \frac{2 I_D}{(V_{GS} - V_{th})^2}$$</p>
+</li>
+<li>
+<p>$\lambda$: From the output characteristic slopes.</p>
+</li>
+</ul>
+<h2 id="naming-conventions"><a class="header" href="#naming-conventions">Naming Conventions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Part Type</th><th>Naming Convention</th><th>Example</th></tr></thead><tbody>
+<tr><td>Resistors</td><td><code>R</code> + value + SI suffix</td><td><code>R4k7</code>, <code>R100k</code></td></tr>
+<tr><td>Capacitors</td><td><code>C</code> + value + SI suffix</td><td><code>C100n</code>, <code>C10u</code></td></tr>
+<tr><td>Diodes</td><td>Part number (prefix <code>IN</code> for 1N)</td><td><code>IN4007</code>, <code>BAT54</code></td></tr>
+<tr><td>Zener</td><td>Manufacturer part number</td><td><code>BZX55C5V1</code></td></tr>
+<tr><td>LED</td><td><code>LED_</code> + colour</td><td><code>LED_Red</code></td></tr>
+<tr><td>BJT NPN</td><td>Part number (prefix <code>N</code> for numbers)</td><td><code>N2N2222</code>, <code>BC547</code></td></tr>
+<tr><td>BJT PNP</td><td>Same as NPN</td><td><code>N2N3906</code>, <code>BC557</code></td></tr>
+<tr><td>Transformer</td><td><code>Transformer_</code> + ratio</td><td><code>Transformer_240_to_12</code></td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p>Parts starting with a digit get a letter prefix (e.g. <code>N2N2222</code> for
+2N2222) since Python identifiers cannot start with a number.</p>
+</blockquote>
+<h2 id="testing-your-new-part"><a class="header" href="#testing-your-new-part">Testing Your New Part</a></h2>
+<pre><code class="language-python">from PyEEL import NodeManager
+from PyEEL.Components.library import MyNewPart
+
+nm  = NodeManager()
+n1  = nm.AddNode("A")
+n2  = nm.AddNode("B")
+gnd = nm.GroundNode
+
+part = MyNewPart("X1", (n1, n2))
+print(f"{part.Name} created successfully")
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>

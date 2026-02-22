@@ -35,3 +35,9 @@ from .Visualization import (
     Probe, ProbeType, VoltageProbe, CurrentProbe,
     LivePlotter, LiveSimulation,
 )
+
+# ── Common building blocks ──────────────────────────────────────────
+from .Components import common
+
+# ── Pre-built component library (real-world parts) ─────────────────
+from .Components import library

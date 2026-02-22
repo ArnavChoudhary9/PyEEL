@@ -1,0 +1,324 @@
+<!DOCTYPE HTML>
+<html lang="en" class="navy sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Adding New Components - PyEEL Documentation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">PyEEL Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/extending/new-components.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="adding-new-components"><a class="header" href="#adding-new-components">Adding New Components</a></h1>
+<p>This guide shows how to implement a new component type in PyEEL by
+subclassing <code>Component</code>.</p>
+<h2 id="step-1--subclass-component"><a class="header" href="#step-1--subclass-component">Step 1 — Subclass <code>Component</code></a></h2>
+<pre><code class="language-python">from PyEEL.Components.Component import Component
+from PyEEL.Core.Node import Node
+from PyEEL.Core.NodeManager import NodeManager
+from PyEEL.Core.SimulationContext import SimulationContext, SimulationMode
+import numpy as np
+
+
+class MyComponent(Component):
+    """My custom component."""
+
+    def __init__(self, name: str, nodes: tuple[Node, Node], my_param: float):
+        super().__init__(name, nodes)
+        self._my_param = my_param
+</code></pre>
+<h2 id="step-2--implement-the-five-abstract-methods"><a class="header" href="#step-2--implement-the-five-abstract-methods">Step 2 — Implement the Five Abstract Methods</a></h2>
+<h3 id="registerunknowns"><a class="header" href="#registerunknowns"><code>RegisterUnknowns</code></a></h3>
+<p>Request auxiliary unknowns if your component needs branch currents:</p>
+<pre><code class="language-python">def RegisterUnknowns(self, nodeManager: NodeManager) -&gt; None:
+    # Only needed for voltage-forcing elements (voltage sources, inductors)
+    # For conductance-only elements (resistors, diodes), do nothing:
+    pass
+</code></pre>
+<h3 id="stamp"><a class="header" href="#stamp"><code>Stamp</code></a></h3>
+<p>Write your component's contribution into the MNA matrix:</p>
+<pre><code class="language-python">def Stamp(self, A: np.ndarray, b: np.ndarray,
+          context: SimulationContext) -&gt; None:
+    n1, n2 = self.Nodes
+    G = 1.0 / self._my_param  # example: conductance
+
+    # Stamp conductance (same pattern as Resistor)
+    if n1.Index is not None:
+        A[n1.Index, n1.Index] += G
+        if n2.Index is not None:
+            A[n1.Index, n2.Index] -= G
+    if n2.Index is not None:
+        A[n2.Index, n2.Index] += G
+        if n1.Index is not None:
+            A[n2.Index, n1.Index] -= G
+</code></pre>
+<h3 id="updatestate"><a class="header" href="#updatestate"><code>UpdateState</code></a></h3>
+<p>Store any state needed for the next time step:</p>
+<pre><code class="language-python">def UpdateState(self, solutionVector: np.ndarray,
+                context: SimulationContext) -&gt; None:
+    # For memoryless components, do nothing.
+    # For stateful components (capacitors, inductors), save history.
+    pass
+</code></pre>
+<h3 id="getcurrent-and-getvoltage"><a class="header" href="#getcurrent-and-getvoltage"><code>GetCurrent</code> and <code>GetVoltage</code></a></h3>
+<pre><code class="language-python">def GetCurrent(self, solutionVector: np.ndarray) -&gt; float:
+    v = self.GetVoltage(solutionVector)
+    return v / self._my_param
+
+def GetVoltage(self, solutionVector: np.ndarray) -&gt; float:
+    n1, n2 = self.Nodes
+    v1 = solutionVector[n1.Index] if n1.Index is not None else 0.0
+    v2 = solutionVector[n2.Index] if n2.Index is not None else 0.0
+    return float(v1 - v2)
+</code></pre>
+<h2 id="step-3--non-linear-components"><a class="header" href="#step-3--non-linear-components">Step 3 — Non-Linear Components</a></h2>
+<p>For non-linear devices, set <code>IsNonlinear = True</code> and stamp a linearised
+companion model:</p>
+<pre><code class="language-python">class MyNonlinearDevice(Component):
+    def __init__(self, name, nodes, ...):
+        super().__init__(name, nodes)
+        self.IsNonlinear = True
+
+    def Stamp(self, A, b, context):
+        # Read current operating point
+        vd = get_voltage_across(context.x_current, self.Nodes[0], self.Nodes[1])
+
+        # Compute device current and derivative
+        i_d = my_equation(vd)
+        g_d = my_derivative(vd)
+
+        # Stamp linearised companion: i = g_d * v + (i_d - g_d * vd)
+        i_eq = i_d - g_d * vd
+        stamp_conductance(A, self.Nodes[0], self.Nodes[1], g_d)
+        stamp_current_source(b, self.Nodes[0], self.Nodes[1], i_eq)
+</code></pre>
+<h2 id="step-4--place-the-file"><a class="header" href="#step-4--place-the-file">Step 4 — Place the File</a></h2>
+<p>Put your component in the appropriate subdirectory:</p>
+<ul>
+<li><code>Components/Passive/</code> — Linear, passive elements</li>
+<li><code>Components/Semiconductors/</code> — Non-linear semiconductor devices</li>
+<li><code>Components/Magnetic/</code> — Coupled magnetic components</li>
+<li><code>Components/Sources/</code> — Source elements</li>
+</ul>
+<p>Then add it to the relevant <code>__init__.py</code> for export.</p>
+<h2 id="step-5--handling-dc-vs-transient"><a class="header" href="#step-5--handling-dc-vs-transient">Step 5 — Handling DC vs Transient</a></h2>
+<p>Check <code>context.Mode</code> to behave differently in DC analysis:</p>
+<pre><code class="language-python">def Stamp(self, A, b, context):
+    if context.Mode == SimulationMode.DC:
+        # DC behaviour (e.g. capacitor = open, inductor = short)
+        ...
+    else:
+        # Transient behaviour with companion model
+        ...
+</code></pre>
+<h2 id="stamp-helpers"><a class="header" href="#stamp-helpers">Stamp Helpers</a></h2>
+<p>Use the utilities in <code>Components.stamp_helpers</code>:</p>
+<pre><code class="language-python">from PyEEL.Components.stamp_helpers import (
+    stamp_conductance,
+    stamp_transconductance,
+    stamp_current_source,
+    get_voltage_across,
+)
+</code></pre>
+<p>These handle the ground-node checks automatically.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../examples/transformer.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../extending/new-library-parts.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../examples/transformer.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../extending/new-library-parts.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
