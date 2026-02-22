@@ -65,9 +65,9 @@ gnd = nm.GroundNode          # dc- / neutral reference
 
 # Transformer nodes
 p1 = nm.AddNode("p1")       # primary +
-p2 = nm.AddNode("p2")       # primary − (can float or tie to gnd)
+p2 = nm.AddNode("p2")       # primary - (can float or tie to gnd)
 s1 = nm.AddNode("s1")       # secondary +
-s2 = nm.AddNode("s2")       # secondary −
+s2 = nm.AddNode("s2")       # secondary -
 
 # DC output node
 dc_plus = nm.AddNode("dc+")

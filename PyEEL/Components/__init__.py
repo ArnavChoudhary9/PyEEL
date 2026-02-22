@@ -6,3 +6,4 @@ from .MutualCoupling import *
 from .Transformer import *
 from .Diode import *
 from .MOSFET import *
+from .BJT import *

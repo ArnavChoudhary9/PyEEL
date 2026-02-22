@@ -121,7 +121,7 @@ class Diode(Component):
 
     # ── helpers ─────────────────────────────────────────────────────
     def _get_vd(self, solutionVector: np.ndarray | None) -> float:
-        """Read V(anode) − V(cathode) from a solution vector."""
+        """Read V(anode) - V(cathode) from a solution vector."""
         if solutionVector is None:
             return 0.0
         n1 = self.Nodes[0].Index
@@ -167,7 +167,7 @@ class Diode(Component):
 
         Returns ``(I_d, G_d)`` where::
 
-            I_d = I_s · (exp(V_d / (n·V_t)) − 1)
+            I_d = I_s · (exp(V_d / (n·V_t)) - 1)
             G_d = I_s / (n·V_t) · exp(V_d / (n·V_t))
 
         A small minimum conductance ``G_min = I_s / (n·V_t)`` is
@@ -199,7 +199,7 @@ class Diode(Component):
         Companion model::
 
             I_d ≈ G_d · V_d + I_eq
-            where  I_eq = I_d(V_d0) − G_d · V_d0
+            where  I_eq = I_d(V_d0) - G_d · V_d0
 
         ``G_d`` is stamped identically to a resistor, and ``I_eq`` is
         stamped as a current source entering the anode/leaving the
@@ -269,5 +269,5 @@ class Diode(Component):
         return self._current
 
     def GetVoltage(self, solutionVector: np.ndarray) -> float:
-        """Return voltage across the diode ``V(anode) − V(cathode)``."""
+        """Return voltage across the diode ``V(anode) - V(cathode)``."""
         return self._get_vd(solutionVector)

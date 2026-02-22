@@ -74,7 +74,7 @@ class Resistor(Component):
         return self.GetVoltage(solutionVector) / self._Resistance
 
     def GetVoltage(self, solutionVector: np.ndarray) -> float:
-        """Return voltage drop ``V(n1) − V(n2)``."""
+        """Return voltage drop ``V(n1) - V(n2)``."""
         n1 = self.Nodes[0].Index
         n2 = self.Nodes[1].Index
         V1 = solutionVector[n1] if n1 is not None else 0.0

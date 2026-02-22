@@ -11,7 +11,7 @@ class VoltageSource(Source):
     """
     Ideal independent voltage source.
 
-    Forces ``V(n1) − V(n2) = v(t)`` by introducing an auxiliary unknown
+    Forces ``V(n1) - V(n2) = v(t)`` by introducing an auxiliary unknown
     for the branch current and adding the corresponding KVL row to the
     MNA system.
     """
@@ -29,7 +29,7 @@ class VoltageSource(Source):
         """
         Stamp the voltage-source constraint into the MNA system.
 
-        Adds the KVL equation ``V(n1) − V(n2) = v(t)`` via an auxiliary
+        Adds the KVL equation ``V(n1) - V(n2) = v(t)`` via an auxiliary
         row/column, properly handling the case where either terminal is
         the ground node (``Index is None``).
         """
@@ -57,7 +57,7 @@ class VoltageSource(Source):
         return float(solutionVector[self.AuxIndices[0]])
 
     def GetVoltage(self, solutionVector: np.ndarray) -> float:
-        """Return ``V(n1) − V(n2)``."""
+        """Return ``V(n1) - V(n2)``."""
         n1, n2 = self.Nodes
         v1 = solutionVector[n1.Index] if n1.Index is not None else 0.0
         v2 = solutionVector[n2.Index] if n2.Index is not None else 0.0

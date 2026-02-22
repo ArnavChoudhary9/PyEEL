@@ -80,7 +80,7 @@ class MOSFET(Component):
         Transconductance parameter (A/V²).  Default ``2e-5``
         (≈ 20 µA/V² — a small-signal device).
     Vth : float
-        Threshold voltage (V).  Default ``1.0`` (NMOS) / ``−1.0`` (PMOS).
+        Threshold voltage (V).  Default ``1.0`` (NMOS) / ``-1.0`` (PMOS).
         Always specified as a positive number for NMOS; the PMOS
         polarity inversion is handled automatically.
     lambda_ : float
@@ -92,7 +92,7 @@ class MOSFET(Component):
     _Vth: float
     _lambda: float
     _type: MOSFETType
-    _polarity: int          # +1 for NMOS, −1 for PMOS
+    _polarity: int          # +1 for NMOS, -1 for PMOS
 
     _id_prev: float         # last converged drain current
     _vgs_prev: float
@@ -126,7 +126,7 @@ class MOSFET(Component):
         self._Vth = Vth
         self._lambda = lambda_
         self._type = mosfet_type
-        self._polarity = mosfet_type.value   # +1 NMOS, −1 PMOS
+        self._polarity = mosfet_type.value   # +1 NMOS, -1 PMOS
 
         self._id_prev = 0.0
         self._vgs_prev = 0.0
@@ -247,17 +247,17 @@ class MOSFET(Component):
         g = self.Nodes[1].Index   # gate
         s = self.Nodes[2].Index   # source
 
-        p = self._polarity  # +1 NMOS, −1 PMOS
+        p = self._polarity  # +1 NMOS, -1 PMOS
 
         # The physical current is  I_phys = p · (gm·Vgs + gds·Vds + Ieq)
-        # where Vgs = p·(Vg − Vs) and Vds = p·(Vd − Vs).
+        # where Vgs = p·(Vg - Vs) and Vds = p·(Vd - Vs).
         # After substitution the p factors cancel in the conductance
         # stamps (p² = 1), but the current source keeps its sign.
 
         # ── g_m stamp (Vgs-controlled current into drain, out of source) ─
-        # I_gm enters drain, leaves source; controlled by (Vg − Vs).
-        # d row: +gm at g, −gm at s
-        # s row: −gm at g, +gm at s
+        # I_gm enters drain, leaves source; controlled by (Vg - Vs).
+        # d row: +gm at g, -gm at s
+        # s row: -gm at g, +gm at s
         if d is not None:
             if g is not None:
                 A[d, g] += gm
