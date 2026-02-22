@@ -57,6 +57,15 @@ class Component(ABC):
         """State dictionary preserved across simulation steps."""
         return self._state
 
+    @property
+    def IsNonlinear(self) -> bool:
+        """``True`` if this component requires Newton-Raphson iteration.
+
+        Linear components (default) return ``False``.  Nonlinear
+        subclasses (diodes, BJTs, …) override this to ``True``.
+        """
+        return False
+
     # ── abstract interface ──────────────────────────────────────────
     @abstractmethod
     def RegisterUnknowns(self, nodeManager: NodeManager) -> None:

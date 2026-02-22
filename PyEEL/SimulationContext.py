@@ -91,6 +91,25 @@ class SimulationConfig:
 
     dc_inductor_resistance: float = 1e-9
 
+    # ── Newton-Raphson convergence ──────────────────────────────────
+    nr_max_iterations: int = 50
+    nr_abs_tolerance: float = 1e-9
+    nr_rel_tolerance: float = 1e-6
+    nr_damping_enabled: bool = True
+    nr_initial_damping: float = 1.0
+    nr_min_damping: float = 0.01
+    nr_vt_limit: float = 0.025 * 10  # ~10×V_T for PN junction limiting
+
+    # ── Gmin stepping (fallback) ───────────────────────────────────
+    gmin_stepping_enabled: bool = True
+    gmin_stepping_start: float = 1e-3
+    gmin_stepping_factor: float = 10.0
+    gmin_stepping_min: float = 1e-12
+
+    # ── Source stepping (fallback) ─────────────────────────────────
+    source_stepping_enabled: bool = True
+    source_stepping_steps: int = 10
+
 
 @dataclass
 class SimulationContext:
@@ -124,8 +143,11 @@ class SimulationContext:
     dt: float
 
     x_prev: np.ndarray | None = None
+    x_current: np.ndarray | None = None
     Frequency: float | None = 0
-    Iteration: int | None = 0
+    Iteration: int = 0
+    is_nonlinear_iteration: bool = False
+    source_factor: float = 1.0
     integration_method: IntegrationMethod = IntegrationMethod.BACKWARD_EULER
     gmin: float = 1e-12
     

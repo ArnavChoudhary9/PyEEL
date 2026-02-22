@@ -27,9 +27,17 @@ class Source(Component, ABC):
         * **TRANSIENT** — waveform evaluated at ``context.Time``.
         * **DC** — returns the waveform's DC component (offset).
         * **AC** — returns the peak / static value.
+
+        The returned value is multiplied by ``context.source_factor``
+        (default 1.0).  During *source stepping* — a convergence aid
+        for difficult DC operating-point problems — the factor ramps
+        from 0 → 1 so that sources are gradually turned on.
         """
         if context.Mode == SimulationMode.TRANSIENT:
-            return self._Waveform(context)
-        if context.Mode == SimulationMode.DC:
-            return self._Waveform.DCValue
-        return self._Waveform.StaticValue
+            raw = self._Waveform(context)
+        elif context.Mode == SimulationMode.DC:
+            raw = self._Waveform.DCValue
+        else:
+            raw = self._Waveform.StaticValue
+
+        return raw * context.source_factor

@@ -8,6 +8,7 @@ from .LiveSimulation import *
 
 from .Components.Component import *
 from .Components.Resistor import *
+from .Components.Diode import *
 from .Components.MutualCoupling import *
 from .Components.Transformer import *
 
