@@ -151,6 +151,24 @@ All use `nodes = (collector, base, emitter)`.
 > Transformer functions take `(name, primary_nodes, secondary_nodes)` instead
 > of `(name, nodes)`.
 
+### Operational Amplifiers
+
+| Function | Part | $A_{OL}$ | $R_{in}$ | $R_{out}$ | Description |
+|---|---|---|---|---|---|
+| `LM741` | LM741 | 200k | 2 MΩ | 75 Ω | Classic general-purpose |
+| `LM358` | LM358 | 100k | 2 MΩ | 150 Ω | Dual, single-supply |
+| `LM324` | LM324 | 100k | 2 MΩ | 150 Ω | Quad, single-supply |
+| `TL072` | TL072 | 200k | 1 TΩ | 100 Ω | Low-noise JFET input |
+| `TL082` | TL082 | 200k | 1 TΩ | 100 Ω | General JFET input |
+| `NE5532` | NE5532 | 100k | 300 kΩ | 0.3 Ω | Low-noise audio |
+| `OP07` | OP07 | 500k | 33 MΩ | 60 Ω | Precision |
+| `OPA2134` | OPA2134 | 1M | 10 TΩ | 1 Ω | Hi-fi audio FET |
+| `AD620` | AD620 | 1M | 10 GΩ | 1 Ω | Instrumentation amp |
+| `IdealOpAmp` | — | 10⁹ | 1 TΩ | 0.001 Ω | Textbook ideal |
+
+> Op-amp functions take `(name, nodes)` where
+> `nodes = (non_inv_input, inv_input, output)`.
+
 ## Adding Your Own Parts
 
 See [Adding Library Parts](../extending/new-library-parts.md) for how to

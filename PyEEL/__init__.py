@@ -18,6 +18,7 @@ from .Components.Semiconductors import (
     Diode, ZenerDiode, BJT, BJTType, NPN, PNP, MOSFET, MOSFETType, NMOS, PMOS,
 )
 from .Components.Magnetic import MutualCoupling, Transformer
+from .Components.ICs import OpAmp
 from .Components.Sources import (
     Source, VoltageSource, ACVoltageSource, DCVoltageSource,
     VCVS, VCCS, CCVS, CCCS,

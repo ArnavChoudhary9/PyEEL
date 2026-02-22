@@ -25,6 +25,7 @@ from .Semiconductors.BJT import BJT, BJTType
 from .Semiconductors.MOSFET import MOSFET, MOSFETType
 from .Magnetic.Transformer import Transformer
 from .Sources.VoltageSource import VoltageSource, DCVoltageSource, ACVoltageSource
+from .ICs.OpAmp import OpAmp
 
 
 # =====================================================================
@@ -666,3 +667,148 @@ def Transformer_240_to_24(
                        primary_inductance=100.0,
                        secondary_inductance=1.0,
                        k=0.999)
+
+
+# =====================================================================
+#  Operational Amplifiers  (non_inv_input, inv_input, output)
+# =====================================================================
+
+def LM741(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    LM741 — general-purpose op-amp.
+
+    A_OL ≈ 200 000 (106 dB), R_in ≈ 2 MΩ, R_out ≈ 75 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=200_000.0, R_in=2e6, R_out=75.0)
+
+
+def LM358(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    LM358 — dual general-purpose op-amp (single-supply capable).
+
+    A_OL ≈ 100 000 (100 dB), R_in ≈ 2 MΩ, R_out ≈ 150 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=100_000.0, R_in=2e6, R_out=150.0)
+
+
+def LM324(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    LM324 — quad general-purpose op-amp (single-supply capable).
+
+    A_OL ≈ 100 000 (100 dB), R_in ≈ 2 MΩ, R_out ≈ 150 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=100_000.0, R_in=2e6, R_out=150.0)
+
+
+def TL072(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    TL072 — low-noise JFET-input dual op-amp.
+
+    A_OL ≈ 200 000 (106 dB), R_in ≈ 1 TΩ, R_out ≈ 100 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=200_000.0, R_in=1e12, R_out=100.0)
+
+
+def TL082(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    TL082 — general-purpose JFET-input dual op-amp.
+
+    A_OL ≈ 200 000 (106 dB), R_in ≈ 1 TΩ, R_out ≈ 100 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=200_000.0, R_in=1e12, R_out=100.0)
+
+
+def NE5532(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    NE5532 — low-noise audio dual op-amp.
+
+    A_OL ≈ 100 000 (100 dB), R_in ≈ 300 kΩ, R_out ≈ 0.3 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=100_000.0, R_in=300e3, R_out=0.3)
+
+
+def OP07(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    OP07 — ultra-low-offset precision op-amp.
+
+    A_OL ≈ 500 000 (114 dB), R_in ≈ 33 MΩ, R_out ≈ 60 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=500_000.0, R_in=33e6, R_out=60.0)
+
+
+def OPA2134(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    OPA2134 — high-performance audio dual op-amp (FET input).
+
+    A_OL ≈ 1 000 000 (120 dB), R_in ≈ 10 TΩ, R_out ≈ 1 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=1_000_000.0, R_in=10e12, R_out=1.0)
+
+
+def AD620(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    AD620 — low-cost instrumentation amplifier (modelled as single op-amp).
+
+    A_OL ≈ 1 000 000 (120 dB), R_in ≈ 10 GΩ, R_out ≈ 1 Ω.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+    """
+    return OpAmp(name, nodes, A_OL=1_000_000.0, R_in=10e9, R_out=1.0)
+
+
+def IdealOpAmp(
+    name: str,
+    nodes: tuple[Node, Node, Node],
+) -> OpAmp:
+    """
+    Ideal op-amp — very high gain, near-infinite input impedance,
+    near-zero output impedance.
+
+    ``nodes = (non_inv_input, inv_input, output)``
+
+    A_OL = 10⁹, R_in = 10¹² Ω, R_out ≈ 0 Ω.
+    """
+    return OpAmp(name, nodes, A_OL=1e9, R_in=1e12, R_out=0.001)

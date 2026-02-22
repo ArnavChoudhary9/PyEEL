@@ -31,6 +31,8 @@
   - [Zener Diode](components/zener-diode.md)
   - [BJT (Bipolar Junction Transistor)](components/bjt.md)
   - [MOSFET](components/mosfet.md)
+- [Integrated Circuits](components/ics.md)
+  - [Op-Amp](components/opamp.md)
 - [Magnetic Components](components/magnetic.md)
   - [Mutual Coupling](components/mutual-coupling.md)
   - [Transformer](components/transformer.md)

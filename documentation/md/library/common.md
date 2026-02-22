@@ -175,3 +175,84 @@ add_all(circuit: Circuit, components: list[Component]) -> None
 ```
 
 Convenience function to add a list of components to a circuit in one call.
+
+### Op-Amp Circuits
+
+#### `inverting_amplifier`
+
+```python
+inverting_amplifier(prefix, node_manager, n_in, n_out, n_gnd, *,
+                    r_in=10e3, r_f=100e3,
+                    A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                    ) -> (list, {'inv_input'})
+```
+
+Inverting amplifier.  Gain ≈ $-R_f / R_{in}$.
+
+#### `non_inverting_amplifier`
+
+```python
+non_inverting_amplifier(prefix, node_manager, n_in, n_out, n_gnd, *,
+                        r1=10e3, r_f=90e3,
+                        A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                        ) -> (list, {'inv_input'})
+```
+
+Non-inverting amplifier.  Gain ≈ $1 + R_f / R_1$.
+
+#### `voltage_follower`
+
+```python
+voltage_follower(prefix, node_manager, n_in, n_out, *,
+                 A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                 ) -> (list, {'feedback'})
+```
+
+Unity-gain buffer (gain = 1).  Uses a tiny wire resistor for the direct
+output-to-inverting-input feedback connection.
+
+#### `summing_amplifier`
+
+```python
+summing_amplifier(prefix, node_manager, input_nodes, n_out, n_gnd, *,
+                  r_inputs=10e3, r_f=10e3,
+                  A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                  ) -> (list, {'summing_junction'})
+```
+
+Inverting summing amplifier with N inputs.  If all input resistors are
+equal: $V_{out} = -(R_f / R_{in}) \cdot (V_1 + V_2 + \dots + V_N)$.
+
+#### `difference_amplifier`
+
+```python
+difference_amplifier(prefix, node_manager, n_in_pos, n_in_neg, n_out, n_gnd, *,
+                     r1=10e3, r2=10e3, r3=10e3, r_f=10e3,
+                     A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+                     ) -> (list, {'inv_input', 'noninv_input'})
+```
+
+Difference (subtractor) amplifier.  When $R_1 = R_3$ and $R_2 = R_f$:
+$V_{out} = (R_f / R_1) \cdot (V_{pos} - V_{neg})$.
+
+#### `integrator`
+
+```python
+integrator(prefix, node_manager, n_in, n_out, n_gnd, *,
+           r_in=10e3, c_f=100e-9,
+           A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+           ) -> (list, {'inv_input'})
+```
+
+Inverting integrator.  $V_{out}(t) = -\dfrac{1}{RC} \int V_{in} \, dt$.
+
+#### `differentiator`
+
+```python
+differentiator(prefix, node_manager, n_in, n_out, n_gnd, *,
+               c_in=100e-9, r_f=10e3,
+               A_OL=200_000, R_in_opamp=2e6, R_out_opamp=75.0
+               ) -> (list, {'inv_input'})
+```
+
+Inverting differentiator.  $V_{out}(t) = -R_f C \dfrac{dV_{in}}{dt}$.
