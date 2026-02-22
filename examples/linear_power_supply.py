@@ -117,7 +117,7 @@ ckt.AddComponent(Capacitor("C1", (dc_plus, gnd), capacitance=1000e-6))
 ckt.AddComponent(Resistor("R_load", (dc_plus, gnd), resistance=100.0))
 
 # ── 6. Tie primary return to ground through small R (avoids float) ──
-# ckt.AddComponent(Resistor("R_gnd", (p2, gnd), resistance=0.01))
+ckt.AddComponent(Resistor("R_gnd", (p2, gnd), resistance=0.01))
 
 # ── probes ──────────────────────────────────────────────────────────
 v_mains = VoltageProbe("V(mains)", p1)      # primary voltage

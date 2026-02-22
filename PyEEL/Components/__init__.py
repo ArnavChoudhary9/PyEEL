@@ -5,3 +5,4 @@ from .Inductor import *
 from .MutualCoupling import *
 from .Transformer import *
 from .Diode import *
+from .MOSFET import *
