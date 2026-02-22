@@ -17,4 +17,5 @@ from .Components.Transformer import *
 
 from .Components.Sources.Source import *
 from .Components.Sources.VoltageSource import *
+from .Components.Sources.DependentSources import *
 from .Components.Sources.Waveform import *

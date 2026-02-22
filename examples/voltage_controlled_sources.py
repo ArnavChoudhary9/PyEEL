@@ -6,11 +6,11 @@ Demonstrates both voltage-controlled dependent sources in one circuit.
 Topology::
 
                      ┌──────── VCVS (E1, gain=3) ───────┐
-                     │  ctrl: (n1, GND)                 │
-    V1 (1 V, 100 Hz) │ out:  (n_e, GND)                 │
-     │               │                                  │
+                     │  ctrl: (n1, GND)                  │
+    V1 (1 V, 100 Hz) │ out:  (n_e, GND)                  │
+     │               │                                    │
     (n1)──R1 (1 kΩ)──GND    (n_e)──R_e (1 kΩ)──GND      │
-                                                        │
+                                                          │
                      ┌──────── VCCS (G1, gm=2 mS) ──────┘
                      │  ctrl: (n1, GND)
                      │  out:  (GND, n_g)  — current into n_g
