@@ -514,8 +514,8 @@ class Circuit:
                 "Newton-Raphson did not converge in %d iterations "
                 "(dx=%.2e, residual=%.2e). Using last iterate.",
                 cfg.nr_max_iterations,
-                dx_norm if 'dx_norm' in dir() else float('inf'),
-                new_residual_norm if 'new_residual_norm' in dir() else float('inf'),
+                dx_norm if 'dx_norm' in dir() else float('inf'), # type: ignore
+                new_residual_norm if 'new_residual_norm' in dir() else float('inf'), # type: ignore
             )
 
         return x
@@ -630,8 +630,8 @@ class Circuit:
                 # if the residual is already small, we've converged
                 if iteration > 0:
                     if (r_norm < cfg.nr_abs_tolerance
-                            and prev_dx_norm < cfg.nr_abs_tolerance
-                            + cfg.nr_rel_tolerance * x_norm):
+                            and prev_dx_norm < cfg.nr_abs_tolerance # type: ignore
+                            + cfg.nr_rel_tolerance * x_norm): # type: ignore
                         break
 
                 try:

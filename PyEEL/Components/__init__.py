@@ -5,5 +5,6 @@ from .Inductor import *
 from .MutualCoupling import *
 from .Transformer import *
 from .Diode import *
+from .ZenerDiode import *
 from .MOSFET import *
 from .BJT import *
