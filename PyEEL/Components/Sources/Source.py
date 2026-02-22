@@ -1,7 +1,7 @@
 from .Waveform import Waveform
 from ..Component import Component
-from ...SimulationContext import SimulationContext, SimulationMode
-from ...Node import Node
+from ...Core.SimulationContext import SimulationContext, SimulationMode
+from ...Core.Node import Node
 
 from abc import ABC
 

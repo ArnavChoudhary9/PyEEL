@@ -1,4 +1,4 @@
-from ...SimulationContext import SimulationContext
+from ...Core.SimulationContext import SimulationContext
 
 import math
 from abc import ABC, abstractmethod

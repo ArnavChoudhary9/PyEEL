@@ -1,21 +1,37 @@
-from .Node import *
-from .NodeManager import *
+"""
+PyEEL — Python Electronics Engineering Library.
 
-from .SimulationContext import *          # exports SimulationMode, IntegrationMethod, SimulationConfig, SimulationContext
-from .Probe import *
-from .LivePlotter import *
-from .LiveSimulation import *
+All public symbols are re-exported here for convenience so that
+``from PyEEL import *`` and ``from PyEEL.XYZ import ABC`` both work.
+"""
 
-from .Components.Component import *
-from .Components.Resistor import *
-from .Components.Diode import *
-from .Components.ZenerDiode import *
-from .Components.MOSFET import *
-from .Components.BJT import *
-from .Components.MutualCoupling import *
-from .Components.Transformer import *
+# ── Core ────────────────────────────────────────────────────────────
+from .Core import (
+    Node, NodeManager, GROUND_NODE_NAME,
+    SimulationMode, IntegrationMethod, SimulationConfig, SimulationContext,
+)
 
-from .Components.Sources.Source import *
-from .Components.Sources.VoltageSource import *
-from .Components.Sources.DependentSources import *
-from .Components.Sources.Waveform import *
+# ── Components ──────────────────────────────────────────────────────
+from .Components.Component import Component
+from .Components.Passive import Resistor, Capacitor, Inductor
+from .Components.Semiconductors import (
+    Diode, ZenerDiode, BJT, BJTType, NPN, PNP, MOSFET, MOSFETType, NMOS, PMOS,
+)
+from .Components.Magnetic import MutualCoupling, Transformer
+from .Components.Sources import (
+    Source, VoltageSource, ACVoltageSource, DCVoltageSource,
+    VCVS, VCCS, CCVS, CCCS,
+    Waveform, ConstantWave, SineWave,
+)
+
+# ── Solver ──────────────────────────────────────────────────────────
+from .Solver import LinearSolver, NumpySolver
+
+# ── Simulation ──────────────────────────────────────────────────────
+from .Simulation import Circuit
+
+# ── Visualization ───────────────────────────────────────────────────
+from .Visualization import (
+    Probe, ProbeType, VoltageProbe, CurrentProbe,
+    LivePlotter, LiveSimulation,
+)

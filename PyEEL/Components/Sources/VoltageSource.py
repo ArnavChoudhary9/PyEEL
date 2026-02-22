@@ -1,8 +1,8 @@
 from .Source import Source
 from .Waveform import Waveform, ConstantWave, SineWave
-from ...Node import Node
-from ...NodeManager import NodeManager
-from ...SimulationContext import SimulationContext
+from ...Core.Node import Node
+from ...Core.NodeManager import NodeManager
+from ...Core.SimulationContext import SimulationContext
 
 import numpy as np
 

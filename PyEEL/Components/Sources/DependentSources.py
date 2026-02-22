@@ -60,9 +60,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from ...Node import Node
-from ...NodeManager import NodeManager
-from ...SimulationContext import SimulationContext
+from ...Core.Node import Node
+from ...Core.NodeManager import NodeManager
+from ...Core.SimulationContext import SimulationContext
 from ..Component import Component
 
 

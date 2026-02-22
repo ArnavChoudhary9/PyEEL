@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from ..SimulationContext import SimulationContext
-from ..NodeManager import *
-
 from abc import ABC, abstractmethod
+
 import numpy as np
+
+from ..Core.Node import Node
+from ..Core.NodeManager import NodeManager
+from ..Core.SimulationContext import SimulationContext
 
 
 class Component(ABC):
