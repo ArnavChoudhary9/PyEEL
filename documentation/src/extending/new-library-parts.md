@@ -1,12 +1,35 @@
 # Adding Library Parts
 
-The pre-built component library at `PyEEL/Components/library.py` is
-designed to be easily extended with new real-world parts.
+The pre-built component library lives in `PyEEL/Components/library/`, a
+package split by category:
+
+| Sub-module | Contents |
+|---|---|
+| `sources.py` | DC & AC voltage sources |
+| `resistors.py` | Standard resistor values (E24+) |
+| `capacitors.py` | Ceramic, film & electrolytic capacitors |
+| `inductors.py` | Inductors from 1 µH to 10 H |
+| `diodes.py` | Rectifiers, signal, Schottky, LEDs |
+| `zener_diodes.py` | BZX55C series + short aliases |
+| `bjt.py` | NPN, PNP & Darlington transistors |
+| `mosfets.py` | N-channel & P-channel MOSFETs |
+| `transformers.py` | 240 V & 120 V step-down transformers |
+| `opamps.py` | General, JFET-input, audio & precision op-amps |
+| `comparators.py` | Open-collector & push-pull comparators |
+
+All names are re-exported from the package `__init__.py`, so either of
+these imports works:
+
+```python
+from PyEEL.Components.library import R1k, IN4007
+from PyEEL.Components.library.resistors import R1k
+```
 
 ## How Library Functions Work
 
-Each library function is a thin wrapper that creates a component with
-datasheet parameters pre-filled:
+Each library function is an explicitly typed factory that creates a
+component with datasheet parameters pre-filled.  The full type signature
+is visible to IDEs and type-checkers:
 
 ```python
 def IN4007(name: str, nodes: tuple[Node, Node]) -> Diode:
@@ -18,6 +41,7 @@ The pattern:
 1. Takes only `name` and `nodes` (no electrical parameters).
 2. Returns the appropriate component class with all parameters filled in.
 3. Has a docstring with the part name, key specs, and pin order.
+4. Full return-type annotation so IDEs auto-complete `.Nodes`, `.Is`, etc.
 
 ## Adding a New Diode
 
@@ -144,4 +168,18 @@ gnd = nm.GroundNode
 
 part = MyNewPart("X1", (n1, n2))
 print(f"{part.Name} created successfully")
+```
+
+## Adding to the Package
+
+1. Open the appropriate sub-module (e.g. `library/diodes.py` for a new diode).
+2. Add your typed factory function at the bottom of the relevant section.
+3. Export the name in `library/__init__.py` by adding it to the correct
+   `from .submodule import ...` line.
+
+```python
+# In library/__init__.py, add to the diodes import:
+from .diodes import (
+    IN4001, ..., IN5408, MyNewDiode,   # ← add here
+)
 ```

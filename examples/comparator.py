@@ -25,15 +25,7 @@ so the duty cycle is <50 %.
 Press Ctrl-C to stop the simulation.
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components.ICs.Comparator import Comparator
-from PyEEL.Components import Resistor
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource, DCVoltageSource
-from PyEEL.Probe import VoltageProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
 # -- simulation config -----------------------------------------------
 config = SimulationConfig(

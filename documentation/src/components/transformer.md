@@ -31,8 +31,8 @@ Transformer(name: str,
 | Parameter | Type | Description |
 |---|---|---|
 | `name` | `str` | Unique component name |
-| `primary_nodes` | `(Node, Node)` | `(p+, p−)` of the primary winding |
-| `secondary_nodes` | `(Node, Node)` | `(s+, s−)` of the secondary winding |
+| `primary_nodes` | `(Node, Node)` | `(p+, p-)` of the primary winding |
+| `secondary_nodes` | `(Node, Node)` | `(s+, s-)` of the secondary winding |
 | `primary_inductance` | `float` | $L_1$ in **Henries** |
 | `secondary_inductance` | `float` | $L_2$ in **Henries** |
 | `k` | `float` | Coupling coefficient (0 < k < 1; use 0.999 for near-ideal) |

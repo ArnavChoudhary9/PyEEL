@@ -61,8 +61,8 @@ Comparator(name, nodes, *,
   `V_high=14.0, V_low=-14.0`.
 
 - **`V_hys`** — Total hysteresis window.  When `V_hys=1.0`, the output
-  transitions to HIGH when `V+ − V− > 0.5 V`, and to LOW when
-  `V+ − V− < −0.5 V`.  Within the band the previous state is held.
+  transitions to HIGH when `V+ - V- > 0.5 V`, and to LOW when
+  `V+ - V- < -0.5 V`.  Within the band the previous state is held.
   Setting `V_hys=0` gives a zero-hysteresis ideal comparator.
 
 - **`R_in`** — Differential input resistance between V+ and V-.  Typical
@@ -86,7 +86,7 @@ current $I_{aux}$.
 
 ```
            G_in = 1/R_in
-  V+ ──┬──/\/\/──┬── V−
+  V+ ──┬──/\/\/──┬── V-
        │         │
        │  ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
        │  ╎  Piecewise output: V_target ∈ {V_high, V_low} ╎
@@ -202,8 +202,8 @@ ckt.AddComponent(
 )
 ```
 
-With `V_hys=1.0`: output goes HIGH when `V_in − V_ref > +0.5 V`,
-LOW when `V_in − V_ref < −0.5 V`.
+With `V_hys=1.0`: output goes HIGH when `V_in - V_ref > +0.5 V`,
+LOW when `V_in - V_ref < -0.5 V`.
 
 ## Pre-Built Library Parts
 

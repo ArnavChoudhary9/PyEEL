@@ -13,7 +13,7 @@ Topology::
     ┌──── CCVS (H1, r = 2000 Ω) ─────────────────┐
     │  ctrl: senses current entering n_s1,         │
     │        leaving n1 (zero-volt source)         │
-    │  out:  V(n_h) − V(GND) = r × I_ctrl         │
+    │  out:  V(n_h) - V(GND) = r × I_ctrl         │
     │                                               │
     │  (n_h)── R_h (5 kΩ) ── GND                  │
     │  Expected: V(n_h) = 2000 × 1e-3 = 2.0 V     │
@@ -31,7 +31,7 @@ Topology::
 Note on current sensing
 -----------------------
 CCVS and CCCS insert a **zero-volt voltage source** between their
-``ctrl+`` and ``ctrl−`` terminals to measure the controlling current.
+``ctrl+`` and ``ctrl-`` terminals to measure the controlling current.
 This sense element must be placed *in series* with the branch whose
 current you want to control on.
 
@@ -52,15 +52,7 @@ Probes
   • V(n_f) — CCCS output (expect 3.0 V DC)
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor
-from PyEEL.Components.Sources.VoltageSource import DCVoltageSource
-from PyEEL.Components.Sources.DependentSources import CCVS, CCCS
-from PyEEL.Probe import VoltageProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
 # ── config ───────────────────────────────────────────────────────────
 config = SimulationConfig(dc_operating_point=True, gmin=1e-12)
@@ -71,7 +63,7 @@ gnd = nm.GroundNode
 
 n_vs = nm.AddNode("n_vs")     # voltage source positive terminal
 n_s  = nm.AddNode("n_s")      # after sense resistor (= ctrl+ for both)
-n1   = nm.AddNode("n1")       # after H1's sense element (ctrl−)
+n1   = nm.AddNode("n1")       # after H1's sense element (ctrl-)
 n_h  = nm.AddNode("n_h")      # CCVS output
 n_f  = nm.AddNode("n_f")      # CCCS output
 

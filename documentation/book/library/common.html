@@ -129,7 +129,7 @@
                         <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/library/common.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/src/library/common.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -308,6 +308,34 @@ $V_{out} = (R_f / R_1) \cdot (V_{pos} - V_{neg})$.</p>
                ) -&gt; (list, {'inv_input'})
 </code></pre>
 <p>Inverting differentiator.  $V_{out}(t) = -R_f C \dfrac{dV_{in}}{dt}$.</p>
+<h3 id="comparator-circuits"><a class="header" href="#comparator-circuits">Comparator Circuits</a></h3>
+<h4 id="voltage_comparator"><a class="header" href="#voltage_comparator"><code>voltage_comparator</code></a></h4>
+<pre><code class="language-python">voltage_comparator(prefix, n_in, n_ref, n_out, *,
+                   V_high=5.0, V_low=0.0,
+                   R_in=1e6, R_out=50.0
+                   ) -&gt; list
+</code></pre>
+<p>Single comparator. Output = <code>V_high</code> when <code>V_in &gt; V_ref</code>, else <code>V_low</code>.</p>
+<h4 id="schmitt_trigger"><a class="header" href="#schmitt_trigger"><code>schmitt_trigger</code></a></h4>
+<pre><code class="language-python">schmitt_trigger(prefix, node_manager, n_in, n_out, n_ref, *,
+                r_upper=100e3, r_lower=10e3,
+                V_supply=5.0, V_hys=None,
+                R_in=1e6, R_out=50.0
+                ) -&gt; (list, {'noninv_input'})
+</code></pre>
+<p>Non-inverting Schmitt trigger.  Positive feedback through
+$R_{upper} / R_{lower}$ creates hysteresis:
+$V_{hys} \approx V_{supply} \cdot R_{lower} / (R_{upper} + R_{lower})$.</p>
+<h4 id="window_comparator"><a class="header" href="#window_comparator"><code>window_comparator</code></a></h4>
+<pre><code class="language-python">window_comparator(prefix, n_in, n_out_high, n_out_low,
+                  n_ref_high, n_ref_low, *,
+                  V_high=5.0, V_low=0.0,
+                  R_in=1e6, R_out=50.0
+                  ) -&gt; (list, {})
+</code></pre>
+<p>Two comparators detect whether a signal is <strong>inside</strong> a voltage window
+<code>[V_ref_low, V_ref_high]</code>.  <code>n_out_high</code> goes HIGH when
+<code>V_in &gt; V_ref_high</code>; <code>n_out_low</code> goes HIGH when <code>V_in &lt; V_ref_low</code>.</p>
 
                     </main>
 

@@ -21,7 +21,7 @@ Measures the voltage between one or two nodes:
 # Voltage at a node (relative to GND)
 v_out = VoltageProbe("V_out", n_out)
 
-# Voltage across two nodes (V_a − V_b)
+# Voltage across two nodes (V_a - V_b)
 v_ab = VoltageProbe("V_ab", n_a, n_b)
 ```
 

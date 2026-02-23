@@ -16,12 +16,7 @@ referenced to ground, forming a closed loop.  Coupling induces a
 voltage across L2 which appears at n3 and drives current through R_load.
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.Components import Inductor, Resistor
-from PyEEL.Components.MutualCoupling import MutualCoupling
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
-from PyEEL.Probe import VoltageProbe, CurrentProbe
+from PyEEL import *
 
 # ── build circuit ───────────────────────────────────────────────────
 ckt = Circuit(solver=NumpySolver())

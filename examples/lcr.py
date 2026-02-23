@@ -19,13 +19,6 @@ Probes:
 """
 
 from PyEEL import *
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.Components import Resistor, Capacitor, Inductor
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
-from PyEEL.Probe import VoltageProbe, CurrentProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
 
 # ── build circuit ───────────────────────────────────────────────────
 ckt = Circuit(solver=NumpySolver())

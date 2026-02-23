@@ -170,7 +170,7 @@ design.</p>
 <tr><td><strong>Magnetic coupling</strong></td><td>Coupled inductors, ideal transformers</td></tr>
 <tr><td><strong>Dependent sources</strong></td><td>VCVS, VCCS, CCVS, CCCS</td></tr>
 <tr><td><strong>Live visualisation</strong></td><td>Real-time animated plots with <code>LiveSimulation</code></td></tr>
-<tr><td><strong>Pre-built library</strong></td><td>55+ real-world components with datasheet parameters</td></tr>
+<tr><td><strong>Pre-built library</strong></td><td>165+ real-world components with datasheet parameters</td></tr>
 </tbody></table>
 </div>
 <h2 id="project-layout"><a class="header" href="#project-layout">Project Layout</a></h2>
@@ -181,8 +181,8 @@ design.</p>
 │   ├── Semiconductors/    # Diode, ZenerDiode, BJT, MOSFET
 │   ├── Magnetic/          # MutualCoupling, Transformer
 │   ├── Sources/           # VoltageSource, DependentSources, Waveform
-│   ├── common.py          # Circuit-topology factory helpers
-│   └── library.py         # Pre-built real-world parts
+│   ├── common/            # Circuit-topology factory helpers
+│   └── library/           # Pre-built real-world parts (typed)
 ├── Solver/                # MNA builder, Newton–Raphson, DC OP
 ├── Simulation/            # Circuit engine, adaptive timestep
 └── Visualization/         # Probes, LivePlotter, LiveSimulation
@@ -294,7 +294,7 @@ i_probe = CurrentProbe("I_V1", ckt.????)     # explained below
 ckt.AddProbe(v_probe)
 </code></pre>
 <ul>
-<li><strong><code>VoltageProbe(name, node)</code></strong> records <code>V(node) − V(GND)</code> at every time step.</li>
+<li><strong><code>VoltageProbe(name, node)</code></strong> records <code>V(node) - V(GND)</code> at every time step.</li>
 <li><strong><code>CurrentProbe(name, component)</code></strong> records the branch current through a
 voltage source (or any component that stores an auxiliary current unknown).</li>
 </ul>
@@ -1164,10 +1164,11 @@ the key input/output characteristics.</p>
 <h2 id="available-ics"><a class="header" href="#available-ics">Available ICs</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Component</th><th>Class</th><th>Terminals</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Op-Amp</strong></td><td><code>OpAmp</code></td><td><code>(V+, V-, Vout)</code></td><td>Voltage-feedback operational amplifier</td></tr>
+<tr><td><strong>Comparator</strong></td><td><code>Comparator</code></td><td><code>(V+, V-, Vout)</code></td><td>Rail-to-rail voltage comparator with optional hysteresis</td></tr>
 </tbody></table>
 </div>
 <h2 id="adding-more-ics"><a class="header" href="#adding-more-ics">Adding More ICs</a></h2>
-<p>New IC types (comparators, voltage regulators, 555 timers, etc.) can
+<p>New IC types (voltage regulators, 555 timers, etc.) can
 be added by creating a new class in <code>PyEEL/Components/ICs/</code> that
 inherits from <code>Component</code>.  See
 <a href="components/../extending/new-components.html">Adding New Components</a> for the
@@ -1209,7 +1210,7 @@ operational amplifier.  It is suitable for both DC and transient analysis of cir
 <tr><td><code>R_in</code></td><td><code>float</code></td><td><code>2e6</code></td><td>Differential input resistance (Ω)</td></tr>
 <tr><td><code>R_out</code></td><td><code>float</code></td><td><code>75.0</code></td><td>Output resistance (Ω)</td></tr>
 <tr><td><code>V_sat_pos</code></td><td><code>float | None</code></td><td><code>None</code></td><td>Positive output saturation voltage</td></tr>
-<tr><td><code>V_sat_neg</code></td><td><code>float | None</code></td><td><code>None</code></td><td>Negative saturation (defaults to <code>−V_sat_pos</code>)</td></tr>
+<tr><td><code>V_sat_neg</code></td><td><code>float | None</code></td><td><code>None</code></td><td>Negative saturation (defaults to <code>-V_sat_pos</code>)</td></tr>
 </tbody></table>
 </div>
 <h3 id="physical-meaning-of-each-parameter"><a class="header" href="#physical-meaning-of-each-parameter">Physical meaning of each parameter</a></h3>
@@ -1244,13 +1245,13 @@ clamps the output and the gain drops to zero (saturation).  Leave
 current $I_{out}$.</p>
 <h3 id="internal-equivalent-circuit"><a class="header" href="#internal-equivalent-circuit">Internal equivalent circuit</a></h3>
 <pre><code>           G_in = 1/R_in
-  V+ ──┬──/\/\/──┬── V−
+  V+ ──┬──/\/\/──┬── V-
        │         │
        │    ┌────┘
        │    │
        │  ╔═══════════════╗
        │  ║  Controlled   ║
-       │  ║  Voltage Src  ║  V = A_OL · (V+ − V−)
+       │  ║  Voltage Src  ║  V = A_OL · (V+ - V-)
        │  ╚═══════╤═══════╝
        │          │
        │         R_out
@@ -1336,7 +1337,7 @@ ckt.AddProbe(p)
 ckt.Finalize()
 ckt.RunDC()
 
-print(f"Vout = {p.Data[-1]:.2f} V")   # ≈ −10.0 V
+print(f"Vout = {p.Data[-1]:.2f} V")   # ≈ -10.0 V
 </code></pre>
 <h2 id="example-non-inverting-amplifier-with-saturation"><a class="header" href="#example-non-inverting-amplifier-with-saturation">Example: Non-Inverting Amplifier with Saturation</a></h2>
 <pre><code class="language-python">ckt.AddComponent(
@@ -1366,6 +1367,215 @@ for other parts.</li>
 <li>For an "ideal" op-amp, use <code>IdealOpAmp</code> from the library, or set
 <code>A_OL=1e9, R_in=1e12, R_out=0.001</code>.</li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="comparator"><a class="header" href="#comparator">Comparator</a></h1>
+<blockquote>
+<p><strong>Module:</strong> <code>PyEEL.Components.ICs.Comparator</code></p>
+<p><strong>Import:</strong> <code>from PyEEL import Comparator</code>  or
+<code>from PyEEL.Components.ICs import Comparator</code></p>
+</blockquote>
+<h2 id="overview-1"><a class="header" href="#overview-1">Overview</a></h2>
+<p>The <code>Comparator</code> class implements a <strong>rail-to-rail output comparator macro model</strong>.
+It compares two input voltages and drives its output to a defined high or low voltage
+level, optionally with <strong>hysteresis</strong> (Schmitt-trigger behaviour).</p>
+<div class="table-wrapper"><table><thead><tr><th>Level</th><th>Configuration</th><th><code>IsNonlinear</code></th></tr></thead><tbody>
+<tr><td><strong>Ideal</strong></td><td><code>R_in=1e12, R_out=0.001</code> (IdealComparator)</td><td><code>True</code></td></tr>
+<tr><td><strong>Standard</strong></td><td>Finite input/output impedance (default LM393-like)</td><td><code>True</code></td></tr>
+<tr><td><strong>With hysteresis</strong></td><td><code>V_hys &gt; 0</code> adds dead-band to prevent chatter</td><td><code>True</code></td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p>Unlike an op-amp in feedback, a comparator always operates
+<strong>open-loop</strong> — the output switches discretely between two rails.</p>
+</blockquote>
+<h2 id="terminal-convention-1"><a class="header" href="#terminal-convention-1">Terminal Convention</a></h2>
+<pre><code>nodes = (non_inverting_input, inverting_input, output)
+         V+                   V-                Vout
+</code></pre>
+<p>The output is <strong>single-ended</strong>, referenced to ground.</p>
+<h2 id="constructor-10"><a class="header" href="#constructor-10">Constructor</a></h2>
+<pre><code class="language-python">Comparator(name, nodes, *,
+           V_high=5.0,
+           V_low=0.0,
+           V_hys=0.0,
+           R_in=1e6,
+           R_out=50.0,
+           initial_state_high=True)
+</code></pre>
+<h3 id="parameters-1"><a class="header" href="#parameters-1">Parameters</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>str</code></td><td>—</td><td>Component identifier (e.g. <code>'U1'</code>)</td></tr>
+<tr><td><code>nodes</code></td><td><code>tuple[Node, Node, Node]</code></td><td>—</td><td><code>(V+, V-, Vout)</code></td></tr>
+<tr><td><code>V_high</code></td><td><code>float</code></td><td><code>5.0</code></td><td>Output high voltage (V)</td></tr>
+<tr><td><code>V_low</code></td><td><code>float</code></td><td><code>0.0</code></td><td>Output low voltage (V)</td></tr>
+<tr><td><code>V_hys</code></td><td><code>float</code></td><td><code>0.0</code></td><td>Total hysteresis band width (V); trip points at ±V_hys/2</td></tr>
+<tr><td><code>R_in</code></td><td><code>float</code></td><td><code>1e6</code></td><td>Differential input resistance (Ω)</td></tr>
+<tr><td><code>R_out</code></td><td><code>float</code></td><td><code>50.0</code></td><td>Output resistance (Ω)</td></tr>
+<tr><td><code>initial_state_high</code></td><td><code>bool</code></td><td><code>True</code></td><td>Starting output state before first NR iteration</td></tr>
+</tbody></table>
+</div>
+<h3 id="physical-meaning-of-each-parameter-1"><a class="header" href="#physical-meaning-of-each-parameter-1">Physical meaning of each parameter</a></h3>
+<ul>
+<li>
+<p><strong><code>V_high / V_low</code></strong> — Output voltage rails.  For a 5 V supply, typical
+values are <code>V_high=5.0, V_low=0.0</code>.  For a ±15 V supply you might use
+<code>V_high=14.0, V_low=-14.0</code>.</p>
+</li>
+<li>
+<p><strong><code>V_hys</code></strong> — Total hysteresis window.  When <code>V_hys=1.0</code>, the output
+transitions to HIGH when <code>V+ - V- &gt; 0.5 V</code>, and to LOW when
+<code>V+ - V- &lt; -0.5 V</code>.  Within the band the previous state is held.
+Setting <code>V_hys=0</code> gives a zero-hysteresis ideal comparator.</p>
+</li>
+<li>
+<p><strong><code>R_in</code></strong> — Differential input resistance between V+ and V-.  Typical
+values: LM393 ~1 MΩ, CMOS comparators ~1 TΩ.</p>
+</li>
+<li>
+<p><strong><code>R_out</code></strong> — Output resistance (push-pull model).  Many real
+comparators have open-collector outputs — model these by adding an
+external pull-up resistor and setting <code>R_out</code> to a small value.</p>
+</li>
+<li>
+<p><strong><code>initial_state_high</code></strong> — Sets which output rail is assumed at
+time zero before the solver has evaluated the input voltages.  This
+only affects the first Newton–Raphson iteration; the solver converges
+to the correct state regardless.</p>
+</li>
+</ul>
+<h2 id="mna-model-1"><a class="header" href="#mna-model-1">MNA Model</a></h2>
+<p>The comparator uses <strong>one auxiliary unknown</strong> — the output branch
+current $I_{aux}$.</p>
+<h3 id="internal-equivalent-circuit-1"><a class="header" href="#internal-equivalent-circuit-1">Internal equivalent circuit</a></h3>
+<pre><code>           G_in = 1/R_in
+  V+ ──┬──/\/\/──┬── V-
+       │         │
+       │  ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+       │  ╎  Piecewise output: V_target ∈ {V_high, V_low} ╎
+       │  └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+       │          │ R_out
+       │          │
+       └──────── Vout
+</code></pre>
+<h3 id="stamp-equations-1"><a class="header" href="#stamp-equations-1">Stamp equations</a></h3>
+<p><strong>Input resistance</strong> (conductance $G = 1/R_{in}$):</p>
+<p>$$
+\begin{aligned}
+A[V^+, V^+] &amp;+= G \
+A[V^+, V^-] &amp;-= G \
+A[V^-, V^-] &amp;+= G \
+A[V^-, V^+] &amp;-= G
+\end{aligned}
+$$</p>
+<p><strong>Output stage</strong> (KCL at output, KVL auxiliary row):</p>
+<p>$$V_{out} - R_{out} \cdot I_{aux} = V_{target}$$</p>
+<p>where $V_{target} \in {V_{high},, V_{low}}$ is chosen based on the
+current Newton–Raphson iterate.</p>
+<p>$$
+\begin{aligned}
+A[V_{out}, I_{aux}] &amp;+= 1 &amp; \text{(KCL)} \
+A[\text{aux}, V_{out}] &amp;+= 1 \
+A[\text{aux}, I_{aux}] &amp;-= R_{out} \
+b[\text{aux}] &amp;+= V_{target}
+\end{aligned}
+$$</p>
+<h3 id="hysteresis-logic"><a class="header" href="#hysteresis-logic">Hysteresis logic</a></h3>
+<p>At each NR iteration, the differential voltage is computed from the
+current solution vector $x$:</p>
+<p>$$\Delta V = x[V^+] - x[V^-]$$</p>
+<p>State transitions:</p>
+<p>$$
+\text{state} = \begin{cases}
+\text{HIGH} &amp; \Delta V &gt; +V_{hys}/2 \
+\text{LOW}  &amp; \Delta V &lt; -V_{hys}/2 \
+\text{hold previous} &amp; \text{otherwise (dead-band)}
+\end{cases}
+$$</p>
+<h2 id="properties-11"><a class="header" href="#properties-11">Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>OutputHigh</code></td><td><code>float</code></td><td>Configured <code>V_high</code></td></tr>
+<tr><td><code>OutputLow</code></td><td><code>float</code></td><td>Configured <code>V_low</code></td></tr>
+<tr><td><code>Hysteresis</code></td><td><code>float</code></td><td><code>V_hys</code> (total dead-band width)</td></tr>
+<tr><td><code>InputResistance</code></td><td><code>float</code></td><td>$R_{in}$ (Ω)</td></tr>
+<tr><td><code>OutputResistance</code></td><td><code>float</code></td><td>$R_{out}$ (Ω)</td></tr>
+<tr><td><code>IsStateHigh</code></td><td><code>bool</code></td><td><code>True</code> when output is currently in HIGH state</td></tr>
+<tr><td><code>IsNonlinear</code></td><td><code>bool</code></td><td>Always <code>True</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="query-methods-2"><a class="header" href="#query-methods-2">Query Methods</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>GetVoltage(sv)</code></td><td><code>float</code></td><td>Output voltage $V_{out}$</td></tr>
+<tr><td><code>GetCurrent(sv)</code></td><td><code>float</code></td><td>Output branch current $I_{aux}$</td></tr>
+<tr><td><code>GetDifferentialInput(sv)</code></td><td><code>float</code></td><td>$V^+ - V^-$</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-simple-voltage-comparator"><a class="header" href="#example-simple-voltage-comparator">Example: Simple Voltage Comparator</a></h2>
+<pre><code class="language-python">from PyEEL import (Circuit, Comparator, DCVoltageSource, Resistor,
+                   NumpySolver, VoltageProbe)
+from PyEEL.SimulationContext import SimulationConfig
+
+config = SimulationConfig(dc_operating_point=True)
+ckt = Circuit(solver=NumpySolver(), config=config)
+nm  = ckt.NodeManager
+gnd = nm.GroundNode
+
+n_in  = nm.AddNode("in")
+n_ref = nm.AddNode("ref")
+n_out = nm.AddNode("out")
+
+# V_in = 3 V, V_ref = 1 V  →  V_out = V_high (5 V)
+ckt.AddComponent(DCVoltageSource("Vin",  (n_in,  gnd), voltage=3.0))
+ckt.AddComponent(DCVoltageSource("Vref", (n_ref, gnd), voltage=1.0))
+ckt.AddComponent(Comparator("U1", (n_in, n_ref, n_out), V_high=5.0, V_low=0.0))
+ckt.AddComponent(Resistor("Rload", (n_out, gnd), resistance=10e3))
+
+p = VoltageProbe("Vout", n_out)
+ckt.AddProbe(p)
+ckt.Finalize()
+x = ckt.SolveDCOperatingPoint()
+
+print(f"Vout = {x[n_out.Index]:.2f} V")   # → 5.00 V
+</code></pre>
+<h2 id="example-schmitt-trigger-with-hysteresis"><a class="header" href="#example-schmitt-trigger-with-hysteresis">Example: Schmitt Trigger with Hysteresis</a></h2>
+<pre><code class="language-python">ckt.AddComponent(
+    Comparator("U1", (n_in, n_ref, n_out),
+               V_high=5.0, V_low=0.0,
+               V_hys=1.0)   # ±0.5 V trip-point spread
+)
+</code></pre>
+<p>With <code>V_hys=1.0</code>: output goes HIGH when <code>V_in - V_ref &gt; +0.5 V</code>,
+LOW when <code>V_in - V_ref &lt; -0.5 V</code>.</p>
+<h2 id="pre-built-library-parts-1"><a class="header" href="#pre-built-library-parts-1">Pre-Built Library Parts</a></h2>
+<p>See <a href="components/../library/overview.html">Component Library</a> for ready-to-use factory
+functions:</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$V_{high}$</th><th>$R_{in}$</th><th>$R_{out}$</th><th>Notes</th></tr></thead><tbody>
+<tr><td><code>LM393</code></td><td>LM393</td><td>5 V</td><td>1 MΩ</td><td>50 Ω</td><td>Dual, general purpose</td></tr>
+<tr><td><code>LM339</code></td><td>LM339</td><td>5 V</td><td>1 MΩ</td><td>50 Ω</td><td>Quad, single supply</td></tr>
+<tr><td><code>LM311</code></td><td>LM311</td><td>5 V</td><td>500 kΩ</td><td>50 Ω</td><td>Faster, output transistor</td></tr>
+<tr><td><code>TLV3201</code></td><td>TLV3201</td><td>5 V</td><td>100 MΩ</td><td>25 Ω</td><td>Rail-to-rail CMOS</td></tr>
+<tr><td><code>MAX9021</code></td><td>MAX9021</td><td>5 V</td><td>1 TΩ</td><td>10 Ω</td><td>Ultra-low power</td></tr>
+<tr><td><code>IdealComparator</code></td><td>—</td><td>5 V</td><td>1 TΩ</td><td>0.001 Ω</td><td>Textbook ideal</td></tr>
+</tbody></table>
+</div>
+<h2 id="common-topologies-1"><a class="header" href="#common-topologies-1">Common Topologies</a></h2>
+<p>See <a href="components/../library/common.html">Common Building Blocks</a> for factory helpers:</p>
+<ul>
+<li><strong><code>voltage_comparator</code></strong> — single comparator with configurable rails</li>
+<li><strong><code>schmitt_trigger</code></strong> — non-inverting Schmitt trigger with resistor feedback</li>
+<li><strong><code>window_comparator</code></strong> — two comparators detect if signal is within
+a voltage window</li>
+</ul>
+<h2 id="tips-1"><a class="header" href="#tips-1">Tips</a></h2>
+<ul>
+<li>Always add a <strong>pull-up resistor</strong> (e.g. 10 kΩ to <code>V_supply</code>) or a <strong>load
+resistor</strong> to ground on the output — leaving the output node unloaded
+will cause a floating node error.</li>
+<li>For open-collector comparators (LM393, LM339): add a pull-up resistor
+to the supply and set <code>R_out</code> to a small value (e.g. <code>5.0</code>).</li>
+<li>Use <code>initial_state_high=False</code> when <code>V_in &lt; V_ref</code> at t=0 to avoid an
+extra NR iteration to resolve the initial state.</li>
+<li>For 5 V CMOS logic levels use <code>V_high=5.0, V_low=0.0</code>.
+For ±15 V supply use <code>V_high=14.0, V_low=-14.0</code> (2 V dropout).</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="magnetic-components"><a class="header" href="#magnetic-components">Magnetic Components</a></h1>
 <p>PyEEL supports coupled inductors and transformers for modelling energy
 transfer through magnetic fields.</p>
@@ -1390,7 +1600,7 @@ ckt.AddComponent(L1)
 ckt.AddComponent(L2)
 ckt.AddComponent(K1)
 </code></pre>
-<h2 id="constructor-10"><a class="header" href="#constructor-10">Constructor</a></h2>
+<h2 id="constructor-11"><a class="header" href="#constructor-11">Constructor</a></h2>
 <pre><code class="language-python">MutualCoupling(name: str, inductor1: Inductor, inductor2: Inductor, k: float)
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -1400,7 +1610,7 @@ ckt.AddComponent(K1)
 <tr><td><code>k</code></td><td><code>float</code></td><td><strong>Coupling coefficient</strong>, $-1 &lt; k &lt; 1$ (typically 0.9–0.999 for transformers)</td></tr>
 </tbody></table>
 </div>
-<h2 id="properties-11"><a class="header" href="#properties-11">Properties</a></h2>
+<h2 id="properties-12"><a class="header" href="#properties-12">Properties</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>CouplingCoefficient</code></td><td><code>float</code></td><td>$k$</td></tr>
 <tr><td><code>MutualInductance</code></td><td><code>float</code></td><td>$M = k\sqrt{L_1 L_2}$</td></tr>
@@ -1457,7 +1667,7 @@ T1 = Transformer("T1",
 )
 ckt.AddComponent(T1)
 </code></pre>
-<h2 id="constructor-11"><a class="header" href="#constructor-11">Constructor</a></h2>
+<h2 id="constructor-12"><a class="header" href="#constructor-12">Constructor</a></h2>
 <pre><code class="language-python">Transformer(name: str,
             primary_nodes: tuple[Node, Node],
             secondary_nodes: tuple[Node, Node],
@@ -1467,14 +1677,14 @@ ckt.AddComponent(T1)
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>name</code></td><td><code>str</code></td><td>Unique component name</td></tr>
-<tr><td><code>primary_nodes</code></td><td><code>(Node, Node)</code></td><td><code>(p+, p−)</code> of the primary winding</td></tr>
-<tr><td><code>secondary_nodes</code></td><td><code>(Node, Node)</code></td><td><code>(s+, s−)</code> of the secondary winding</td></tr>
+<tr><td><code>primary_nodes</code></td><td><code>(Node, Node)</code></td><td><code>(p+, p-)</code> of the primary winding</td></tr>
+<tr><td><code>secondary_nodes</code></td><td><code>(Node, Node)</code></td><td><code>(s+, s-)</code> of the secondary winding</td></tr>
 <tr><td><code>primary_inductance</code></td><td><code>float</code></td><td>$L_1$ in <strong>Henries</strong></td></tr>
 <tr><td><code>secondary_inductance</code></td><td><code>float</code></td><td>$L_2$ in <strong>Henries</strong></td></tr>
 <tr><td><code>k</code></td><td><code>float</code></td><td>Coupling coefficient (0 &lt; k &lt; 1; use 0.999 for near-ideal)</td></tr>
 </tbody></table>
 </div>
-<h2 id="properties-12"><a class="header" href="#properties-12">Properties</a></h2>
+<h2 id="properties-13"><a class="header" href="#properties-13">Properties</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>Primary</code></td><td><code>Inductor</code></td><td>The primary winding inductor</td></tr>
 <tr><td><code>Secondary</code></td><td><code>Inductor</code></td><td>The secondary winding inductor</td></tr>
@@ -1635,7 +1845,7 @@ voltage or current elsewhere in the circuit.  They are used to model
 amplifiers, transconductance stages, and feedback networks.</p>
 <pre><code class="language-python">from PyEEL import VCVS, VCCS, CCVS, CCCS
 </code></pre>
-<h2 id="overview-1"><a class="header" href="#overview-1">Overview</a></h2>
+<h2 id="overview-2"><a class="header" href="#overview-2">Overview</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Class</th><th>SPICE Name</th><th>Relation</th><th>Control</th><th>Output</th></tr></thead><tbody>
 <tr><td><code>VCVS</code></td><td>E</td><td>$V_{out} = A_v \cdot V_{ctrl}$</td><td>Voltage</td><td>Voltage</td></tr>
 <tr><td><code>VCCS</code></td><td>G</td><td>$I_{out} = g_m \cdot V_{ctrl}$</td><td>Voltage</td><td>Current</td></tr>
@@ -1648,8 +1858,8 @@ amplifiers, transconductance stages, and feedback networks.</p>
      ctrl_nodes: tuple[Node, Node], gain: float)
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out−)</code> where the controlled voltage appears</td></tr>
-<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl−)</code> the sensed voltage</td></tr>
+<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out-)</code> where the controlled voltage appears</td></tr>
+<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl-)</code> the sensed voltage</td></tr>
 <tr><td><code>gain</code></td><td>$A_v$</td><td><strong>Voltage gain</strong> (V/V) — dimensionless</td></tr>
 </tbody></table>
 </div>
@@ -1660,8 +1870,8 @@ amplifiers, transconductance stages, and feedback networks.</p>
      ctrl_nodes: tuple[Node, Node], transconductance: float)
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out−)</code> current flows from out+ to out−</td></tr>
-<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl−)</code> the sensed voltage</td></tr>
+<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out-)</code> current flows from out+ to out-</td></tr>
+<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl-)</code> the sensed voltage</td></tr>
 <tr><td><code>transconductance</code></td><td>$g_m$</td><td><strong>Transconductance</strong> (A/V) — Siemens</td></tr>
 </tbody></table>
 </div>
@@ -1672,8 +1882,8 @@ amplifiers, transconductance stages, and feedback networks.</p>
      ctrl_nodes: tuple[Node, Node], transresistance: float)
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out−)</code> where the controlled voltage appears</td></tr>
-<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl−)</code> a <strong>zero-volt sense source</strong> is inserted here</td></tr>
+<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out-)</code> where the controlled voltage appears</td></tr>
+<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl-)</code> a <strong>zero-volt sense source</strong> is inserted here</td></tr>
 <tr><td><code>transresistance</code></td><td>$R_m$</td><td><strong>Transresistance</strong> (V/A) — Ohms</td></tr>
 </tbody></table>
 </div>
@@ -1688,14 +1898,14 @@ measure the control current.  This is the same technique used in SPICE.</p>
      ctrl_nodes: tuple[Node, Node], gain: float)
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Symbol</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out−)</code> current flows from out+ to out−</td></tr>
-<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl−)</code> a <strong>zero-volt sense source</strong> is inserted here</td></tr>
+<tr><td><code>out_nodes</code></td><td>—</td><td><code>(out+, out-)</code> current flows from out+ to out-</td></tr>
+<tr><td><code>ctrl_nodes</code></td><td>—</td><td><code>(ctrl+, ctrl-)</code> a <strong>zero-volt sense source</strong> is inserted here</td></tr>
 <tr><td><code>gain</code></td><td>$A_i$</td><td><strong>Current gain</strong> (A/A) — dimensionless</td></tr>
 </tbody></table>
 </div>
 <p><strong>Auxiliary unknowns:</strong> 1 (sense branch current)</p>
 <p><strong>Equation:</strong> $I_{out} = A_i \cdot I_{sense}$</p>
-<h2 id="query-methods-2"><a class="header" href="#query-methods-2">Query Methods</a></h2>
+<h2 id="query-methods-3"><a class="header" href="#query-methods-3">Query Methods</a></h2>
 <p>All dependent sources provide:</p>
 <div class="table-wrapper"><table><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody>
 <tr><td><code>GetCurrent(solution)</code></td><td>Output branch current</td></tr>
@@ -1788,7 +1998,7 @@ $$</p>
 <tr><td>$\mathbf{b}$</td><td>$N \times 1$</td><td>Right-hand-side: known currents + voltage constraints</td></tr>
 </tbody></table>
 </div>
-<p>$N = $ <code>NodeManager.TotalUnknownCount</code> = (number of nodes − 1) + (auxiliary unknowns).</p>
+<p>$N = $ <code>NodeManager.TotalUnknownCount</code> = (number of nodes - 1) + (auxiliary unknowns).</p>
 <h2 id="solution-vector-layout-1"><a class="header" href="#solution-vector-layout-1">Solution Vector Layout</a></h2>
 <pre><code>x = [ V_0, V_1, …, V_{n-1},  I_aux0, I_aux1, … ]
      └── node voltages ──┘   └── branch currents ──┘
@@ -1845,7 +2055,7 @@ non-linear device equations until the solution converges.</p>
 <pre><code>x = x_initial (previous time-step solution)
 for iteration = 1, 2, …, max_iterations:
     1. Build A, b with components stamped at current x
-    2. Solve:  Δx = A⁻¹ b − x
+    2. Solve:  Δx = A⁻¹ b - x
     3. Apply damping:  x_new = x + α · Δx
     4. Check convergence:
        - |Δx| &lt; abs_tolerance  AND
@@ -2027,6 +2237,631 @@ sim.Run()    # blocks until window is closed
 times  = voltage_probe.TimeData
 values = voltage_probe.ValueData
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ac-small-signal-analysis"><a class="header" href="#ac-small-signal-analysis">AC Small-Signal Analysis</a></h1>
+<p>AC analysis linearises the circuit around its DC operating point, replaces reactive elements with their complex impedances, and sweeps frequency to produce Bode-plot data (magnitude and phase vs frequency).</p>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
+<ol>
+<li><strong>DC operating point</strong> — the circuit is solved for its quiescent state. All nonlinear devices (diodes, BJTs, MOSFETs) are replaced by their small-signal conductances at the bias point.</li>
+<li><strong>Linearised MNA matrix</strong> — a conductance matrix <strong>G</strong> is built from the linearised models.</li>
+<li><strong>Frequency sweep</strong> — for each frequency <em>f</em> in the sweep range:
+<ul>
+<li>A susceptance matrix <strong>C</strong> is constructed (capacitors contribute <em>jωC</em>, inductors contribute <em>1/(jωL)</em>).</li>
+<li>The complex system <strong>(G + jωC) · x_ac = b_ac</strong> is solved.</li>
+<li>Magnitude and phase of the transfer function <em>H(jω) = V_out / V_in</em> are extracted.</li>
+</ul>
+</li>
+</ol>
+<h2 id="api"><a class="header" href="#api">API</a></h2>
+<pre><code class="language-python">ac_result = ckt.RunAC(
+    f_start,                        # start frequency (Hz)
+    f_stop,                         # stop frequency (Hz)
+    num_points,                     # number of frequency points
+    input_source_name=None,         # name of the AC excitation source
+    output_node_index=None,         # node index for V_out
+    log_scale=True,                 # logarithmic frequency spacing
+)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>f_start</code></td><td><code>float</code></td><td>Start frequency in Hz</td></tr>
+<tr><td><code>f_stop</code></td><td><code>float</code></td><td>Stop frequency in Hz</td></tr>
+<tr><td><code>num_points</code></td><td><code>int</code></td><td>Number of frequency points (default 100)</td></tr>
+<tr><td><code>input_source_name</code></td><td><code>str | None</code></td><td>Name of the AC voltage source (1 V excitation). If <code>None</code>, the first <code>ACVoltageSource</code> is used.</td></tr>
+<tr><td><code>output_node_index</code></td><td><code>int | None</code></td><td>Node index whose voltage defines the output</td></tr>
+<tr><td><code>log_scale</code></td><td><code>bool</code></td><td>Use logarithmic spacing (default <code>True</code>)</td></tr>
+</tbody></table>
+</div>
+<p>The circuit must be finalized before calling <code>RunAC</code>. If the DC operating point has not yet been solved, it is computed automatically.</p>
+<h2 id="return-value--acresult"><a class="header" href="#return-value--acresult">Return Value — <code>ACResult</code></a></h2>
+<pre><code class="language-python">@dataclass
+class ACResult:
+    frequencies: np.ndarray       # Hz — shape (num_points,)
+    magnitude_dB: np.ndarray      # 20·log10(|H|)
+    phase_deg: np.ndarray         # degrees
+    complex_response: np.ndarray  # raw complex H(jω)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>frequencies</code></td><td>Array of frequency points in Hz</td></tr>
+<tr><td><code>magnitude_dB</code></td><td>Transfer function magnitude in decibels</td></tr>
+<tr><td><code>phase_deg</code></td><td>Transfer function phase in degrees</td></tr>
+<tr><td><code>complex_response</code></td><td>Raw complex-valued transfer function for custom post-processing</td></tr>
+</tbody></table>
+</div>
+<h2 id="example--rc-low-pass-filter"><a class="header" href="#example--rc-low-pass-filter">Example — RC Low-Pass Filter</a></h2>
+<pre><code class="language-python">from PyEEL import *
+import numpy as np
+
+ckt = Circuit(solver=NumpySolver())
+
+nm    = ckt.NodeManager
+gnd   = nm.GroundNode
+n_in  = nm.AddNode("n_in")
+n_out = nm.AddNode("n_out")
+
+v1 = ACVoltageSource("V1", (n_in, gnd), amplitude=1.0, frequency=1000.0)
+r1 = Resistor("R1", (n_in, n_out), resistance=1e3)
+c1 = Capacitor("C1", (n_out, gnd), capacitance=100e-9)
+
+ckt.AddComponent(v1)
+ckt.AddComponent(r1)
+ckt.AddComponent(c1)
+
+ckt.Finalize()
+
+# Sweep from 1 Hz to 1 MHz with 200 points
+ac_result = ckt.RunAC(
+    1.0, 1e6, 200,
+    input_source_name="V1",
+    output_node_index=n_out.Index,
+)
+
+# Find the -3 dB frequency
+idx_3dB = np.argmin(np.abs(ac_result.magnitude_dB - (-3.0)))
+f_3dB = ac_result.frequencies[idx_3dB]
+print(f"-3 dB frequency: {f_3dB:.1f} Hz")
+
+# Plot the Bode diagram
+plot_bode(ac_result)
+</code></pre>
+<p>The theoretical cutoff frequency for this RC filter is:</p>
+<p>$$f_c = \frac{1}{2\pi R C} = \frac{1}{2\pi \cdot 1,\text{k}\Omega \cdot 100,\text{nF}} \approx 1592,\text{Hz}$$</p>
+<h2 id="visualization"><a class="header" href="#visualization">Visualization</a></h2>
+<p>Use <code>plot_bode(result)</code> to generate a Bode plot with magnitude and phase subplots:</p>
+<pre><code class="language-python">fig, (ax_mag, ax_phase) = plot_bode(ac_result, title="RC Filter Response")
+</code></pre>
+<p>See <a href="simulation/../visualization/plotting.html">Static Plotting</a> for full details on plot customisation.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="noise-analysis"><a class="header" href="#noise-analysis">Noise Analysis</a></h1>
+<p>Noise analysis computes the output-referred noise spectral density at a specified node by propagating individual component noise contributions through the linearised small-signal transfer function.</p>
+<h2 id="how-it-works-1"><a class="header" href="#how-it-works-1">How It Works</a></h2>
+<ol>
+<li><strong>DC operating point</strong> — solved to determine bias currents and voltages for all devices.</li>
+<li><strong>Linearised MNA</strong> — small-signal conductance matrix <strong>G</strong> is built at the operating point.</li>
+<li><strong>Per-frequency sweep</strong> — for each frequency <em>f</em>:
+<ul>
+<li>Build the complex admittance matrix <strong>Y(jω) = G + jωC</strong>.</li>
+<li>For each noisy component, inject a unit noise current and compute the transfer impedance to the output node.</li>
+<li>Weight by the component's spectral density and sum in RSS (root sum of squares).</li>
+</ul>
+</li>
+<li><strong>Integration</strong> — the total noise spectral density is integrated over the bandwidth to yield the RMS noise voltage.</li>
+</ol>
+<h3 id="noise-sources"><a class="header" href="#noise-sources">Noise Sources</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Source Type</th><th>Spectral Density</th><th>Applies To</th></tr></thead><tbody>
+<tr><td>Thermal (Johnson–Nyquist)</td><td>$S_v = 4 k T R$</td><td>Resistors</td></tr>
+<tr><td>Shot noise</td><td>$S_i = 2 q I_d$</td><td>Diodes, BJT junctions</td></tr>
+</tbody></table>
+</div>
+<p>where $k$ is Boltzmann's constant and $q$ is the electron charge.</p>
+<h2 id="api-1"><a class="header" href="#api-1">API</a></h2>
+<pre><code class="language-python">noise_result = ckt.RunNoise(
+    f_start,                       # start frequency (Hz)
+    f_stop,                        # stop frequency (Hz)
+    num_points,                    # number of frequency points
+    output_node_index=idx,         # node index for output-referred noise
+)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>f_start</code></td><td><code>float</code></td><td>Start frequency in Hz</td></tr>
+<tr><td><code>f_stop</code></td><td><code>float</code></td><td>Stop frequency in Hz</td></tr>
+<tr><td><code>num_points</code></td><td><code>int</code></td><td>Number of frequency points (default 100)</td></tr>
+<tr><td><code>output_node_index</code></td><td><code>int</code></td><td>Node index where noise is measured (required)</td></tr>
+<tr><td><code>log_scale</code></td><td><code>bool</code></td><td>Use logarithmic spacing (default <code>True</code>)</td></tr>
+</tbody></table>
+</div>
+<h2 id="return-value--noiseresult"><a class="header" href="#return-value--noiseresult">Return Value — <code>NoiseResult</code></a></h2>
+<pre><code class="language-python">@dataclass
+class NoiseResult:
+    frequencies: np.ndarray                        # Hz
+    output_noise_density: np.ndarray               # V²/Hz
+    integrated_noise_vrms: float                   # total RMS noise (V)
+    component_contributions: dict[str, np.ndarray] # per-component breakdown
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>frequencies</code></td><td>Array of frequency points in Hz</td></tr>
+<tr><td><code>output_noise_density</code></td><td>Output-referred noise spectral density (V²/Hz) at each frequency</td></tr>
+<tr><td><code>integrated_noise_vrms</code></td><td>Integrated RMS noise voltage over the full bandwidth</td></tr>
+<tr><td><code>component_contributions</code></td><td>Dictionary mapping component name → spectral density array. Useful for identifying dominant noise sources.</td></tr>
+</tbody></table>
+</div>
+<h2 id="example--resistive-voltage-divider"><a class="header" href="#example--resistive-voltage-divider">Example — Resistive Voltage Divider</a></h2>
+<pre><code class="language-python">from PyEEL import *
+
+ckt = Circuit(solver=NumpySolver())
+
+nm    = ckt.NodeManager
+gnd   = nm.GroundNode
+n_in  = nm.AddNode("n_in")
+n_out = nm.AddNode("n_out")
+
+ckt.AddComponent(DCVoltageSource("V1", (n_in, gnd), voltage=5.0))
+ckt.AddComponent(Resistor("R1", (n_in, n_out), resistance=10e3))
+ckt.AddComponent(Resistor("R2", (n_out, gnd), resistance=10e3))
+
+ckt.Finalize()
+
+noise_result = ckt.RunNoise(
+    10.0, 100e3, 200,
+    output_node_index=n_out.Index,
+)
+
+print(f"Integrated RMS noise: {noise_result.integrated_noise_vrms * 1e6:.2f} µV")
+
+# Per-component contributions
+if noise_result.component_contributions:
+    mid = len(noise_result.frequencies) // 2
+    for name, contrib in noise_result.component_contributions.items():
+        print(f"  {name}: {contrib[mid]:.4e} V²/Hz (at {noise_result.frequencies[mid]:.0f} Hz)")
+
+# Visualise
+plot_noise_spectrum(noise_result)
+</code></pre>
+<h2 id="visualization-1"><a class="header" href="#visualization-1">Visualization</a></h2>
+<p>Use <code>plot_noise_spectrum(result)</code> to display the spectral density on a log-log plot:</p>
+<pre><code class="language-python">fig, ax = plot_noise_spectrum(noise_result, show_components=True)
+</code></pre>
+<p>When <code>show_components=True</code> (the default), individual component noise traces are overlaid so you can identify the dominant noise contributor.</p>
+<p>See <a href="simulation/../visualization/plotting.html">Static Plotting</a> for full details on plot customisation.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="monte-carlo-analysis"><a class="header" href="#monte-carlo-analysis">Monte Carlo Analysis</a></h1>
+<p>Monte Carlo analysis performs statistical analysis of circuit behaviour under random component parameter variations. It runs the DC operating point many times, each time randomly perturbing component values according to specified tolerances, and collects the distribution of a measured output.</p>
+<h2 id="how-it-works-2"><a class="header" href="#how-it-works-2">How It Works</a></h2>
+<ol>
+<li><strong>Define tolerances</strong> — specify which components vary and by how much.</li>
+<li><strong>Random sampling</strong> — for each run, component parameters are sampled from their tolerance distributions.</li>
+<li><strong>DC solve</strong> — the DC operating point is solved with the perturbed parameters.</li>
+<li><strong>Measurement</strong> — a user-defined function extracts the metric of interest from each solution.</li>
+<li><strong>Statistics</strong> — mean, standard deviation, min, max, and percentiles are computed across all runs.</li>
+<li><strong>Restore</strong> — original component values are restored after the analysis completes.</li>
+</ol>
+<h2 id="the-tolerance-class"><a class="header" href="#the-tolerance-class">The <code>Tolerance</code> Class</a></h2>
+<p>The <code>Tolerance</code> dataclass describes how a parameter varies. Use the factory methods:</p>
+<div class="table-wrapper"><table><thead><tr><th>Factory Method</th><th>Distribution</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>Tolerance.percentage(pct)</code></td><td>Uniform ±pct%</td><td>Resistor/capacitor manufacturing tolerance</td></tr>
+<tr><td><code>Tolerance.gaussian(mean, std)</code></td><td>Gaussian</td><td>Device parameter with known mean and σ</td></tr>
+<tr><td><code>Tolerance.uniform(low, high)</code></td><td>Uniform [low, high]</td><td>Parameter bounded between two absolute values</td></tr>
+<tr><td><code>Tolerance.gaussian_percent(pct)</code></td><td>Gaussian, 3σ = pct%</td><td>Manufacturing spread as Gaussian</td></tr>
+</tbody></table>
+</div>
+<h2 id="api-2"><a class="header" href="#api-2">API</a></h2>
+<pre><code class="language-python">mc_result = ckt.RunMonteCarlo(
+    tolerances=[
+        (component, "ParameterName", Tolerance.percentage(5)),
+        # ... more tolerances
+    ],
+    num_runs=500,
+    measure=lambda ckt, x_dc: x_dc[node.Index],
+    seed=42,        # optional, for reproducibility
+)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tolerances</code></td><td><code>list[tuple]</code></td><td>List of <code>(component, param_name, Tolerance)</code> tuples</td></tr>
+<tr><td><code>num_runs</code></td><td><code>int</code></td><td>Number of random trials (default 100)</td></tr>
+<tr><td><code>measure</code></td><td><code>callable</code></td><td><code>measure(circuit, x_dc) → float</code> — extracts the metric from each run</td></tr>
+<tr><td><code>seed</code></td><td><code>int | None</code></td><td>Random seed for reproducibility</td></tr>
+</tbody></table>
+</div>
+<h2 id="return-value--montecarloresult"><a class="header" href="#return-value--montecarloresult">Return Value — <code>MonteCarloResult</code></a></h2>
+<pre><code class="language-python">@dataclass
+class MonteCarloResult:
+    num_runs: int
+    values: np.ndarray       # shape (num_runs,)
+    mean: float
+    std: float
+    min: float
+    max: float
+    percentile_5: float
+    percentile_95: float
+    parameter_samples: dict[str, np.ndarray]  # sampled values per parameter
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>num_runs</code></td><td>Total number of completed runs</td></tr>
+<tr><td><code>values</code></td><td>Array of measured outputs, one per run</td></tr>
+<tr><td><code>mean</code></td><td>Mean of the measured values</td></tr>
+<tr><td><code>std</code></td><td>Standard deviation</td></tr>
+<tr><td><code>min</code> / <code>max</code></td><td>Extreme values</td></tr>
+<tr><td><code>percentile_5</code> / <code>percentile_95</code></td><td>5th and 95th percentile bounds</td></tr>
+<tr><td><code>parameter_samples</code></td><td>Dictionary of sampled parameter arrays for correlation analysis</td></tr>
+</tbody></table>
+</div>
+<h2 id="example--voltage-divider-tolerance"><a class="header" href="#example--voltage-divider-tolerance">Example — Voltage Divider Tolerance</a></h2>
+<pre><code class="language-python">from PyEEL import *
+
+ckt = Circuit(solver=NumpySolver())
+
+nm    = ckt.NodeManager
+gnd   = nm.GroundNode
+n_in  = nm.AddNode("n_in")
+n_out = nm.AddNode("n_out")
+
+ckt.AddComponent(DCVoltageSource("V1", (n_in, gnd), voltage=10.0))
+r1 = Resistor("R1", (n_in, n_out), resistance=10e3)
+r2 = Resistor("R2", (n_out, gnd), resistance=10e3)
+ckt.AddComponent(r1)
+ckt.AddComponent(r2)
+
+ckt.Finalize()
+
+def measure_vout(circuit, x_dc):
+    return x_dc[n_out.Index]
+
+mc_result = ckt.RunMonteCarlo(
+    tolerances=[
+        (r1, "Resistance", Tolerance.percentage(5)),
+        (r2, "Resistance", Tolerance.percentage(5)),
+    ],
+    num_runs=500,
+    measure=measure_vout,
+    seed=42,
+)
+
+print(f"Mean: {mc_result.mean:.4f} V")
+print(f"Std:  {mc_result.std:.4f} V")
+print(f"Range: {mc_result.min:.4f} – {mc_result.max:.4f} V")
+
+plot_monte_carlo(mc_result)
+</code></pre>
+<h2 id="visualization-2"><a class="header" href="#visualization-2">Visualization</a></h2>
+<p>Use <code>plot_monte_carlo(result)</code> to display a histogram with statistical annotations:</p>
+<pre><code class="language-python">fig, ax = plot_monte_carlo(mc_result, bins=30, xlabel="V_out (V)")
+</code></pre>
+<p>The histogram shows the distribution of measured values with vertical lines for the mean, ±1σ, and 5th/95th percentiles.</p>
+<p>See <a href="simulation/../visualization/plotting.html">Static Plotting</a> for full details on plot customisation.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="parameter-sweep"><a class="header" href="#parameter-sweep">Parameter Sweep</a></h1>
+<p>Parameter sweep analysis varies one or two component parameters across a specified range, running the DC operating point at each point and collecting a measured output.</p>
+<h2 id="how-it-works-3"><a class="header" href="#how-it-works-3">How It Works</a></h2>
+<ol>
+<li><strong>Register parameters</strong> — specify which component parameters to sweep and over what range.</li>
+<li><strong>Iterate</strong> — for each combination of parameter values:
+<ul>
+<li>Set the component parameter.</li>
+<li>Solve the DC operating point.</li>
+<li>Call the measurement function.</li>
+</ul>
+</li>
+<li><strong>Collect</strong> — results are gathered into an array (1-D for single-parameter sweeps, 2-D for dual-parameter sweeps).</li>
+<li><strong>Restore</strong> — original parameter values are restored after the sweep completes.</li>
+</ol>
+<h2 id="api-3"><a class="header" href="#api-3">API</a></h2>
+<pre><code class="language-python">sweep_result = ckt.RunSweep(
+    parameters=[
+        (component, "ParameterName", start, stop, num_points),
+        # ... optionally a second parameter for 2-D sweep
+    ],
+    measure=lambda ckt, x_dc: x_dc[node.Index],
+)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>parameters</code></td><td><code>list[tuple]</code></td><td>Each entry: <code>(component, param_name, start, stop, num)</code></td></tr>
+<tr><td><code>measure</code></td><td><code>callable</code></td><td><code>measure(circuit, x_dc) → float</code> — extracts the metric at each sweep point</td></tr>
+</tbody></table>
+</div>
+<p>Each parameter tuple can take these forms:</p>
+<div class="table-wrapper"><table><thead><tr><th>Format</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>(comp, "Resistance", 1e3, 100e3, 20)</code></td><td>Linear sweep from 1 kΩ to 100 kΩ in 20 steps</td></tr>
+<tr><td><code>(comp, "Resistance", [1e3, 2.2e3, 4.7e3, 10e3])</code></td><td>Explicit list of values</td></tr>
+</tbody></table>
+</div>
+<h2 id="return-value--sweepresult"><a class="header" href="#return-value--sweepresult">Return Value — <code>SweepResult</code></a></h2>
+<pre><code class="language-python">@dataclass
+class SweepResult:
+    sweep_values: dict[str, np.ndarray]  # parameter name → array of values
+    measured: np.ndarray                  # shape depends on sweep dimensions
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>sweep_values</code></td><td>Dictionary mapping parameter labels to their swept value arrays</td></tr>
+<tr><td><code>measured</code></td><td>1-D array for single sweeps; 2-D array <code>(num_A, num_B)</code> for dual sweeps</td></tr>
+</tbody></table>
+</div>
+<h2 id="example--voltage-divider-sweep"><a class="header" href="#example--voltage-divider-sweep">Example — Voltage Divider Sweep</a></h2>
+<pre><code class="language-python">from PyEEL import *
+
+ckt = Circuit(solver=NumpySolver())
+
+nm    = ckt.NodeManager
+gnd   = nm.GroundNode
+n_in  = nm.AddNode("n_in")
+n_out = nm.AddNode("n_out")
+
+ckt.AddComponent(DCVoltageSource("V1", (n_in, gnd), voltage=10.0))
+r1 = Resistor("R1", (n_in, n_out), resistance=10e3)
+r2 = Resistor("R2", (n_out, gnd), resistance=10e3)
+ckt.AddComponent(r1)
+ckt.AddComponent(r2)
+
+ckt.Finalize()
+
+def measure_vout(circuit, x_dc):
+    return x_dc[n_out.Index]
+
+sweep_result = ckt.RunSweep(
+    parameters=[
+        (r1, "Resistance", 1e3, 100e3, 20),
+    ],
+    measure=measure_vout,
+)
+
+# Print sample points
+r_values = sweep_result.sweep_values["R1.Resistance"]
+v_values = sweep_result.measured
+for r, v in zip(r_values, v_values):
+    print(f"  R1 = {r:&gt;9.0f} Ω  →  V_out = {v:.4f} V")
+
+plot_sweep(sweep_result)
+</code></pre>
+<h3 id="dual-parameter-sweep"><a class="header" href="#dual-parameter-sweep">Dual-Parameter Sweep</a></h3>
+<p>For a 2-D sweep, add a second parameter tuple. The result is a 2-D array rendered as a heatmap:</p>
+<pre><code class="language-python">sweep_result = ckt.RunSweep(
+    parameters=[
+        (r1, "Resistance", 1e3, 100e3, 20),
+        (r2, "Resistance", 1e3, 100e3, 20),
+    ],
+    measure=measure_vout,
+)
+# sweep_result.measured.shape == (20, 20)
+plot_sweep(sweep_result)
+</code></pre>
+<h2 id="visualization-3"><a class="header" href="#visualization-3">Visualization</a></h2>
+<p>Use <code>plot_sweep(result)</code> to automatically generate the appropriate plot:</p>
+<ul>
+<li><strong>Single-parameter sweep</strong> → line plot (value vs parameter)</li>
+<li><strong>Dual-parameter sweep</strong> → 2-D heatmap with colour bar</li>
+</ul>
+<pre><code class="language-python">fig, ax = plot_sweep(sweep_result, ylabel="V_out (V)", log_x=True)
+</code></pre>
+<p>See <a href="simulation/../visualization/plotting.html">Static Plotting</a> for full details on plot customisation.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="event-detection"><a class="header" href="#event-detection">Event Detection</a></h1>
+<p>Event detection monitors node voltages during a transient simulation and records when specified conditions are met — zero crossings, threshold crossings, or arbitrary user-defined events.</p>
+<h2 id="core-classes"><a class="header" href="#core-classes">Core Classes</a></h2>
+<h3 id="eventdetector"><a class="header" href="#eventdetector"><code>EventDetector</code></a></h3>
+<p>The main manager. Create one, register event specifications, attach it to the circuit, and inspect detected events after simulation.</p>
+<pre><code class="language-python">ed = EventDetector()
+ed.add(ZeroCrossing(node=n_out, direction="rising"))
+ckt.SetEventDetector(ed)
+# ... run simulation loop ...
+events = ed.events  # list of EventRecord
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>ed.add(spec)</code></td><td>Register a <code>ZeroCrossing</code>, <code>ThresholdCrossing</code>, or <code>CustomEvent</code></td></tr>
+<tr><td><code>ed.on_event(name, callback)</code></td><td>Register a callback that fires when the named event is detected</td></tr>
+<tr><td><code>ed.clear()</code></td><td>Reset all recorded events and internal state</td></tr>
+<tr><td><code>ed.events</code></td><td>Property — returns a list of all <code>EventRecord</code> objects detected so far</td></tr>
+</tbody></table>
+</div>
+<h3 id="zerocrossing"><a class="header" href="#zerocrossing"><code>ZeroCrossing</code></a></h3>
+<p>Detects when a node voltage crosses zero.</p>
+<pre><code class="language-python">ZeroCrossing(
+    node=n_out,           # Node object
+    direction="rising",   # "rising", "falling", or "both"
+    name=None,            # optional custom event name
+)
+</code></pre>
+<h3 id="thresholdcrossing"><a class="header" href="#thresholdcrossing"><code>ThresholdCrossing</code></a></h3>
+<p>Detects when a node voltage crosses a specified level.</p>
+<pre><code class="language-python">ThresholdCrossing(
+    node=n_out,           # Node object
+    level=2.5,            # threshold voltage
+    direction="falling",  # "rising", "falling", or "both"
+    name=None,            # optional custom event name
+)
+</code></pre>
+<h3 id="customevent"><a class="header" href="#customevent"><code>CustomEvent</code></a></h3>
+<p>Detects a user-defined boolean condition transition.</p>
+<pre><code class="language-python">CustomEvent(
+    name="saturated",
+    trigger=lambda x, ctx: x[vce_index] &lt; 0.2,
+    on_rising=True,       # fire when condition becomes True
+    on_falling=False,     # fire when condition becomes False
+)
+</code></pre>
+<h3 id="crossingdirection"><a class="header" href="#crossingdirection"><code>CrossingDirection</code></a></h3>
+<p>Enum for crossing direction:</p>
+<pre><code class="language-python">class CrossingDirection(Enum):
+    RISING = "rising"
+    FALLING = "falling"
+    BOTH = "both"
+</code></pre>
+<p>String values <code>"rising"</code>, <code>"falling"</code>, and <code>"both"</code> are automatically converted to the enum.</p>
+<h3 id="eventrecord"><a class="header" href="#eventrecord"><code>EventRecord</code></a></h3>
+<p>Dataclass for each detected event:</p>
+<pre><code class="language-python">@dataclass
+class EventRecord:
+    time: float       # simulation time (s) when the event occurred
+    name: str         # event name
+    value: float      # node voltage at the crossing
+    direction: str    # "rising" or "falling"
+</code></pre>
+<h2 id="workflow"><a class="header" href="#workflow">Workflow</a></h2>
+<ol>
+<li><strong>Build the circuit</strong> as normal and add probes.</li>
+<li><strong>Create an <code>EventDetector</code></strong> and register events.</li>
+<li><strong>Attach it</strong> to the circuit with <code>ckt.SetEventDetector(ed)</code>.</li>
+<li><strong>Finalize</strong> the circuit.</li>
+<li><strong>Run the transient loop</strong> with <code>ckt.Simulate(dt)</code>.</li>
+<li><strong>Inspect</strong> <code>ed.events</code> after the simulation completes.</li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> The <code>EventDetector.check()</code> method is called automatically after each <code>Simulate()</code> step when the detector is attached to a circuit.</p>
+</blockquote>
+<h2 id="example--zero-crossing-detection"><a class="header" href="#example--zero-crossing-detection">Example — Zero Crossing Detection</a></h2>
+<pre><code class="language-python">from PyEEL import *
+import numpy as np
+
+ckt = Circuit(solver=NumpySolver())
+
+nm    = ckt.NodeManager
+gnd   = nm.GroundNode
+n_out = nm.AddNode("n_out")
+
+ckt.AddComponent(ACVoltageSource("V1", (n_out, gnd),
+                                 amplitude=5.0, frequency=1.0))
+ckt.AddComponent(Resistor("R1", (n_out, gnd), resistance=1e3))
+
+# Probe
+v_out = VoltageProbe("V(n_out)", n_out)
+ckt.AddProbe(v_out)
+
+# Event detection — detect rising zero crossings
+ed = EventDetector()
+ed.add(ZeroCrossing(node=n_out, direction="rising"))
+ckt.SetEventDetector(ed)
+
+ckt.Finalize()
+
+# Simulate 2 seconds at 1 ms time step
+dt    = 1e-3
+t_end = 2.0
+steps = int(t_end / dt)
+time_array = np.empty(steps)
+volt_array = np.empty(steps)
+
+for i in range(steps):
+    x = ckt.Simulate(dt)
+    time_array[i] = (i + 1) * dt
+    volt_array[i] = x[n_out.Index]
+
+# Inspect events
+for ev in ed.events:
+    print(f"  t = {ev.time:.4f} s | value = {ev.value:+.4f} V | {ev.direction}")
+
+# Plot the transient waveform
+plot_transient(time_array, {"V(n_out)": volt_array})
+</code></pre>
+<p>A 1 Hz sine completes 2 full cycles in 2 seconds. Expect 2 rising zero crossings (at approximately <em>t</em> = 0 s and <em>t</em> = 1 s, or wherever the sine crosses zero going positive).</p>
+<h2 id="using-callbacks"><a class="header" href="#using-callbacks">Using Callbacks</a></h2>
+<p>You can register callbacks to react to events in real time:</p>
+<pre><code class="language-python">def on_crossing(ev: EventRecord):
+    print(f"[EVENT] {ev.name} at t={ev.time:.4f}s")
+
+ed = EventDetector()
+zc = ZeroCrossing(node=n_out, direction="both")
+ed.add(zc)
+ed.on_event(zc.name, on_crossing)
+</code></pre>
+<h2 id="combining-multiple-events"><a class="header" href="#combining-multiple-events">Combining Multiple Events</a></h2>
+<p>Register as many event specifications as needed:</p>
+<pre><code class="language-python">ed = EventDetector()
+ed.add(ZeroCrossing(node=n_out, direction="rising"))
+ed.add(ThresholdCrossing(node=n_out, level=2.5, direction="falling"))
+ed.add(CustomEvent("clipped", lambda x, ctx: abs(x[n_out.Index]) &gt; 4.5))
+ckt.SetEventDetector(ed)
+</code></pre>
+<p>All events are checked on every simulation step. Access the combined list via <code>ed.events</code>, or filter by name:</p>
+<pre><code class="language-python">zero_events = [e for e in ed.events if "zero_crossing" in e.name]
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="harmonic-balance-analysis"><a class="header" href="#harmonic-balance-analysis">Harmonic Balance Analysis</a></h1>
+<p>Harmonic Balance (HB) finds the periodic steady state of a nonlinear circuit driven by a single-tone excitation <strong>without</strong> running a long transient simulation. It represents node voltages as truncated Fourier series and iteratively balances currents from the linear sub-network (in the frequency domain) with those from the nonlinear sub-network (in the time domain via DFT/IDFT).</p>
+<h2 id="how-it-works-4"><a class="header" href="#how-it-works-4">How It Works</a></h2>
+<ol>
+<li><strong>Fourier decomposition</strong> — node voltages are expanded as a truncated series up to the <em>K</em>-th harmonic: DC, <em>f₀</em>, 2<em>f₀</em>, … , <em>Kf₀</em>.</li>
+<li><strong>Linear sub-network</strong> — resistors, capacitors, and inductors are evaluated in the frequency domain at each harmonic.</li>
+<li><strong>Nonlinear sub-network</strong> — diodes, BJTs, and MOSFETs are evaluated in the time domain by sampling one period with 2<em>K</em>+1 points and applying the DFT.</li>
+<li><strong>Newton iteration</strong> — the combined frequency-domain residual is driven to zero using Newton-Raphson until convergence.</li>
+</ol>
+<p>This is especially useful for:</p>
+<ul>
+<li><strong>Mixers and oscillators</strong> where the transient settling time is long.</li>
+<li><strong>Distortion analysis</strong> — directly reveals harmonic content.</li>
+<li><strong>RF circuits</strong> — periodic steady state at GHz frequencies without picosecond time steps.</li>
+</ul>
+<h2 id="api-4"><a class="header" href="#api-4">API</a></h2>
+<pre><code class="language-python">hb_result = ckt.RunHarmonicBalance(
+    fundamental,              # fundamental frequency (Hz)
+    num_harmonics=7,          # number of harmonics K
+    max_iter=200,             # maximum Newton iterations
+    tol=1e-6,                 # convergence tolerance
+)
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>fundamental</code></td><td><code>float</code></td><td>Fundamental frequency in Hz</td></tr>
+<tr><td><code>num_harmonics</code></td><td><code>int</code></td><td>Number of harmonics <em>K</em> (default 7). Total tones = <em>K</em>+1 including DC.</td></tr>
+<tr><td><code>max_iter</code></td><td><code>int</code></td><td>Maximum Newton iterations (default 200)</td></tr>
+<tr><td><code>tol</code></td><td><code>float</code></td><td>Convergence tolerance on norm of residual (default 1e-6)</td></tr>
+</tbody></table>
+</div>
+<p>The circuit must be finalized. The DC operating point is solved automatically if not already computed.</p>
+<h2 id="return-value--hbresult"><a class="header" href="#return-value--hbresult">Return Value — <code>HBResult</code></a></h2>
+<pre><code class="language-python">@dataclass
+class HBResult:
+    fundamental: float          # Hz
+    num_harmonics: int          # K
+    frequencies: np.ndarray     # shape (K+1,) — [0, f, 2f, ..., Kf]
+    spectrum: np.ndarray        # complex, shape (N_nodes, K+1)
+    converged: bool
+    iterations: int
+    residual: float
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>fundamental</code></td><td>The fundamental frequency used</td></tr>
+<tr><td><code>num_harmonics</code></td><td>Number of harmonics <em>K</em></td></tr>
+<tr><td><code>frequencies</code></td><td>Array of harmonic frequencies: 0, <em>f₀</em>, 2<em>f₀</em>, …</td></tr>
+<tr><td><code>spectrum</code></td><td>Complex Fourier coefficients per node. <code>spectrum[node_idx, k]</code> gives the <em>k</em>-th harmonic phasor at node <code>node_idx</code>.</td></tr>
+<tr><td><code>converged</code></td><td><code>True</code> if Newton iteration converged within <code>max_iter</code></td></tr>
+<tr><td><code>iterations</code></td><td>Number of Newton iterations performed</td></tr>
+<tr><td><code>residual</code></td><td>Final residual norm</td></tr>
+</tbody></table>
+</div>
+<h2 id="example--diode-clipper"><a class="header" href="#example--diode-clipper">Example — Diode Clipper</a></h2>
+<pre><code class="language-python">from PyEEL import *
+
+config = SimulationConfig(dc_operating_point=True, gmin=1e-12)
+ckt = Circuit(solver=NumpySolver(), config=config)
+
+nm    = ckt.NodeManager
+gnd   = nm.GroundNode
+n_in  = nm.AddNode("n_in")
+n_out = nm.AddNode("n_out")
+
+ckt.AddComponent(ACVoltageSource("V1", (n_in, gnd),
+                                 amplitude=2.0, frequency=1000.0))
+ckt.AddComponent(Resistor("R1", (n_in, n_out), resistance=1e3))
+ckt.AddComponent(Diode("D1", (n_out, gnd)))
+ckt.AddComponent(Resistor("R_load", (n_out, gnd), resistance=10e3))
+
+ckt.Finalize()
+
+hb_result = ckt.RunHarmonicBalance(
+    fundamental=1000.0,
+    num_harmonics=7,
+)
+
+print(f"Converged: {hb_result.converged}")
+print(f"Iterations: {hb_result.iterations}")
+print(f"Residual: {hb_result.residual:.2e}")
+
+# Print the harmonic magnitudes at the output node
+node_spectrum = abs(hb_result.spectrum[:, n_out.Index])
+for i, (freq, mag) in enumerate(zip(hb_result.frequencies,
+                                    node_spectrum)):
+    label = "DC" if i == 0 else f"H{i}"
+    print(f"  {label:&gt;3s}  {freq:&gt;10.0f} Hz   {mag:.4f} V")
+
+plot_harmonic_spectrum(hb_result)
+</code></pre>
+<p>The diode clips the positive half-cycle, producing significant harmonic distortion visible in the bar chart.</p>
+<h2 id="visualization-4"><a class="header" href="#visualization-4">Visualization</a></h2>
+<p>Use <code>plot_harmonic_spectrum(result)</code> to display harmonic magnitudes as a bar chart:</p>
+<pre><code class="language-python">fig, ax = plot_harmonic_spectrum(hb_result, node_index=0, title="Clipper Spectrum")
+</code></pre>
+<p>The <code>node_index</code> parameter selects which node's spectrum to plot (default 0 = first node).</p>
+<p>See <a href="simulation/../visualization/plotting.html">Static Plotting</a> for full details on plot customisation.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="convergence-helpers"><a class="header" href="#convergence-helpers">Convergence Helpers</a></h1>
 <p>Non-linear circuits can be difficult to solve.  PyEEL provides several
 convergence aids that activate automatically when Newton–Raphson struggles.</p>
@@ -2043,7 +2878,7 @@ value, using each solution as the starting point for the next.</p>
     gmin_stepping_min=1e-12,         # final target gmin
 )
 </code></pre>
-<h3 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h3>
+<h3 id="how-it-works-5"><a class="header" href="#how-it-works-5">How It Works</a></h3>
 <pre><code>gmin = 1e-3   → solve → converges ✓
 gmin = 1e-4   → solve → converges ✓
 gmin = 1e-5   → solve → converges ✓
@@ -2060,7 +2895,7 @@ several steps.</p>
     source_stepping_steps=10,        # number of ramp steps
 )
 </code></pre>
-<h3 id="how-it-works-1"><a class="header" href="#how-it-works-1">How It Works</a></h3>
+<h3 id="how-it-works-6"><a class="header" href="#how-it-works-6">How It Works</a></h3>
 <pre><code>source_factor = 0.1  → all sources at 10%  → solve ✓
 source_factor = 0.2  → all sources at 20%  → solve ✓
    …
@@ -2119,7 +2954,7 @@ for later plotting or analysis.</p>
 <pre><code class="language-python"># Voltage at a node (relative to GND)
 v_out = VoltageProbe("V_out", n_out)
 
-# Voltage across two nodes (V_a − V_b)
+# Voltage across two nodes (V_a - V_b)
 v_ab = VoltageProbe("V_ab", n_a, n_b)
 </code></pre>
 <h3 id="current-probe"><a class="header" href="#current-probe">Current Probe</a></h3>
@@ -2177,7 +3012,7 @@ can create a Probe directly if needed.</p>
 as the simulation runs.</p>
 <pre><code class="language-python">from PyEEL import LivePlotter
 </code></pre>
-<h2 id="constructor-12"><a class="header" href="#constructor-12">Constructor</a></h2>
+<h2 id="constructor-13"><a class="header" href="#constructor-13">Constructor</a></h2>
 <pre><code class="language-python">LivePlotter(*groups: list[Probe], window: float | None = None,
             update_interval: float = 0.03)
 </code></pre>
@@ -2196,7 +3031,7 @@ as the simulation runs.</p>
 )
 </code></pre>
 <p>This creates a figure with 2 vertically stacked subplots.</p>
-<h2 id="properties-13"><a class="header" href="#properties-13">Properties</a></h2>
+<h2 id="properties-14"><a class="header" href="#properties-14">Properties</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>IsOpen</code></td><td><code>bool</code></td><td>Whether the plot window is still open</td></tr>
 </tbody></table>
@@ -2219,7 +3054,7 @@ for _ in range(50_000):
 
 plotter.KeepOpen()
 </code></pre>
-<h2 id="tips-1"><a class="header" href="#tips-1">Tips</a></h2>
+<h2 id="tips-2"><a class="header" href="#tips-2">Tips</a></h2>
 <ul>
 <li><strong>Window size:</strong> Set <code>window</code> to 2–3 periods of your signal for a clean
 display.  For 50 Hz → <code>window=0.06</code>.</li>
@@ -2236,7 +3071,7 @@ blocking simulation loop with interactive controls.</p>
 sim = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
 sim.Run()
 </code></pre>
-<h2 id="constructor-13"><a class="header" href="#constructor-13">Constructor</a></h2>
+<h2 id="constructor-14"><a class="header" href="#constructor-14">Constructor</a></h2>
 <pre><code class="language-python">LiveSimulation(circuit: Circuit, plotter: LivePlotter, *,
                dt: float = 0.0005, speed: int = 60,
                use_adaptive_dt: bool = False)
@@ -2267,7 +3102,7 @@ responsive UI.</p>
 <tr><td><code>TogglePause()</code></td><td>Toggle pause state</td></tr>
 </tbody></table>
 </div>
-<h2 id="properties-14"><a class="header" href="#properties-14">Properties</a></h2>
+<h2 id="properties-15"><a class="header" href="#properties-15">Properties</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>IsPaused</code></td><td><code>bool</code></td><td>Current pause state</td></tr>
 <tr><td><code>dt</code></td><td><code>float</code></td><td>Time step (settable at runtime)</td></tr>
@@ -2302,11 +3137,154 @@ plotter = LivePlotter(
 sim = LiveSimulation(ckt, plotter, dt=1e-4, speed=100)
 sim.Run()
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="static-plotting"><a class="header" href="#static-plotting">Static Plotting</a></h1>
+<p>PyEEL includes six plotting functions that generate publication-quality figures from analysis result objects. All functions live in <code>PyEEL.Visualization.Plotting</code> and are available via <code>from PyEEL import *</code>.</p>
+<h2 id="requirements-1"><a class="header" href="#requirements-1">Requirements</a></h2>
+<ul>
+<li><strong>matplotlib</strong> must be installed (<code>pip install matplotlib</code>).</li>
+<li>matplotlib is imported lazily — the rest of PyEEL works without it. If missing and you call a plot function, a helpful <code>ImportError</code> is raised.</li>
+</ul>
+<h2 id="common-conventions"><a class="header" href="#common-conventions">Common Conventions</a></h2>
+<p>All plotting functions share these patterns:</p>
+<div class="table-wrapper"><table><thead><tr><th>Convention</th><th>Detail</th></tr></thead><tbody>
+<tr><td><strong>Return value</strong></td><td><code>(fig, ax)</code> or <code>(fig, (ax1, ax2))</code> for multi-axis plots</td></tr>
+<tr><td><strong><code>show</code> parameter</strong></td><td><code>True</code> by default — calls <code>plt.show()</code>. Set <code>show=False</code> for batch processing or further customisation.</td></tr>
+<tr><td><strong><code>title</code> parameter</strong></td><td>Custom figure title</td></tr>
+<tr><td><strong><code>figsize</code> parameter</strong></td><td>Matplotlib figure size tuple, e.g. <code>(10, 5)</code></td></tr>
+</tbody></table>
+</div>
+<p>Because every function returns the matplotlib figure and axes objects, you can always customise the plot further before displaying or saving:</p>
+<pre><code class="language-python">fig, ax = plot_noise_spectrum(result, show=False)
+ax.set_xlim(100, 50e3)
+fig.savefig("noise.png", dpi=150)
+</code></pre>
+<hr />
+<h2 id="plot_bode"><a class="header" href="#plot_bode"><code>plot_bode</code></a></h2>
+<p>Generates a Bode diagram (magnitude + phase) from an AC analysis result.</p>
+<pre><code class="language-python">fig, (ax_mag, ax_phase) = plot_bode(
+    result,                   # ACResult
+    title="Bode Plot",
+    figsize=(10, 6),
+    mag_label="Magnitude (dB)",
+    phase_label="Phase (°)",
+    show=True,
+)
+</code></pre>
+<ul>
+<li><strong>Input:</strong> <code>ACResult</code> from <code>ckt.RunAC()</code></li>
+<li><strong>Output:</strong> Two vertically stacked subplots — semilog-x magnitude (dB) and phase (degrees).</li>
+</ul>
+<hr />
+<h2 id="plot_noise_spectrum"><a class="header" href="#plot_noise_spectrum"><code>plot_noise_spectrum</code></a></h2>
+<p>Displays noise spectral density on a log-log plot.</p>
+<pre><code class="language-python">fig, ax = plot_noise_spectrum(
+    result,                   # NoiseResult
+    title="Noise Spectral Density",
+    figsize=(10, 5),
+    show_components=True,
+    ylabel=r"Noise density (V²/Hz)",
+    show=True,
+)
+</code></pre>
+<ul>
+<li><strong>Input:</strong> <code>NoiseResult</code> from <code>ckt.RunNoise()</code></li>
+<li><strong>Output:</strong> Log-log plot of total output noise. When <code>show_components=True</code> and per-component data is available, individual traces are overlaid with a legend.</li>
+<li>The title automatically includes the integrated RMS noise value.</li>
+</ul>
+<hr />
+<h2 id="plot_monte_carlo"><a class="header" href="#plot_monte_carlo"><code>plot_monte_carlo</code></a></h2>
+<p>Plots a histogram of Monte Carlo measured values with statistical annotations.</p>
+<pre><code class="language-python">fig, ax = plot_monte_carlo(
+    result,                   # MonteCarloResult
+    title="Monte Carlo Distribution",
+    figsize=(10, 5),
+    bins="auto",
+    xlabel="Measured value",
+    show_stats=True,
+    show=True,
+)
+</code></pre>
+<ul>
+<li><strong>Input:</strong> <code>MonteCarloResult</code> from <code>ckt.RunMonteCarlo()</code></li>
+<li><strong>Output:</strong> Histogram with vertical lines for mean, ±1σ, and 5th/95th percentiles (when <code>show_stats=True</code>).</li>
+</ul>
+<hr />
+<h2 id="plot_sweep"><a class="header" href="#plot_sweep"><code>plot_sweep</code></a></h2>
+<p>Plots parameter sweep results — automatically selects the correct plot type.</p>
+<pre><code class="language-python">fig, ax = plot_sweep(
+    result,                   # SweepResult
+    title="Parameter Sweep",
+    figsize=(10, 5),
+    ylabel="Measured value",
+    log_x=False,
+    show=True,
+)
+</code></pre>
+<ul>
+<li><strong>Input:</strong> <code>SweepResult</code> from <code>ckt.RunSweep()</code></li>
+<li><strong>Output:</strong>
+<ul>
+<li><strong>Single-parameter:</strong> line plot with markers.</li>
+<li><strong>Dual-parameter:</strong> 2-D heatmap with colour bar.</li>
+</ul>
+</li>
+<li>Set <code>log_x=True</code> for logarithmic x-axis on single-parameter sweeps.</li>
+</ul>
+<hr />
+<h2 id="plot_harmonic_spectrum"><a class="header" href="#plot_harmonic_spectrum"><code>plot_harmonic_spectrum</code></a></h2>
+<p>Displays harmonic magnitudes from a Harmonic Balance result as a bar chart.</p>
+<pre><code class="language-python">fig, ax = plot_harmonic_spectrum(
+    result,                   # HBResult
+    node_index=0,
+    title="Harmonic Spectrum",
+    figsize=(10, 5),
+    show=True,
+)
+</code></pre>
+<ul>
+<li><strong>Input:</strong> <code>HBResult</code> from <code>ckt.RunHarmonicBalance()</code></li>
+<li><strong>Output:</strong> Bar chart of harmonic magnitudes. The title includes convergence status, iteration count, and residual.</li>
+<li><code>node_index</code> selects which node's spectrum to display (default 0).</li>
+</ul>
+<hr />
+<h2 id="plot_transient"><a class="header" href="#plot_transient"><code>plot_transient</code></a></h2>
+<p>Plots one or more time-domain waveforms.</p>
+<pre><code class="language-python">fig, ax = plot_transient(
+    time,                     # np.ndarray — time axis (s)
+    signals,                  # dict[str, np.ndarray] — label → data
+    title="Transient Simulation",
+    figsize=(10, 5),
+    ylabel="Voltage / Current",
+    show=True,
+)
+</code></pre>
+<ul>
+<li><strong>Input:</strong> Time array and a dictionary of named signal arrays.</li>
+<li><strong>Output:</strong> Line plot with one trace per signal and a legend.</li>
+</ul>
+<pre><code class="language-python"># Example: plot two signals
+plot_transient(t, {
+    "V(out)": v_out_array,
+    "V(in)": v_in_array,
+})
+</code></pre>
+<hr />
+<h2 id="batch-processing-example"><a class="header" href="#batch-processing-example">Batch Processing Example</a></h2>
+<p>When generating multiple figures for a report, disable <code>show</code> and save each figure:</p>
+<pre><code class="language-python">fig1, _ = plot_bode(ac_result, show=False)
+fig1.savefig("bode.png", dpi=150)
+
+fig2, _ = plot_monte_carlo(mc_result, show=False)
+fig2.savefig("monte_carlo.png", dpi=150)
+
+fig3, _ = plot_sweep(sweep_result, show=False)
+fig3.savefig("sweep.png", dpi=150)
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="component-library"><a class="header" href="#component-library">Component Library</a></h1>
-<p>The <strong>pre-built component library</strong> provides factory functions for
-real-world electronic parts with <strong>datasheet parameters already filled in</strong>.
-Each function takes only a <code>name</code> and <code>nodes</code> tuple — no need to look up
-$I_S$, $\beta_F$, or $V_Z$ values.</p>
+<p>The <strong>pre-built component library</strong> (<code>PyEEL/Components/library/</code>) provides
+165+ explicitly typed factory functions for real-world electronic parts
+with <strong>datasheet parameters already filled in</strong>.  Every function has full
+return-type annotations so IDEs provide autocomplete and type checking.</p>
 <pre><code class="language-python">from PyEEL.Components.library import IN4007, BC547, R1k, LED_Red
 
 ckt.AddComponent(R1k("R1", (n1, n2)))
@@ -2314,93 +3292,164 @@ ckt.AddComponent(IN4007("D1", (n_anode, n_cathode)))
 ckt.AddComponent(BC547("Q1", (n_c, n_b, n_e)))
 ckt.AddComponent(LED_Red("LED1", (n_a, n_k)))
 </code></pre>
+<p>You can also import from individual sub-modules:</p>
+<pre><code class="language-python">from PyEEL.Components.library.resistors import R1k
+from PyEEL.Components.library.mosfets import IRF540N
+</code></pre>
 <h2 id="available-parts"><a class="header" href="#available-parts">Available Parts</a></h2>
-<h3 id="power-sources"><a class="header" href="#power-sources">Power Sources</a></h3>
+<h3 id="power-sources-librarysourcespy"><a class="header" href="#power-sources-librarysourcespy">Power Sources (<code>library/sources.py</code>)</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>DC3V3(name, nodes)</code></td><td>3.3 V DC supply</td></tr>
 <tr><td><code>DC5V(name, nodes)</code></td><td>5 V DC supply</td></tr>
+<tr><td><code>DC9V(name, nodes)</code></td><td>9 V DC supply (battery)</td></tr>
 <tr><td><code>DC12V(name, nodes)</code></td><td>12 V DC supply</td></tr>
-<tr><td><code>DC24V(name, nodes)</code></td><td>24 V DC supply</td></tr>
-<tr><td><code>AC240V_50Hz(name, nodes)</code></td><td>240 V RMS 50 Hz mains (peak ≈ 339 V)</td></tr>
-<tr><td><code>AC120V_60Hz(name, nodes)</code></td><td>120 V RMS 60 Hz mains (peak ≈ 170 V)</td></tr>
+<tr><td><code>DC15V(name, nodes)</code></td><td>15 V DC supply</td></tr>
+<tr><td><code>DC24V(name, nodes)</code></td><td>24 V DC industrial supply</td></tr>
+<tr><td><code>DC48V(name, nodes)</code></td><td>48 V DC telecom supply</td></tr>
+<tr><td><code>AC240V_50Hz(name, nodes)</code></td><td>240 V RMS 50 Hz (AU/UK)</td></tr>
+<tr><td><code>AC230V_50Hz(name, nodes)</code></td><td>230 V RMS 50 Hz (EU)</td></tr>
+<tr><td><code>AC120V_60Hz(name, nodes)</code></td><td>120 V RMS 60 Hz (US/CA)</td></tr>
+<tr><td><code>AC100V_50Hz(name, nodes)</code></td><td>100 V RMS 50 Hz (JP East)</td></tr>
 </tbody></table>
 </div>
-<h3 id="standard-resistors"><a class="header" href="#standard-resistors">Standard Resistors</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th></tr></thead><tbody>
-<tr><td><code>R10</code></td><td>10 Ω</td></tr>
-<tr><td><code>R100</code></td><td>100 Ω</td></tr>
-<tr><td><code>R220</code></td><td>220 Ω</td></tr>
-<tr><td><code>R330</code></td><td>330 Ω</td></tr>
-<tr><td><code>R470</code></td><td>470 Ω</td></tr>
-<tr><td><code>R1k</code></td><td>1 kΩ</td></tr>
-<tr><td><code>R2k2</code></td><td>2.2 kΩ</td></tr>
-<tr><td><code>R4k7</code></td><td>4.7 kΩ</td></tr>
-<tr><td><code>R5k</code></td><td>5 kΩ</td></tr>
-<tr><td><code>R10k</code></td><td>10 kΩ</td></tr>
-<tr><td><code>R22k</code></td><td>22 kΩ</td></tr>
-<tr><td><code>R47k</code></td><td>47 kΩ</td></tr>
-<tr><td><code>R100k</code></td><td>100 kΩ</td></tr>
-<tr><td><code>R1M</code></td><td>1 MΩ</td></tr>
+<h3 id="standard-resistors-libraryresistorspy"><a class="header" href="#standard-resistors-libraryresistorspy">Standard Resistors (<code>library/resistors.py</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th><th></th><th>Function</th><th>Value</th></tr></thead><tbody>
+<tr><td><code>R10</code></td><td>10 Ω</td><td></td><td><code>R2k2</code></td><td>2.2 kΩ</td></tr>
+<tr><td><code>R22</code></td><td>22 Ω</td><td></td><td><code>R3k3</code></td><td>3.3 kΩ</td></tr>
+<tr><td><code>R47</code></td><td>47 Ω</td><td></td><td><code>R4k7</code></td><td>4.7 kΩ</td></tr>
+<tr><td><code>R100</code></td><td>100 Ω</td><td></td><td><code>R5k</code></td><td>5 kΩ</td></tr>
+<tr><td><code>R150</code></td><td>150 Ω</td><td></td><td><code>R6k8</code></td><td>6.8 kΩ</td></tr>
+<tr><td><code>R220</code></td><td>220 Ω</td><td></td><td><code>R10k</code></td><td>10 kΩ</td></tr>
+<tr><td><code>R330</code></td><td>330 Ω</td><td></td><td><code>R15k</code></td><td>15 kΩ</td></tr>
+<tr><td><code>R470</code></td><td>470 Ω</td><td></td><td><code>R22k</code></td><td>22 kΩ</td></tr>
+<tr><td><code>R680</code></td><td>680 Ω</td><td></td><td><code>R33k</code></td><td>33 kΩ</td></tr>
+<tr><td><code>R1k</code></td><td>1 kΩ</td><td></td><td><code>R47k</code></td><td>47 kΩ</td></tr>
+<tr><td><code>R1k5</code></td><td>1.5 kΩ</td><td></td><td><code>R56k</code></td><td>56 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R68k</code></td><td>68 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R100k</code></td><td>100 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R220k</code></td><td>220 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R470k</code></td><td>470 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R1M</code></td><td>1 MΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R10M</code></td><td>10 MΩ</td></tr>
 </tbody></table>
 </div>
-<h3 id="standard-capacitors"><a class="header" href="#standard-capacitors">Standard Capacitors</a></h3>
+<h3 id="standard-capacitors-librarycapacitorspy"><a class="header" href="#standard-capacitors-librarycapacitorspy">Standard Capacitors (<code>library/capacitors.py</code>)</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th><th>Typical Use</th></tr></thead><tbody>
+<tr><td><code>C10p</code></td><td>10 pF</td><td>RF tuning</td></tr>
+<tr><td><code>C22p</code></td><td>22 pF</td><td>Crystal load</td></tr>
+<tr><td><code>C47p</code></td><td>47 pF</td><td>RF</td></tr>
 <tr><td><code>C100p</code></td><td>100 pF</td><td>RF, high-frequency</td></tr>
+<tr><td><code>C220p</code></td><td>220 pF</td><td>RF matching</td></tr>
 <tr><td><code>C1n</code></td><td>1 nF</td><td>Timing</td></tr>
 <tr><td><code>C10n</code></td><td>10 nF</td><td>Filtering</td></tr>
+<tr><td><code>C22n</code></td><td>22 nF</td><td>Filtering</td></tr>
+<tr><td><code>C47n</code></td><td>47 nF</td><td>Filtering</td></tr>
 <tr><td><code>C100n</code></td><td>100 nF</td><td>Universal decoupling</td></tr>
 <tr><td><code>C1u</code></td><td>1 µF</td><td>Coupling, timing</td></tr>
+<tr><td><code>C2u2</code></td><td>2.2 µF</td><td>Coupling</td></tr>
+<tr><td><code>C4u7</code></td><td>4.7 µF</td><td>Coupling</td></tr>
 <tr><td><code>C10u</code></td><td>10 µF</td><td>Bypass</td></tr>
+<tr><td><code>C22u</code></td><td>22 µF</td><td>Bypass</td></tr>
+<tr><td><code>C47u</code></td><td>47 µF</td><td>Filtering</td></tr>
 <tr><td><code>C100u</code></td><td>100 µF</td><td>PSU filtering</td></tr>
+<tr><td><code>C220u</code></td><td>220 µF</td><td>PSU filtering</td></tr>
 <tr><td><code>C470u</code></td><td>470 µF</td><td>PSU filtering</td></tr>
 <tr><td><code>C1000u</code></td><td>1000 µF</td><td>PSU bulk filter</td></tr>
+<tr><td><code>C2200u</code></td><td>2200 µF</td><td>PSU bulk filter</td></tr>
+<tr><td><code>C4700u</code></td><td>4700 µF</td><td>PSU bulk filter</td></tr>
 </tbody></table>
 </div>
-<h3 id="rectifier-diodes"><a class="header" href="#rectifier-diodes">Rectifier Diodes</a></h3>
+<h3 id="standard-inductors-libraryinductorspy"><a class="header" href="#standard-inductors-libraryinductorspy">Standard Inductors (<code>library/inductors.py</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th><th>Typical Use</th></tr></thead><tbody>
+<tr><td><code>L1u</code></td><td>1 µH</td><td>DC-DC converters</td></tr>
+<tr><td><code>L2u2</code></td><td>2.2 µH</td><td>DC-DC converters</td></tr>
+<tr><td><code>L4u7</code></td><td>4.7 µH</td><td>DC-DC converters</td></tr>
+<tr><td><code>L10u</code></td><td>10 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L22u</code></td><td>22 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L47u</code></td><td>47 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L100u</code></td><td>100 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L220u</code></td><td>220 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L470u</code></td><td>470 µH</td><td>RF choke</td></tr>
+<tr><td><code>L1m</code></td><td>1 mH</td><td>Audio crossover</td></tr>
+<tr><td><code>L2m2</code></td><td>2.2 mH</td><td>Audio crossover</td></tr>
+<tr><td><code>L4m7</code></td><td>4.7 mH</td><td>Audio crossover</td></tr>
+<tr><td><code>L10m</code></td><td>10 mH</td><td>Audio crossover</td></tr>
+<tr><td><code>L100m</code></td><td>100 mH</td><td>Power filter</td></tr>
+<tr><td><code>L1H</code></td><td>1 H</td><td>Power filter</td></tr>
+<tr><td><code>L5H</code></td><td>5 H</td><td>Filter choke</td></tr>
+<tr><td><code>L10H</code></td><td>10 H</td><td>Valve amplifier choke</td></tr>
+</tbody></table>
+</div>
+<h3 id="rectifier-diodes-librarydiodespy"><a class="header" href="#rectifier-diodes-librarydiodespy">Rectifier Diodes (<code>library/diodes.py</code>)</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>Rating</th></tr></thead><tbody>
 <tr><td><code>IN4001</code></td><td>1N4001</td><td><code>2.55e-9</code></td><td><code>1.75</code></td><td>50 V, 1 A</td></tr>
+<tr><td><code>IN4002</code></td><td>1N4002</td><td><code>2.55e-9</code></td><td><code>1.75</code></td><td>100 V, 1 A</td></tr>
+<tr><td><code>IN4004</code></td><td>1N4004</td><td><code>2.55e-9</code></td><td><code>1.76</code></td><td>400 V, 1 A</td></tr>
 <tr><td><code>IN4007</code></td><td>1N4007</td><td><code>7.02e-9</code></td><td><code>1.77</code></td><td>1000 V, 1 A</td></tr>
+<tr><td><code>IN5399</code></td><td>1N5399</td><td><code>5.0e-9</code></td><td><code>1.78</code></td><td>1000 V, 1.5 A</td></tr>
+<tr><td><code>IN5408</code></td><td>1N5408</td><td><code>4.5e-9</code></td><td><code>1.80</code></td><td>1000 V, 3 A</td></tr>
 </tbody></table>
 </div>
 <h3 id="signal-diodes"><a class="header" href="#signal-diodes">Signal Diodes</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>Application</th></tr></thead><tbody>
 <tr><td><code>IN4148</code></td><td>1N4148</td><td><code>2.52e-9</code></td><td><code>1.75</code></td><td>Fast signal, 75 V</td></tr>
 <tr><td><code>IN914</code></td><td>1N914</td><td><code>2.52e-9</code></td><td><code>1.75</code></td><td>Same as 1N4148</td></tr>
+<tr><td><code>IN4454</code></td><td>1N4454</td><td><code>2.0e-9</code></td><td><code>1.75</code></td><td>High-speed switching</td></tr>
 </tbody></table>
 </div>
 <h3 id="schottky-diodes"><a class="header" href="#schottky-diodes">Schottky Diodes</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>$V_f$</th></tr></thead><tbody>
 <tr><td><code>IN5817</code></td><td>1N5817</td><td><code>3.19e-5</code></td><td><code>1.05</code></td><td>≈ 0.32 V</td></tr>
 <tr><td><code>IN5819</code></td><td>1N5819</td><td><code>2.5e-5</code></td><td><code>1.05</code></td><td>≈ 0.34 V</td></tr>
+<tr><td><code>IN5822</code></td><td>1N5822</td><td><code>3.0e-5</code></td><td><code>1.05</code></td><td>≈ 0.33 V, 3 A</td></tr>
 <tr><td><code>BAT54</code></td><td>BAT54</td><td><code>1.0e-5</code></td><td><code>1.03</code></td><td>≈ 0.24 V</td></tr>
-</tbody></table>
-</div>
-<h3 id="zener-diodes"><a class="header" href="#zener-diodes">Zener Diodes</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Alias</th><th>$V_Z$</th><th>$I_{BV}$</th></tr></thead><tbody>
-<tr><td><code>BZX55C3V3</code></td><td><code>Zener3V3</code></td><td>3.3 V</td><td>5 mA</td></tr>
-<tr><td><code>BZX55C5V1</code></td><td><code>Zener5V1</code></td><td>5.1 V</td><td>5 mA</td></tr>
-<tr><td><code>BZX55C6V2</code></td><td><code>Zener6V2</code></td><td>6.2 V</td><td>5 mA</td></tr>
-<tr><td><code>BZX55C12</code></td><td><code>Zener12V</code></td><td>12 V</td><td>1 mA</td></tr>
-<tr><td><code>BZX55C15</code></td><td><code>Zener15V</code></td><td>15 V</td><td>1 mA</td></tr>
+<tr><td><code>BAT46</code></td><td>BAT46</td><td><code>2.0e-5</code></td><td><code>1.03</code></td><td>≈ 0.28 V</td></tr>
 </tbody></table>
 </div>
 <h3 id="leds"><a class="header" href="#leds">LEDs</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Colour</th><th>$V_f$ approx</th><th>$I_S$</th><th>$n$</th></tr></thead><tbody>
 <tr><td><code>LED_Red</code></td><td>Red</td><td>1.8 V</td><td><code>1.2e-20</code></td><td><code>1.8</code></td></tr>
+<tr><td><code>LED_Orange</code></td><td>Orange</td><td>2.0 V</td><td><code>3.0e-21</code></td><td><code>1.85</code></td></tr>
+<tr><td><code>LED_Yellow</code></td><td>Yellow</td><td>2.0 V</td><td><code>5.0e-22</code></td><td><code>1.85</code></td></tr>
 <tr><td><code>LED_Green</code></td><td>Green</td><td>2.1 V</td><td><code>1.0e-22</code></td><td><code>1.9</code></td></tr>
 <tr><td><code>LED_Blue</code></td><td>Blue</td><td>3.2 V</td><td><code>1.0e-30</code></td><td><code>2.1</code></td></tr>
-<tr><td><code>LED_Yellow</code></td><td>Yellow</td><td>2.0 V</td><td><code>5.0e-22</code></td><td><code>1.85</code></td></tr>
 <tr><td><code>LED_White</code></td><td>White</td><td>3.2 V</td><td><code>1.0e-30</code></td><td><code>2.1</code></td></tr>
+<tr><td><code>LED_IR</code></td><td>Infrared</td><td>1.2 V</td><td><code>1.0e-18</code></td><td><code>1.5</code></td></tr>
+<tr><td><code>LED_UV</code></td><td>UV</td><td>3.5 V</td><td><code>1.0e-32</code></td><td><code>2.2</code></td></tr>
 </tbody></table>
 </div>
-<h3 id="npn-transistors"><a class="header" href="#npn-transistors">NPN Transistors</a></h3>
+<h3 id="zener-diodes-libraryzener_diodespy"><a class="header" href="#zener-diodes-libraryzener_diodespy">Zener Diodes (<code>library/zener_diodes.py</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Alias</th><th>$V_Z$</th><th>$I_{BV}$</th></tr></thead><tbody>
+<tr><td><code>BZX55C2V7</code></td><td><code>Zener2V7</code></td><td>2.7 V</td><td>10 mA</td></tr>
+<tr><td><code>BZX55C3V3</code></td><td><code>Zener3V3</code></td><td>3.3 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C3V9</code></td><td><code>Zener3V9</code></td><td>3.9 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C4V7</code></td><td><code>Zener4V7</code></td><td>4.7 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C5V1</code></td><td><code>Zener5V1</code></td><td>5.1 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C5V6</code></td><td><code>Zener5V6</code></td><td>5.6 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C6V2</code></td><td><code>Zener6V2</code></td><td>6.2 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C6V8</code></td><td><code>Zener6V8</code></td><td>6.8 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C7V5</code></td><td><code>Zener7V5</code></td><td>7.5 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C9V1</code></td><td><code>Zener9V1</code></td><td>9.1 V</td><td>2 mA</td></tr>
+<tr><td><code>BZX55C10</code></td><td><code>Zener10V</code></td><td>10 V</td><td>2 mA</td></tr>
+<tr><td><code>BZX55C12</code></td><td><code>Zener12V</code></td><td>12 V</td><td>1 mA</td></tr>
+<tr><td><code>BZX55C15</code></td><td><code>Zener15V</code></td><td>15 V</td><td>1 mA</td></tr>
+<tr><td><code>BZX55C18</code></td><td><code>Zener18V</code></td><td>18 V</td><td>1 mA</td></tr>
+<tr><td><code>BZX55C24</code></td><td><code>Zener24V</code></td><td>24 V</td><td>0.5 mA</td></tr>
+<tr><td><code>BZX55C33</code></td><td><code>Zener33V</code></td><td>33 V</td><td>0.5 mA</td></tr>
+</tbody></table>
+</div>
+<h3 id="npn-transistors-librarybjtpy"><a class="header" href="#npn-transistors-librarybjtpy">NPN Transistors (<code>library/bjt.py</code>)</a></h3>
 <p>All use <code>nodes = (collector, base, emitter)</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$\beta_F$</th><th>$I_S$</th><th>$V_{AF}$</th><th>Application</th></tr></thead><tbody>
 <tr><td><code>N2N2222</code></td><td>2N2222</td><td>256</td><td><code>14.34e-15</code></td><td>74 V</td><td>General purpose</td></tr>
+<tr><td><code>N2N2222A</code></td><td>2N2222A</td><td>300</td><td><code>14.34e-15</code></td><td>74 V</td><td>Improved 2N2222</td></tr>
 <tr><td><code>BC547</code></td><td>BC547</td><td>400</td><td><code>1.8e-14</code></td><td>80 V</td><td>Small signal</td></tr>
+<tr><td><code>BC547B</code></td><td>BC547B</td><td>450</td><td><code>1.8e-14</code></td><td>80 V</td><td>Higher-gain grade</td></tr>
 <tr><td><code>BC548</code></td><td>BC548</td><td>400</td><td><code>1.8e-14</code></td><td>80 V</td><td>Small signal</td></tr>
 <tr><td><code>BC549</code></td><td>BC549</td><td>420</td><td><code>1.8e-14</code></td><td>80 V</td><td>Low noise</td></tr>
+<tr><td><code>BC337</code></td><td>BC337</td><td>350</td><td><code>1.5e-14</code></td><td>90 V</td><td>Medium current</td></tr>
 <tr><td><code>N2N3904</code></td><td>2N3904</td><td>416</td><td><code>6.73e-15</code></td><td>74 V</td><td>General purpose</td></tr>
+<tr><td><code>MPSA42</code></td><td>MPSA42</td><td>60</td><td><code>5e-15</code></td><td>150 V</td><td>High voltage (300 V)</td></tr>
 <tr><td><code>TIP31C</code></td><td>TIP31C</td><td>50</td><td><code>1e-12</code></td><td>100 V</td><td>Medium power</td></tr>
 <tr><td><code>TIP41C</code></td><td>TIP41C</td><td>60</td><td><code>1e-12</code></td><td>100 V</td><td>High power</td></tr>
 <tr><td><code>N2N3055</code></td><td>2N3055</td><td>50</td><td><code>2e-11</code></td><td>100 V</td><td>Power (115 W)</td></tr>
@@ -2414,47 +3463,112 @@ ckt.AddComponent(LED_Red("LED1", (n_a, n_k)))
 <tr><td><code>BC557</code></td><td>BC557</td><td>330</td><td><code>1.8e-14</code></td><td>60 V</td><td>BC547</td></tr>
 <tr><td><code>BC558</code></td><td>BC558</td><td>330</td><td><code>1.8e-14</code></td><td>60 V</td><td>BC548</td></tr>
 <tr><td><code>N2N2907</code></td><td>2N2907</td><td>200</td><td><code>6.5e-15</code></td><td>115 V</td><td>2N2222</td></tr>
+<tr><td><code>MPSA92</code></td><td>MPSA92</td><td>60</td><td><code>5e-15</code></td><td>150 V</td><td>MPSA42</td></tr>
 <tr><td><code>TIP32C</code></td><td>TIP32C</td><td>50</td><td><code>1e-12</code></td><td>100 V</td><td>TIP31C</td></tr>
 <tr><td><code>TIP42C</code></td><td>TIP42C</td><td>60</td><td><code>1e-12</code></td><td>100 V</td><td>TIP41C</td></tr>
 <tr><td><code>BD140</code></td><td>BD140</td><td>100</td><td><code>1e-13</code></td><td>80 V</td><td>BD139</td></tr>
 <tr><td><code>S8550</code></td><td>S8550</td><td>200</td><td><code>1e-14</code></td><td>50 V</td><td>S8050</td></tr>
+<tr><td><code>BC560</code></td><td>BC560</td><td>420</td><td><code>1.8e-14</code></td><td>60 V</td><td>Low-noise PNP</td></tr>
 </tbody></table>
 </div>
 <h3 id="darlington-transistors"><a class="header" href="#darlington-transistors">Darlington Transistors</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>Type</th><th>$\beta_F$</th><th>Application</th></tr></thead><tbody>
 <tr><td><code>TIP120</code></td><td>TIP120</td><td>NPN</td><td>1000</td><td>Switching heavy loads</td></tr>
+<tr><td><code>TIP121</code></td><td>TIP121</td><td>NPN</td><td>1000</td><td>80 V version</td></tr>
+<tr><td><code>TIP122</code></td><td>TIP122</td><td>NPN</td><td>1000</td><td>100 V version</td></tr>
 <tr><td><code>TIP125</code></td><td>TIP125</td><td>PNP</td><td>1000</td><td>Complement of TIP120</td></tr>
+<tr><td><code>TIP126</code></td><td>TIP126</td><td>PNP</td><td>1000</td><td>Complement of TIP121</td></tr>
+<tr><td><code>TIP127</code></td><td>TIP127</td><td>PNP</td><td>1000</td><td>Complement of TIP122</td></tr>
 <tr><td><code>N2N5306</code></td><td>2N5306</td><td>NPN</td><td>2500</td><td>Small-signal Darlington</td></tr>
 </tbody></table>
 </div>
-<h3 id="transformers-240-v-primary"><a class="header" href="#transformers-240-v-primary">Transformers (240 V Primary)</a></h3>
+<h3 id="n-channel-mosfets-librarymosfetspy"><a class="header" href="#n-channel-mosfets-librarymosfetspy">N-Channel MOSFETs (<code>library/mosfets.py</code>)</a></h3>
+<p>All use <code>nodes = (drain, gate, source)</code>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$K_p$</th><th>$V_{th}$</th><th>$\lambda$</th><th>Application</th></tr></thead><tbody>
+<tr><td><code>IRF540N</code></td><td>IRF540N</td><td>20.0</td><td>3.0 V</td><td>0.01</td><td>Power MOSFET (100 V, 33 A)</td></tr>
+<tr><td><code>IRF530N</code></td><td>IRF530N</td><td>10.0</td><td>3.0 V</td><td>0.01</td><td>Power (100 V, 17 A)</td></tr>
+<tr><td><code>IRF9540N</code></td><td>IRF9540N</td><td>8.0</td><td>−3.5 V</td><td>0.01</td><td>P-ch power (note: NMOS model)</td></tr>
+<tr><td><code>IRF3205</code></td><td>IRF3205</td><td>40.0</td><td>2.0 V</td><td>0.005</td><td>Low $R_{DS}$ (55 V, 110 A)</td></tr>
+<tr><td><code>IRFZ44N</code></td><td>IRFZ44N</td><td>25.0</td><td>3.0 V</td><td>0.008</td><td>Logic-level (55 V, 49 A)</td></tr>
+<tr><td><code>N2N7000</code></td><td>2N7000</td><td>0.1</td><td>2.0 V</td><td>0.04</td><td>Small-signal (60 V, 200 mA)</td></tr>
+<tr><td><code>BS170</code></td><td>BS170</td><td>0.15</td><td>2.0 V</td><td>0.04</td><td>Small-signal</td></tr>
+<tr><td><code>IRF840</code></td><td>IRF840</td><td>3.0</td><td>4.0 V</td><td>0.007</td><td>High-voltage (500 V, 8 A)</td></tr>
+<tr><td><code>IRLZ44N</code></td><td>IRLZ44N</td><td>30.0</td><td>1.5 V</td><td>0.008</td><td>Logic-level gate</td></tr>
+<tr><td><code>STP55NF06</code></td><td>STP55NF06</td><td>35.0</td><td>2.5 V</td><td>0.006</td><td>Low $R_{DS}$ (60 V, 50 A)</td></tr>
+</tbody></table>
+</div>
+<h3 id="p-channel-mosfets"><a class="header" href="#p-channel-mosfets">P-Channel MOSFETs</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$K_p$</th><th>$V_{th}$</th><th>$\lambda$</th><th>Application</th></tr></thead><tbody>
+<tr><td><code>IRF9540</code></td><td>IRF9540</td><td>8.0</td><td>−3.5 V</td><td>0.01</td><td>P-ch power (100 V, 23 A)</td></tr>
+<tr><td><code>IRF5305</code></td><td>IRF5305</td><td>10.0</td><td>−3.0 V</td><td>0.008</td><td>P-ch power (55 V, 31 A)</td></tr>
+<tr><td><code>TP0610T</code></td><td>TP0610T</td><td>0.05</td><td>−1.5 V</td><td>0.05</td><td>Small-signal P-ch</td></tr>
+<tr><td><code>VP2106</code></td><td>VP2106</td><td>0.03</td><td>−2.0 V</td><td>0.05</td><td>Small-signal P-ch</td></tr>
+<tr><td><code>NDP6020P</code></td><td>NDP6020P</td><td>5.0</td><td>−2.0 V</td><td>0.01</td><td>Logic-level P-ch (20 V, 24 A)</td></tr>
+</tbody></table>
+</div>
+<h3 id="transformers-librarytransformerspy"><a class="header" href="#transformers-librarytransformerspy">Transformers (<code>library/transformers.py</code>)</a></h3>
+<h4 id="240-v-primary"><a class="header" href="#240-v-primary">240 V Primary</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Ratio</th><th>$L_1$</th><th>$L_2$</th><th>$k$</th></tr></thead><tbody>
-<tr><td><code>Transformer_240_to_5(name, primary_nodes, secondary_nodes)</code></td><td>48:1</td><td>100 H</td><td>0.0434 H</td><td>0.999</td></tr>
-<tr><td><code>Transformer_240_to_12(name, primary_nodes, secondary_nodes)</code></td><td>20:1</td><td>100 H</td><td>0.25 H</td><td>0.999</td></tr>
-<tr><td><code>Transformer_240_to_24(name, primary_nodes, secondary_nodes)</code></td><td>10:1</td><td>100 H</td><td>1.0 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_5</code></td><td>48:1</td><td>100 H</td><td>0.0434 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_9</code></td><td>26.7:1</td><td>100 H</td><td>0.1406 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_12</code></td><td>20:1</td><td>100 H</td><td>0.25 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_24</code></td><td>10:1</td><td>100 H</td><td>1.0 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_48</code></td><td>5:1</td><td>100 H</td><td>4.0 H</td><td>0.999</td></tr>
+</tbody></table>
+</div>
+<h4 id="120-v-primary"><a class="header" href="#120-v-primary">120 V Primary</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Ratio</th><th>$L_1$</th><th>$L_2$</th><th>$k$</th></tr></thead><tbody>
+<tr><td><code>Transformer_120_to_5</code></td><td>24:1</td><td>25 H</td><td>0.0434 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_120_to_12</code></td><td>10:1</td><td>25 H</td><td>0.25 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_120_to_24</code></td><td>5:1</td><td>25 H</td><td>1.0 H</td><td>0.999</td></tr>
 </tbody></table>
 </div>
 <blockquote>
 <p>Transformer functions take <code>(name, primary_nodes, secondary_nodes)</code> instead
 of <code>(name, nodes)</code>.</p>
 </blockquote>
-<h3 id="operational-amplifiers"><a class="header" href="#operational-amplifiers">Operational Amplifiers</a></h3>
+<h3 id="operational-amplifiers-libraryopampspy"><a class="header" href="#operational-amplifiers-libraryopampspy">Operational Amplifiers (<code>library/opamps.py</code>)</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$A_{OL}$</th><th>$R_{in}$</th><th>$R_{out}$</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>LM741</code></td><td>LM741</td><td>200k</td><td>2 MΩ</td><td>75 Ω</td><td>Classic general-purpose</td></tr>
+<tr><td><code>UA741</code></td><td>µA741</td><td>200k</td><td>2 MΩ</td><td>75 Ω</td><td>Industry-standard clone</td></tr>
 <tr><td><code>LM358</code></td><td>LM358</td><td>100k</td><td>2 MΩ</td><td>150 Ω</td><td>Dual, single-supply</td></tr>
 <tr><td><code>LM324</code></td><td>LM324</td><td>100k</td><td>2 MΩ</td><td>150 Ω</td><td>Quad, single-supply</td></tr>
-<tr><td><code>TL072</code></td><td>TL072</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Low-noise JFET input</td></tr>
+<tr><td><code>TL071</code></td><td>TL071</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Single low-noise JFET</td></tr>
+<tr><td><code>TL072</code></td><td>TL072</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Dual low-noise JFET</td></tr>
+<tr><td><code>TL074</code></td><td>TL074</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Quad JFET</td></tr>
 <tr><td><code>TL082</code></td><td>TL082</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>General JFET input</td></tr>
+<tr><td><code>TL084</code></td><td>TL084</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Quad JFET</td></tr>
 <tr><td><code>NE5532</code></td><td>NE5532</td><td>100k</td><td>300 kΩ</td><td>0.3 Ω</td><td>Low-noise audio</td></tr>
-<tr><td><code>OP07</code></td><td>OP07</td><td>500k</td><td>33 MΩ</td><td>60 Ω</td><td>Precision</td></tr>
+<tr><td><code>NE5534</code></td><td>NE5534</td><td>100k</td><td>100 kΩ</td><td>0.3 Ω</td><td>Single low-noise audio</td></tr>
 <tr><td><code>OPA2134</code></td><td>OPA2134</td><td>1M</td><td>10 TΩ</td><td>1 Ω</td><td>Hi-fi audio FET</td></tr>
+<tr><td><code>OPA2604</code></td><td>OPA2604</td><td>1M</td><td>10 TΩ</td><td>1 Ω</td><td>Dual FET, low distortion</td></tr>
+<tr><td><code>OP07</code></td><td>OP07</td><td>500k</td><td>33 MΩ</td><td>60 Ω</td><td>Precision, low offset</td></tr>
+<tr><td><code>OP27</code></td><td>OP27</td><td>1.5M</td><td>6 MΩ</td><td>70 Ω</td><td>Precision low-noise</td></tr>
 <tr><td><code>AD620</code></td><td>AD620</td><td>1M</td><td>10 GΩ</td><td>1 Ω</td><td>Instrumentation amp</td></tr>
+<tr><td><code>INA128</code></td><td>INA128</td><td>1M</td><td>10 GΩ</td><td>1 Ω</td><td>Instrumentation amp</td></tr>
 <tr><td><code>IdealOpAmp</code></td><td>—</td><td>10⁹</td><td>1 TΩ</td><td>0.001 Ω</td><td>Textbook ideal</td></tr>
 </tbody></table>
 </div>
 <blockquote>
 <p>Op-amp functions take <code>(name, nodes)</code> where
 <code>nodes = (non_inv_input, inv_input, output)</code>.</p>
+</blockquote>
+<h3 id="comparators-librarycomparatorspy"><a class="header" href="#comparators-librarycomparatorspy">Comparators (<code>library/comparators.py</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$R_{in}$</th><th>$R_{out}$</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>LM393</code></td><td>LM393</td><td>1 MΩ</td><td>50 Ω</td><td>Dual, general purpose</td></tr>
+<tr><td><code>LM2903</code></td><td>LM2903</td><td>1 MΩ</td><td>50 Ω</td><td>Automotive grade</td></tr>
+<tr><td><code>LM339</code></td><td>LM339</td><td>1 MΩ</td><td>50 Ω</td><td>Quad, single supply</td></tr>
+<tr><td><code>LM311</code></td><td>LM311</td><td>500 kΩ</td><td>50 Ω</td><td>Fast, with output transistor</td></tr>
+<tr><td><code>TLV3201</code></td><td>TLV3201</td><td>100 MΩ</td><td>25 Ω</td><td>Rail-to-rail CMOS</td></tr>
+<tr><td><code>TLV3501</code></td><td>TLV3501</td><td>100 MΩ</td><td>25 Ω</td><td>4.5 ns propagation</td></tr>
+<tr><td><code>MAX9021</code></td><td>MAX9021</td><td>1 TΩ</td><td>10 Ω</td><td>Ultra-low power</td></tr>
+<tr><td><code>MAX9042</code></td><td>MAX9042</td><td>1 TΩ</td><td>10 Ω</td><td>Dual, 2.5 V compatible</td></tr>
+<tr><td><code>IdealComparator</code></td><td>—</td><td>1 TΩ</td><td>0.001 Ω</td><td>Textbook ideal</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p>Comparator functions take <code>(name, nodes, *, V_high=5.0, V_low=0.0)</code>
+where <code>nodes = (non_inv_input, inv_input, output)</code>.</p>
 </blockquote>
 <h2 id="adding-your-own-parts"><a class="header" href="#adding-your-own-parts">Adding Your Own Parts</a></h2>
 <p>See <a href="library/../extending/new-library-parts.html">Adding Library Parts</a> for how to
@@ -2609,6 +3723,34 @@ $V_{out} = (R_f / R_1) \cdot (V_{pos} - V_{neg})$.</p>
                ) -&gt; (list, {'inv_input'})
 </code></pre>
 <p>Inverting differentiator.  $V_{out}(t) = -R_f C \dfrac{dV_{in}}{dt}$.</p>
+<h3 id="comparator-circuits"><a class="header" href="#comparator-circuits">Comparator Circuits</a></h3>
+<h4 id="voltage_comparator"><a class="header" href="#voltage_comparator"><code>voltage_comparator</code></a></h4>
+<pre><code class="language-python">voltage_comparator(prefix, n_in, n_ref, n_out, *,
+                   V_high=5.0, V_low=0.0,
+                   R_in=1e6, R_out=50.0
+                   ) -&gt; list
+</code></pre>
+<p>Single comparator. Output = <code>V_high</code> when <code>V_in &gt; V_ref</code>, else <code>V_low</code>.</p>
+<h4 id="schmitt_trigger"><a class="header" href="#schmitt_trigger"><code>schmitt_trigger</code></a></h4>
+<pre><code class="language-python">schmitt_trigger(prefix, node_manager, n_in, n_out, n_ref, *,
+                r_upper=100e3, r_lower=10e3,
+                V_supply=5.0, V_hys=None,
+                R_in=1e6, R_out=50.0
+                ) -&gt; (list, {'noninv_input'})
+</code></pre>
+<p>Non-inverting Schmitt trigger.  Positive feedback through
+$R_{upper} / R_{lower}$ creates hysteresis:
+$V_{hys} \approx V_{supply} \cdot R_{lower} / (R_{upper} + R_{lower})$.</p>
+<h4 id="window_comparator"><a class="header" href="#window_comparator"><code>window_comparator</code></a></h4>
+<pre><code class="language-python">window_comparator(prefix, n_in, n_out_high, n_out_low,
+                  n_ref_high, n_ref_low, *,
+                  V_high=5.0, V_low=0.0,
+                  R_in=1e6, R_out=50.0
+                  ) -&gt; (list, {})
+</code></pre>
+<p>Two comparators detect whether a signal is <strong>inside</strong> a voltage window
+<code>[V_ref_low, V_ref_high]</code>.  <code>n_out_high</code> goes HIGH when
+<code>V_in &gt; V_ref_high</code>; <code>n_out_low</code> goes HIGH when <code>V_in &lt; V_ref_low</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="example-half-wave-rectifier"><a class="header" href="#example-half-wave-rectifier">Example: Half-Wave Rectifier</a></h1>
 <p>A simple half-wave rectifier converts AC to pulsating DC using a single
 diode.</p>
@@ -2891,7 +4033,7 @@ demonstrating energy exchange and voltage magnification.</p>
 <pre><code>V_ac ──── L (0.1H) ──── C (0.01F) ──── R (1Ω) ──── GND
 (5V, 5Hz)
 </code></pre>
-<h2 id="parameters-1"><a class="header" href="#parameters-1">Parameters</a></h2>
+<h2 id="parameters-2"><a class="header" href="#parameters-2">Parameters</a></h2>
 <ul>
 <li>$f_0 = \dfrac{1}{2\pi\sqrt{LC}} = \dfrac{1}{2\pi\sqrt{0.1 \times 0.01}} \approx 5.03$ Hz</li>
 <li>$Q = \dfrac{1}{R}\sqrt{\dfrac{L}{C}} = \sqrt{\dfrac{0.1}{0.01}} \approx 3.16$</li>
@@ -2980,6 +4122,246 @@ ratio is slightly less than ideal.</li>
 <li>Accessing <code>T1.Primary</code> and <code>T1.Secondary</code> for current probes</li>
 <li>Relationship between inductance ratio and turns ratio</li>
 <li>Effect of coupling coefficient $k$</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-ac-analysis--rc-low-pass-filter"><a class="header" href="#example-ac-analysis--rc-low-pass-filter">Example: AC Analysis — RC Low-Pass Filter</a></h1>
+<p>This example demonstrates AC small-signal analysis on a first-order RC low-pass filter and produces a Bode plot showing magnitude and phase response.</p>
+<h2 id="circuit-7"><a class="header" href="#circuit-7">Circuit</a></h2>
+<pre><code>V1 (AC 1 V)
+ ├──(n_in)── R1 (1 kΩ) ──(n_out)── C1 (100 nF) ──(GND)
+</code></pre>
+<p>The theoretical −3 dB cutoff frequency is:</p>
+<p>$$f_c = \frac{1}{2\pi R C} = \frac{1}{2\pi \cdot 1,\text{k}\Omega \cdot 100,\text{nF}} \approx 1592,\text{Hz}$$</p>
+<h2 id="full-code"><a class="header" href="#full-code">Full Code</a></h2>
+<pre><code class="language-python">from PyEEL import *
+import numpy as np
+
+def main():
+    # ── Build circuit ───────────────────────────────────────────────
+    ckt = Circuit(solver=NumpySolver())
+
+    nm    = ckt.NodeManager
+    gnd   = nm.GroundNode
+    n_in  = nm.AddNode("n_in")
+    n_out = nm.AddNode("n_out")
+
+    v1 = ACVoltageSource("V1", (n_in, gnd), amplitude=1.0, frequency=1000.0)
+    r1 = Resistor("R1", (n_in, n_out), resistance=1e3)
+    c1 = Capacitor("C1", (n_out, gnd), capacitance=100e-9)
+
+    ckt.AddComponent(v1)
+    ckt.AddComponent(r1)
+    ckt.AddComponent(c1)
+
+    ckt.Finalize()
+
+    # ── Run AC analysis ─────────────────────────────────────────────
+    ac_result = ckt.RunAC(
+        1.0, 1e6, 200,
+        input_source_name="V1",
+        output_node_index=n_out.Index,
+    )
+
+    # ── Find −3 dB frequency ────────────────────────────────────────
+    idx_3dB = np.argmin(np.abs(ac_result.magnitude_dB - (-3.0)))
+    f_3dB = ac_result.frequencies[idx_3dB]
+
+    R, C = 1e3, 100e-9
+    f_theory = 1.0 / (2.0 * np.pi * R * C)
+
+    print(f"Measured −3 dB frequency : {f_3dB:.1f} Hz")
+    print(f"Theoretical −3 dB freq  : {f_theory:.1f} Hz")
+
+    # ── Plot Bode diagram ───────────────────────────────────────────
+    plot_bode(ac_result)
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+<h2 id="step-by-step-walkthrough"><a class="header" href="#step-by-step-walkthrough">Step-by-Step Walkthrough</a></h2>
+<ol>
+<li><strong>Create the circuit</strong> with a <code>NumpySolver</code> backend.</li>
+<li><strong>Add nodes</strong> — <code>n_in</code> for the input, <code>n_out</code> for the output, and the implicit ground.</li>
+<li><strong>Add components</strong> — an AC voltage source (1 V amplitude, 1 kHz), a 1 kΩ resistor, and a 100 nF capacitor.</li>
+<li><strong>Finalize</strong> the circuit to freeze the topology and allocate MNA arrays.</li>
+<li><strong>Run AC analysis</strong> — sweep 200 logarithmically-spaced points from 1 Hz to 1 MHz. The solver linearises the circuit at its DC operating point, builds the complex admittance matrix at each frequency, and extracts the transfer function.</li>
+<li><strong>Post-process</strong> — find the frequency closest to −3 dB in the magnitude array.</li>
+<li><strong>Plot</strong> — <code>plot_bode()</code> produces a two-panel Bode diagram.</li>
+</ol>
+<h2 id="expected-output"><a class="header" href="#expected-output">Expected Output</a></h2>
+<pre><code>Measured −3 dB frequency : 1592.3 Hz
+Theoretical −3 dB freq  : 1591.5 Hz
+</code></pre>
+<p>The Bode plot shows:</p>
+<ul>
+<li><strong>Magnitude</strong> — flat at 0 dB below cutoff, rolling off at −20 dB/decade above cutoff (characteristic of a first-order filter).</li>
+<li><strong>Phase</strong> — starts at 0°, passes through −45° at cutoff, and approaches −90° at high frequencies.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-monte-carlo--voltage-divider-tolerance"><a class="header" href="#example-monte-carlo--voltage-divider-tolerance">Example: Monte Carlo — Voltage Divider Tolerance</a></h1>
+<p>This example uses Monte Carlo analysis to determine the statistical distribution of output voltage in a resistive voltage divider when both resistors have ±5% manufacturing tolerance.</p>
+<h2 id="circuit-8"><a class="header" href="#circuit-8">Circuit</a></h2>
+<pre><code>V1 (DC 10 V)
+ ├──(n_in)── R1 (10 kΩ ± 5%) ──(n_out)── R2 (10 kΩ ± 5%) ──(GND)
+</code></pre>
+<p>With nominal values, the output voltage is exactly 5.0 V. The question is: <em>how much does V_out vary when R1 and R2 have ±5% tolerance?</em></p>
+<h2 id="full-code-1"><a class="header" href="#full-code-1">Full Code</a></h2>
+<pre><code class="language-python">from PyEEL import *
+
+def main():
+    # ── Build circuit ───────────────────────────────────────────────
+    ckt = Circuit(solver=NumpySolver())
+
+    nm    = ckt.NodeManager
+    gnd   = nm.GroundNode
+    n_in  = nm.AddNode("n_in")
+    n_out = nm.AddNode("n_out")
+
+    ckt.AddComponent(DCVoltageSource("V1", (n_in, gnd), voltage=10.0))
+    r1 = Resistor("R1", (n_in, n_out), resistance=10e3)
+    r2 = Resistor("R2", (n_out, gnd), resistance=10e3)
+    ckt.AddComponent(r1)
+    ckt.AddComponent(r2)
+
+    ckt.Finalize()
+
+    # ── Define measurement function ─────────────────────────────────
+    def measure_vout(circuit, x_dc):
+        """Extract output node voltage from the DC solution."""
+        return x_dc[n_out.Index]
+
+    # ── Run Monte Carlo ─────────────────────────────────────────────
+    mc_result = ckt.RunMonteCarlo(
+        tolerances=[
+            (r1, "Resistance", Tolerance.percentage(5)),
+            (r2, "Resistance", Tolerance.percentage(5)),
+        ],
+        num_runs=500,
+        measure=measure_vout,
+        seed=42,
+    )
+
+    # ── Print statistics ────────────────────────────────────────────
+    print(f"Monte Carlo Analysis — {mc_result.num_runs} runs")
+    print(f"  Mean   : {mc_result.mean:.4f} V")
+    print(f"  Std    : {mc_result.std:.4f} V")
+    print(f"  Min    : {mc_result.min:.4f} V")
+    print(f"  Max    : {mc_result.max:.4f} V")
+    print(f"  5th %  : {mc_result.percentile_5:.4f} V")
+    print(f"  95th % : {mc_result.percentile_95:.4f} V")
+
+    # ── Plot histogram ──────────────────────────────────────────────
+    plot_monte_carlo(mc_result)
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+<h2 id="step-by-step-walkthrough-1"><a class="header" href="#step-by-step-walkthrough-1">Step-by-Step Walkthrough</a></h2>
+<ol>
+<li><strong>Build a voltage divider</strong> — two 10 kΩ resistors with a 10 V DC source.</li>
+<li><strong>Define the measurement</strong> — <code>measure_vout</code> extracts <code>V(n_out)</code> from each DC solution.</li>
+<li><strong>Specify tolerances</strong> — both resistors have uniform ±5% tolerance via <code>Tolerance.percentage(5)</code>.</li>
+<li><strong>Run 500 trials</strong> — each trial randomises resistor values within their tolerance bands, solves the DC operating point, and records V_out.</li>
+<li><strong>Inspect statistics</strong> — mean, standard deviation, min/max, and percentiles.</li>
+<li><strong>Plot</strong> — <code>plot_monte_carlo()</code> generates a histogram with statistical overlays.</li>
+</ol>
+<h2 id="expected-output-1"><a class="header" href="#expected-output-1">Expected Output</a></h2>
+<pre><code>Monte Carlo Analysis — 500 runs
+  Mean   : 5.0001 V
+  Std    : 0.1441 V
+  Min    : 4.5603 V
+  Max    : 5.4209 V
+  5th %  : 4.7621 V
+  95th % : 5.2384 V
+</code></pre>
+<p>The histogram shows a roughly symmetric distribution centred on 5.0 V. The ±5% resistor tolerance translates to approximately ±5% variation in the output voltage. Vertical annotation lines mark the mean (red), ±1σ (orange), and 5th/95th percentiles (blue).</p>
+<h2 id="notes"><a class="header" href="#notes">Notes</a></h2>
+<ul>
+<li>Set <code>seed=42</code> (or any integer) for reproducible results.</li>
+<li>The <code>Tolerance.gaussian(mean, std)</code> factory can be used instead for Gaussian-distributed parameters.</li>
+<li>Increase <code>num_runs</code> for smoother histograms and more precise statistics.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-event-detection--zero-crossings"><a class="header" href="#example-event-detection--zero-crossings">Example: Event Detection — Zero Crossings</a></h1>
+<p>This example demonstrates transient simulation with the <code>EventDetector</code> to capture rising zero crossings of a sinusoidal signal.</p>
+<h2 id="circuit-9"><a class="header" href="#circuit-9">Circuit</a></h2>
+<pre><code>V1 (AC 5 V, 1 Hz)
+ ├──(n_out)── R1 (1 kΩ) ──(GND)
+</code></pre>
+<p>A 1 Hz sine wave drives a load resistor. Over 2 seconds of simulation, the signal completes 2 full cycles and the rising zero crossings are recorded.</p>
+<h2 id="full-code-2"><a class="header" href="#full-code-2">Full Code</a></h2>
+<pre><code class="language-python">from PyEEL import *
+import numpy as np
+
+def main():
+    # ── Build circuit ───────────────────────────────────────────────
+    ckt = Circuit(solver=NumpySolver())
+
+    nm    = ckt.NodeManager
+    gnd   = nm.GroundNode
+    n_out = nm.AddNode("n_out")
+
+    ckt.AddComponent(ACVoltageSource("V1", (n_out, gnd),
+                                     amplitude=5.0, frequency=1.0))
+    ckt.AddComponent(Resistor("R1", (n_out, gnd), resistance=1e3))
+
+    # ── Probes ──────────────────────────────────────────────────────
+    v_out = VoltageProbe("V(n_out)", n_out)
+    ckt.AddProbe(v_out)
+
+    # ── Event detection ─────────────────────────────────────────────
+    ed = EventDetector()
+    ed.add(ZeroCrossing(node=n_out, direction="rising"))
+    ckt.SetEventDetector(ed)
+
+    ckt.Finalize()
+
+    # ── Transient simulation ────────────────────────────────────────
+    dt    = 1e-3   # 1 ms time step
+    t_end = 2.0    # simulate 2 seconds
+
+    steps = int(t_end / dt)
+    time_array = np.empty(steps)
+    volt_array = np.empty(steps)
+
+    for i in range(steps):
+        x = ckt.Simulate(dt)
+        time_array[i] = (i + 1) * dt
+        volt_array[i] = x[n_out.Index]
+
+    # ── Print detected events ───────────────────────────────────────
+    events = ed.events
+    print(f"Detected {len(events)} rising zero-crossing event(s):\n")
+    for ev in events:
+        print(f"  t = {ev.time:.4f} s  |  value = {ev.value:+.4f} V  |  {ev.direction}")
+
+    # ── Plot transient waveform ─────────────────────────────────────
+    plot_transient(time_array, {"V(n_out)": volt_array})
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+<h2 id="step-by-step-walkthrough-2"><a class="header" href="#step-by-step-walkthrough-2">Step-by-Step Walkthrough</a></h2>
+<ol>
+<li><strong>Build a simple circuit</strong> — an AC voltage source (5 V amplitude, 1 Hz) drives a 1 kΩ load.</li>
+<li><strong>Add a voltage probe</strong> to record the output node voltage.</li>
+<li><strong>Create an <code>EventDetector</code></strong> and register a <code>ZeroCrossing</code> on <code>n_out</code> with <code>direction="rising"</code>.</li>
+<li><strong>Attach the detector</strong> to the circuit with <code>ckt.SetEventDetector(ed)</code>.</li>
+<li><strong>Finalize</strong> the circuit.</li>
+<li><strong>Run the transient loop</strong> — 2000 steps of 1 ms each, storing time and voltage arrays.</li>
+<li><strong>Inspect events</strong> — <code>ed.events</code> contains an <code>EventRecord</code> for each rising zero crossing.</li>
+<li><strong>Plot</strong> — <code>plot_transient()</code> shows the full sinusoidal waveform.</li>
+</ol>
+<h2 id="expected-output-2"><a class="header" href="#expected-output-2">Expected Output</a></h2>
+<pre><code>Detected 2 rising zero-crossing event(s):
+
+  t = 0.0010 s  |  value = +0.0314 V  |  rising
+  t = 1.0010 s  |  value = +0.0314 V  |  rising
+</code></pre>
+<p>The two events correspond to the sine wave crossing zero in the positive direction — once near <em>t</em> = 0 s and again near <em>t</em> = 1 s (one period later).</p>
+<p>The transient plot shows the 5 V, 1 Hz sine wave over the 2-second window. The detected crossing times align with the positive-going zero crossings visible on the waveform.</p>
+<h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
+<ul>
+<li>Use <code>direction="both"</code> to capture both rising and falling crossings (expect 4 events over 2 seconds).</li>
+<li>Use <code>ThresholdCrossing(node=n_out, level=2.5, direction="falling")</code> to detect when the signal drops below 2.5 V.</li>
+<li>Register callbacks with <code>ed.on_event(name, callback)</code> for real-time event processing during simulation.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="adding-new-components"><a class="header" href="#adding-new-components">Adding New Components</a></h1>
 <p>This guide shows how to implement a new component type in PyEEL by
@@ -3094,11 +4476,31 @@ companion model:</p>
 </code></pre>
 <p>These handle the ground-node checks automatically.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="adding-library-parts"><a class="header" href="#adding-library-parts">Adding Library Parts</a></h1>
-<p>The pre-built component library at <code>PyEEL/Components/library.py</code> is
-designed to be easily extended with new real-world parts.</p>
+<p>The pre-built component library lives in <code>PyEEL/Components/library/</code>, a
+package split by category:</p>
+<div class="table-wrapper"><table><thead><tr><th>Sub-module</th><th>Contents</th></tr></thead><tbody>
+<tr><td><code>sources.py</code></td><td>DC &amp; AC voltage sources</td></tr>
+<tr><td><code>resistors.py</code></td><td>Standard resistor values (E24+)</td></tr>
+<tr><td><code>capacitors.py</code></td><td>Ceramic, film &amp; electrolytic capacitors</td></tr>
+<tr><td><code>inductors.py</code></td><td>Inductors from 1 µH to 10 H</td></tr>
+<tr><td><code>diodes.py</code></td><td>Rectifiers, signal, Schottky, LEDs</td></tr>
+<tr><td><code>zener_diodes.py</code></td><td>BZX55C series + short aliases</td></tr>
+<tr><td><code>bjt.py</code></td><td>NPN, PNP &amp; Darlington transistors</td></tr>
+<tr><td><code>mosfets.py</code></td><td>N-channel &amp; P-channel MOSFETs</td></tr>
+<tr><td><code>transformers.py</code></td><td>240 V &amp; 120 V step-down transformers</td></tr>
+<tr><td><code>opamps.py</code></td><td>General, JFET-input, audio &amp; precision op-amps</td></tr>
+<tr><td><code>comparators.py</code></td><td>Open-collector &amp; push-pull comparators</td></tr>
+</tbody></table>
+</div>
+<p>All names are re-exported from the package <code>__init__.py</code>, so either of
+these imports works:</p>
+<pre><code class="language-python">from PyEEL.Components.library import R1k, IN4007
+from PyEEL.Components.library.resistors import R1k
+</code></pre>
 <h2 id="how-library-functions-work"><a class="header" href="#how-library-functions-work">How Library Functions Work</a></h2>
-<p>Each library function is a thin wrapper that creates a component with
-datasheet parameters pre-filled:</p>
+<p>Each library function is an explicitly typed factory that creates a
+component with datasheet parameters pre-filled.  The full type signature
+is visible to IDEs and type-checkers:</p>
 <pre><code class="language-python">def IN4007(name: str, nodes: tuple[Node, Node]) -&gt; Diode:
     """1N4007 — general-purpose rectifier (1000 V, 1 A)."""
     return Diode(name, nodes, Is=7.02e-9, n=1.77)
@@ -3108,6 +4510,7 @@ datasheet parameters pre-filled:</p>
 <li>Takes only <code>name</code> and <code>nodes</code> (no electrical parameters).</li>
 <li>Returns the appropriate component class with all parameters filled in.</li>
 <li>Has a docstring with the part name, key specs, and pin order.</li>
+<li>Full return-type annotation so IDEs auto-complete <code>.Nodes</code>, <code>.Is</code>, etc.</li>
 </ol>
 <h2 id="adding-a-new-diode"><a class="header" href="#adding-a-new-diode">Adding a New Diode</a></h2>
 <pre><code class="language-python">def IN5408(name: str, nodes: tuple[Node, Node]) -&gt; Diode:
@@ -3224,6 +4627,18 @@ gnd = nm.GroundNode
 
 part = MyNewPart("X1", (n1, n2))
 print(f"{part.Name} created successfully")
+</code></pre>
+<h2 id="adding-to-the-package"><a class="header" href="#adding-to-the-package">Adding to the Package</a></h2>
+<ol>
+<li>Open the appropriate sub-module (e.g. <code>library/diodes.py</code> for a new diode).</li>
+<li>Add your typed factory function at the bottom of the relevant section.</li>
+<li>Export the name in <code>library/__init__.py</code> by adding it to the correct
+<code>from .submodule import ...</code> line.</li>
+</ol>
+<pre><code class="language-python"># In library/__init__.py, add to the diodes import:
+from .diodes import (
+    IN4001, ..., IN5408, MyNewDiode,   # ← add here
+)
 </code></pre>
 
                     </main>

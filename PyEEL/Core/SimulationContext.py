@@ -88,6 +88,9 @@ class SimulationConfig:
     source_stepping_enabled: bool = True
     source_stepping_steps: int = 10
 
+    # ── Temperature ─────────────────────────────────────────────────
+    temperature: float = 300.15  # kelvin (≈ 27 °C = SPICE default)
+
 
 @dataclass
 class SimulationContext:
@@ -133,3 +136,4 @@ class SimulationContext:
     source_factor: float = 1.0
     integration_method: IntegrationMethod = IntegrationMethod.BACKWARD_EULER
     gmin: float = 1e-12
+    temperature: float = 300.15  # kelvin

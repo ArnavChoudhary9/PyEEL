@@ -53,7 +53,7 @@ i_probe = CurrentProbe("I_V1", ckt.????)     # explained below
 ckt.AddProbe(v_probe)
 ```
 
-- **`VoltageProbe(name, node)`** records `V(node) − V(GND)` at every time step.
+- **`VoltageProbe(name, node)`** records `V(node) - V(GND)` at every time step.
 - **`CurrentProbe(name, component)`** records the branch current through a
   voltage source (or any component that stores an auxiliary current unknown).
 

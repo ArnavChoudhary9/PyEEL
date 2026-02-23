@@ -26,8 +26,8 @@ VCVS(name: str, out_nodes: tuple[Node, Node],
 
 | Parameter | Symbol | Description |
 |---|---|---|
-| `out_nodes` | — | `(out+, out−)` where the controlled voltage appears |
-| `ctrl_nodes` | — | `(ctrl+, ctrl−)` the sensed voltage |
+| `out_nodes` | — | `(out+, out-)` where the controlled voltage appears |
+| `ctrl_nodes` | — | `(ctrl+, ctrl-)` the sensed voltage |
 | `gain` | $A_v$ | **Voltage gain** (V/V) — dimensionless |
 
 **Auxiliary unknowns:** 1 (output branch current)
@@ -43,8 +43,8 @@ VCCS(name: str, out_nodes: tuple[Node, Node],
 
 | Parameter | Symbol | Description |
 |---|---|---|
-| `out_nodes` | — | `(out+, out−)` current flows from out+ to out− |
-| `ctrl_nodes` | — | `(ctrl+, ctrl−)` the sensed voltage |
+| `out_nodes` | — | `(out+, out-)` current flows from out+ to out- |
+| `ctrl_nodes` | — | `(ctrl+, ctrl-)` the sensed voltage |
 | `transconductance` | $g_m$ | **Transconductance** (A/V) — Siemens |
 
 **Auxiliary unknowns:** 0
@@ -60,8 +60,8 @@ CCVS(name: str, out_nodes: tuple[Node, Node],
 
 | Parameter | Symbol | Description |
 |---|---|---|
-| `out_nodes` | — | `(out+, out−)` where the controlled voltage appears |
-| `ctrl_nodes` | — | `(ctrl+, ctrl−)` a **zero-volt sense source** is inserted here |
+| `out_nodes` | — | `(out+, out-)` where the controlled voltage appears |
+| `ctrl_nodes` | — | `(ctrl+, ctrl-)` a **zero-volt sense source** is inserted here |
 | `transresistance` | $R_m$ | **Transresistance** (V/A) — Ohms |
 
 **Auxiliary unknowns:** 2 (sense branch current + output branch current)
@@ -80,8 +80,8 @@ CCCS(name: str, out_nodes: tuple[Node, Node],
 
 | Parameter | Symbol | Description |
 |---|---|---|
-| `out_nodes` | — | `(out+, out−)` current flows from out+ to out− |
-| `ctrl_nodes` | — | `(ctrl+, ctrl−)` a **zero-volt sense source** is inserted here |
+| `out_nodes` | — | `(out+, out-)` current flows from out+ to out- |
+| `ctrl_nodes` | — | `(ctrl+, ctrl-)` a **zero-volt sense source** is inserted here |
 | `gain` | $A_i$ | **Current gain** (A/A) — dimensionless |
 
 **Auxiliary unknowns:** 1 (sense branch current)

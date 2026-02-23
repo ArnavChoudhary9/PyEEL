@@ -20,14 +20,7 @@ Gain = -Rf / Rin = -100k / 10k = -10
 With Vin = 0.5 V peak (1 kHz) -> Vout = -5 V peak (inverted)
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor, OpAmp
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
-from PyEEL.Probe import VoltageProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
 # -- simulation config -----------------------------------------------
 config = SimulationConfig(

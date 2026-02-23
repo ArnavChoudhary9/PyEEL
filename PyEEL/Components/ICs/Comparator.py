@@ -14,7 +14,7 @@ The comparator is stamped as a **voltage-controlled voltage source** that
 is always clamped to one of two discrete levels:
 
 - **High state** (``V+ - V- > +V_hys/2``): ``V_out - R_out·I_aux = V_high``
-- **Low state**  (``V+ - V- < −V_hys/2``): ``V_out - R_out·I_aux = V_low``
+- **Low state**  (``V+ - V- < -V_hys/2``): ``V_out - R_out·I_aux = V_low``
 - **Within hysteresis band**: previous output state is held.
 
 This is inherently nonlinear (``IsNonlinear = True``); the output state is
@@ -25,7 +25,7 @@ Hysteresis
 When ``V_hys > 0``, the comparator implements a **Schmitt trigger** with:
 
 - ``V_trip_high = +V_hys / 2``  (rising threshold)
-- ``V_trip_low  = −V_hys / 2``  (falling threshold)
+- ``V_trip_low  = -V_hys / 2``  (falling threshold)
 
 The output state transitions only when the differential crosses the
 *opposite* threshold, providing noise immunity.
@@ -188,7 +188,7 @@ class Comparator(Component):
 
         v_target = self._V_high if self._state_high else self._V_low
 
-        # ---- 4. KVL row: V_out − R_out·I_aux = V_target ----
+        # ---- 4. KVL row: V_out - R_out·I_aux = V_target ----
         if out_idx is not None:
             A[aux, out_idx] += 1.0
         if self._R_out != 0.0:
@@ -224,7 +224,7 @@ class Comparator(Component):
         return float(solutionVector[out_idx]) if out_idx is not None else 0.0
 
     def GetDifferentialInput(self, solutionVector: np.ndarray) -> float:
-        """Return ``V+ − V−``."""
+        """Return ``V+ - V-``."""
         inp_idx = self.Nodes[0].Index
         inn_idx = self.Nodes[1].Index
         v_p = float(solutionVector[inp_idx]) if inp_idx is not None else 0.0

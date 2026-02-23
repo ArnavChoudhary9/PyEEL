@@ -129,7 +129,7 @@
                         <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/introduction.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/src/introduction.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -172,7 +172,7 @@ design.</p>
 <tr><td><strong>Magnetic coupling</strong></td><td>Coupled inductors, ideal transformers</td></tr>
 <tr><td><strong>Dependent sources</strong></td><td>VCVS, VCCS, CCVS, CCCS</td></tr>
 <tr><td><strong>Live visualisation</strong></td><td>Real-time animated plots with <code>LiveSimulation</code></td></tr>
-<tr><td><strong>Pre-built library</strong></td><td>55+ real-world components with datasheet parameters</td></tr>
+<tr><td><strong>Pre-built library</strong></td><td>165+ real-world components with datasheet parameters</td></tr>
 </tbody></table>
 </div>
 <h2 id="project-layout"><a class="header" href="#project-layout">Project Layout</a></h2>
@@ -183,8 +183,8 @@ design.</p>
 │   ├── Semiconductors/    # Diode, ZenerDiode, BJT, MOSFET
 │   ├── Magnetic/          # MutualCoupling, Transformer
 │   ├── Sources/           # VoltageSource, DependentSources, Waveform
-│   ├── common.py          # Circuit-topology factory helpers
-│   └── library.py         # Pre-built real-world parts
+│   ├── common/            # Circuit-topology factory helpers
+│   └── library/           # Pre-built real-world parts (typed)
 ├── Solver/                # MNA builder, Newton–Raphson, DC OP
 ├── Simulation/            # Circuit engine, adaptive timestep
 └── Visualization/         # Probes, LivePlotter, LiveSimulation

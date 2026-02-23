@@ -129,7 +129,7 @@
                         <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/library/overview.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/src/library/overview.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -159,10 +159,10 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="component-library"><a class="header" href="#component-library">Component Library</a></h1>
-<p>The <strong>pre-built component library</strong> provides factory functions for
-real-world electronic parts with <strong>datasheet parameters already filled in</strong>.
-Each function takes only a <code>name</code> and <code>nodes</code> tuple — no need to look up
-$I_S$, $\beta_F$, or $V_Z$ values.</p>
+<p>The <strong>pre-built component library</strong> (<code>PyEEL/Components/library/</code>) provides
+165+ explicitly typed factory functions for real-world electronic parts
+with <strong>datasheet parameters already filled in</strong>.  Every function has full
+return-type annotations so IDEs provide autocomplete and type checking.</p>
 <pre><code class="language-python">from PyEEL.Components.library import IN4007, BC547, R1k, LED_Red
 
 ckt.AddComponent(R1k("R1", (n1, n2)))
@@ -170,93 +170,164 @@ ckt.AddComponent(IN4007("D1", (n_anode, n_cathode)))
 ckt.AddComponent(BC547("Q1", (n_c, n_b, n_e)))
 ckt.AddComponent(LED_Red("LED1", (n_a, n_k)))
 </code></pre>
+<p>You can also import from individual sub-modules:</p>
+<pre><code class="language-python">from PyEEL.Components.library.resistors import R1k
+from PyEEL.Components.library.mosfets import IRF540N
+</code></pre>
 <h2 id="available-parts"><a class="header" href="#available-parts">Available Parts</a></h2>
-<h3 id="power-sources"><a class="header" href="#power-sources">Power Sources</a></h3>
+<h3 id="power-sources-librarysourcespy"><a class="header" href="#power-sources-librarysourcespy">Power Sources (<code>library/sources.py</code>)</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>DC3V3(name, nodes)</code></td><td>3.3 V DC supply</td></tr>
 <tr><td><code>DC5V(name, nodes)</code></td><td>5 V DC supply</td></tr>
+<tr><td><code>DC9V(name, nodes)</code></td><td>9 V DC supply (battery)</td></tr>
 <tr><td><code>DC12V(name, nodes)</code></td><td>12 V DC supply</td></tr>
-<tr><td><code>DC24V(name, nodes)</code></td><td>24 V DC supply</td></tr>
-<tr><td><code>AC240V_50Hz(name, nodes)</code></td><td>240 V RMS 50 Hz mains (peak ≈ 339 V)</td></tr>
-<tr><td><code>AC120V_60Hz(name, nodes)</code></td><td>120 V RMS 60 Hz mains (peak ≈ 170 V)</td></tr>
+<tr><td><code>DC15V(name, nodes)</code></td><td>15 V DC supply</td></tr>
+<tr><td><code>DC24V(name, nodes)</code></td><td>24 V DC industrial supply</td></tr>
+<tr><td><code>DC48V(name, nodes)</code></td><td>48 V DC telecom supply</td></tr>
+<tr><td><code>AC240V_50Hz(name, nodes)</code></td><td>240 V RMS 50 Hz (AU/UK)</td></tr>
+<tr><td><code>AC230V_50Hz(name, nodes)</code></td><td>230 V RMS 50 Hz (EU)</td></tr>
+<tr><td><code>AC120V_60Hz(name, nodes)</code></td><td>120 V RMS 60 Hz (US/CA)</td></tr>
+<tr><td><code>AC100V_50Hz(name, nodes)</code></td><td>100 V RMS 50 Hz (JP East)</td></tr>
 </tbody></table>
 </div>
-<h3 id="standard-resistors"><a class="header" href="#standard-resistors">Standard Resistors</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th></tr></thead><tbody>
-<tr><td><code>R10</code></td><td>10 Ω</td></tr>
-<tr><td><code>R100</code></td><td>100 Ω</td></tr>
-<tr><td><code>R220</code></td><td>220 Ω</td></tr>
-<tr><td><code>R330</code></td><td>330 Ω</td></tr>
-<tr><td><code>R470</code></td><td>470 Ω</td></tr>
-<tr><td><code>R1k</code></td><td>1 kΩ</td></tr>
-<tr><td><code>R2k2</code></td><td>2.2 kΩ</td></tr>
-<tr><td><code>R4k7</code></td><td>4.7 kΩ</td></tr>
-<tr><td><code>R5k</code></td><td>5 kΩ</td></tr>
-<tr><td><code>R10k</code></td><td>10 kΩ</td></tr>
-<tr><td><code>R22k</code></td><td>22 kΩ</td></tr>
-<tr><td><code>R47k</code></td><td>47 kΩ</td></tr>
-<tr><td><code>R100k</code></td><td>100 kΩ</td></tr>
-<tr><td><code>R1M</code></td><td>1 MΩ</td></tr>
+<h3 id="standard-resistors-libraryresistorspy"><a class="header" href="#standard-resistors-libraryresistorspy">Standard Resistors (<code>library/resistors.py</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th><th></th><th>Function</th><th>Value</th></tr></thead><tbody>
+<tr><td><code>R10</code></td><td>10 Ω</td><td></td><td><code>R2k2</code></td><td>2.2 kΩ</td></tr>
+<tr><td><code>R22</code></td><td>22 Ω</td><td></td><td><code>R3k3</code></td><td>3.3 kΩ</td></tr>
+<tr><td><code>R47</code></td><td>47 Ω</td><td></td><td><code>R4k7</code></td><td>4.7 kΩ</td></tr>
+<tr><td><code>R100</code></td><td>100 Ω</td><td></td><td><code>R5k</code></td><td>5 kΩ</td></tr>
+<tr><td><code>R150</code></td><td>150 Ω</td><td></td><td><code>R6k8</code></td><td>6.8 kΩ</td></tr>
+<tr><td><code>R220</code></td><td>220 Ω</td><td></td><td><code>R10k</code></td><td>10 kΩ</td></tr>
+<tr><td><code>R330</code></td><td>330 Ω</td><td></td><td><code>R15k</code></td><td>15 kΩ</td></tr>
+<tr><td><code>R470</code></td><td>470 Ω</td><td></td><td><code>R22k</code></td><td>22 kΩ</td></tr>
+<tr><td><code>R680</code></td><td>680 Ω</td><td></td><td><code>R33k</code></td><td>33 kΩ</td></tr>
+<tr><td><code>R1k</code></td><td>1 kΩ</td><td></td><td><code>R47k</code></td><td>47 kΩ</td></tr>
+<tr><td><code>R1k5</code></td><td>1.5 kΩ</td><td></td><td><code>R56k</code></td><td>56 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R68k</code></td><td>68 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R100k</code></td><td>100 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R220k</code></td><td>220 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R470k</code></td><td>470 kΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R1M</code></td><td>1 MΩ</td></tr>
+<tr><td></td><td></td><td></td><td><code>R10M</code></td><td>10 MΩ</td></tr>
 </tbody></table>
 </div>
-<h3 id="standard-capacitors"><a class="header" href="#standard-capacitors">Standard Capacitors</a></h3>
+<h3 id="standard-capacitors-librarycapacitorspy"><a class="header" href="#standard-capacitors-librarycapacitorspy">Standard Capacitors (<code>library/capacitors.py</code>)</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th><th>Typical Use</th></tr></thead><tbody>
+<tr><td><code>C10p</code></td><td>10 pF</td><td>RF tuning</td></tr>
+<tr><td><code>C22p</code></td><td>22 pF</td><td>Crystal load</td></tr>
+<tr><td><code>C47p</code></td><td>47 pF</td><td>RF</td></tr>
 <tr><td><code>C100p</code></td><td>100 pF</td><td>RF, high-frequency</td></tr>
+<tr><td><code>C220p</code></td><td>220 pF</td><td>RF matching</td></tr>
 <tr><td><code>C1n</code></td><td>1 nF</td><td>Timing</td></tr>
 <tr><td><code>C10n</code></td><td>10 nF</td><td>Filtering</td></tr>
+<tr><td><code>C22n</code></td><td>22 nF</td><td>Filtering</td></tr>
+<tr><td><code>C47n</code></td><td>47 nF</td><td>Filtering</td></tr>
 <tr><td><code>C100n</code></td><td>100 nF</td><td>Universal decoupling</td></tr>
 <tr><td><code>C1u</code></td><td>1 µF</td><td>Coupling, timing</td></tr>
+<tr><td><code>C2u2</code></td><td>2.2 µF</td><td>Coupling</td></tr>
+<tr><td><code>C4u7</code></td><td>4.7 µF</td><td>Coupling</td></tr>
 <tr><td><code>C10u</code></td><td>10 µF</td><td>Bypass</td></tr>
+<tr><td><code>C22u</code></td><td>22 µF</td><td>Bypass</td></tr>
+<tr><td><code>C47u</code></td><td>47 µF</td><td>Filtering</td></tr>
 <tr><td><code>C100u</code></td><td>100 µF</td><td>PSU filtering</td></tr>
+<tr><td><code>C220u</code></td><td>220 µF</td><td>PSU filtering</td></tr>
 <tr><td><code>C470u</code></td><td>470 µF</td><td>PSU filtering</td></tr>
 <tr><td><code>C1000u</code></td><td>1000 µF</td><td>PSU bulk filter</td></tr>
+<tr><td><code>C2200u</code></td><td>2200 µF</td><td>PSU bulk filter</td></tr>
+<tr><td><code>C4700u</code></td><td>4700 µF</td><td>PSU bulk filter</td></tr>
 </tbody></table>
 </div>
-<h3 id="rectifier-diodes"><a class="header" href="#rectifier-diodes">Rectifier Diodes</a></h3>
+<h3 id="standard-inductors-libraryinductorspy"><a class="header" href="#standard-inductors-libraryinductorspy">Standard Inductors (<code>library/inductors.py</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Value</th><th>Typical Use</th></tr></thead><tbody>
+<tr><td><code>L1u</code></td><td>1 µH</td><td>DC-DC converters</td></tr>
+<tr><td><code>L2u2</code></td><td>2.2 µH</td><td>DC-DC converters</td></tr>
+<tr><td><code>L4u7</code></td><td>4.7 µH</td><td>DC-DC converters</td></tr>
+<tr><td><code>L10u</code></td><td>10 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L22u</code></td><td>22 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L47u</code></td><td>47 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L100u</code></td><td>100 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L220u</code></td><td>220 µH</td><td>EMI filtering</td></tr>
+<tr><td><code>L470u</code></td><td>470 µH</td><td>RF choke</td></tr>
+<tr><td><code>L1m</code></td><td>1 mH</td><td>Audio crossover</td></tr>
+<tr><td><code>L2m2</code></td><td>2.2 mH</td><td>Audio crossover</td></tr>
+<tr><td><code>L4m7</code></td><td>4.7 mH</td><td>Audio crossover</td></tr>
+<tr><td><code>L10m</code></td><td>10 mH</td><td>Audio crossover</td></tr>
+<tr><td><code>L100m</code></td><td>100 mH</td><td>Power filter</td></tr>
+<tr><td><code>L1H</code></td><td>1 H</td><td>Power filter</td></tr>
+<tr><td><code>L5H</code></td><td>5 H</td><td>Filter choke</td></tr>
+<tr><td><code>L10H</code></td><td>10 H</td><td>Valve amplifier choke</td></tr>
+</tbody></table>
+</div>
+<h3 id="rectifier-diodes-librarydiodespy"><a class="header" href="#rectifier-diodes-librarydiodespy">Rectifier Diodes (<code>library/diodes.py</code>)</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>Rating</th></tr></thead><tbody>
 <tr><td><code>IN4001</code></td><td>1N4001</td><td><code>2.55e-9</code></td><td><code>1.75</code></td><td>50 V, 1 A</td></tr>
+<tr><td><code>IN4002</code></td><td>1N4002</td><td><code>2.55e-9</code></td><td><code>1.75</code></td><td>100 V, 1 A</td></tr>
+<tr><td><code>IN4004</code></td><td>1N4004</td><td><code>2.55e-9</code></td><td><code>1.76</code></td><td>400 V, 1 A</td></tr>
 <tr><td><code>IN4007</code></td><td>1N4007</td><td><code>7.02e-9</code></td><td><code>1.77</code></td><td>1000 V, 1 A</td></tr>
+<tr><td><code>IN5399</code></td><td>1N5399</td><td><code>5.0e-9</code></td><td><code>1.78</code></td><td>1000 V, 1.5 A</td></tr>
+<tr><td><code>IN5408</code></td><td>1N5408</td><td><code>4.5e-9</code></td><td><code>1.80</code></td><td>1000 V, 3 A</td></tr>
 </tbody></table>
 </div>
 <h3 id="signal-diodes"><a class="header" href="#signal-diodes">Signal Diodes</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>Application</th></tr></thead><tbody>
 <tr><td><code>IN4148</code></td><td>1N4148</td><td><code>2.52e-9</code></td><td><code>1.75</code></td><td>Fast signal, 75 V</td></tr>
 <tr><td><code>IN914</code></td><td>1N914</td><td><code>2.52e-9</code></td><td><code>1.75</code></td><td>Same as 1N4148</td></tr>
+<tr><td><code>IN4454</code></td><td>1N4454</td><td><code>2.0e-9</code></td><td><code>1.75</code></td><td>High-speed switching</td></tr>
 </tbody></table>
 </div>
 <h3 id="schottky-diodes"><a class="header" href="#schottky-diodes">Schottky Diodes</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$I_S$</th><th>$n$</th><th>$V_f$</th></tr></thead><tbody>
 <tr><td><code>IN5817</code></td><td>1N5817</td><td><code>3.19e-5</code></td><td><code>1.05</code></td><td>≈ 0.32 V</td></tr>
 <tr><td><code>IN5819</code></td><td>1N5819</td><td><code>2.5e-5</code></td><td><code>1.05</code></td><td>≈ 0.34 V</td></tr>
+<tr><td><code>IN5822</code></td><td>1N5822</td><td><code>3.0e-5</code></td><td><code>1.05</code></td><td>≈ 0.33 V, 3 A</td></tr>
 <tr><td><code>BAT54</code></td><td>BAT54</td><td><code>1.0e-5</code></td><td><code>1.03</code></td><td>≈ 0.24 V</td></tr>
-</tbody></table>
-</div>
-<h3 id="zener-diodes"><a class="header" href="#zener-diodes">Zener Diodes</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Alias</th><th>$V_Z$</th><th>$I_{BV}$</th></tr></thead><tbody>
-<tr><td><code>BZX55C3V3</code></td><td><code>Zener3V3</code></td><td>3.3 V</td><td>5 mA</td></tr>
-<tr><td><code>BZX55C5V1</code></td><td><code>Zener5V1</code></td><td>5.1 V</td><td>5 mA</td></tr>
-<tr><td><code>BZX55C6V2</code></td><td><code>Zener6V2</code></td><td>6.2 V</td><td>5 mA</td></tr>
-<tr><td><code>BZX55C12</code></td><td><code>Zener12V</code></td><td>12 V</td><td>1 mA</td></tr>
-<tr><td><code>BZX55C15</code></td><td><code>Zener15V</code></td><td>15 V</td><td>1 mA</td></tr>
+<tr><td><code>BAT46</code></td><td>BAT46</td><td><code>2.0e-5</code></td><td><code>1.03</code></td><td>≈ 0.28 V</td></tr>
 </tbody></table>
 </div>
 <h3 id="leds"><a class="header" href="#leds">LEDs</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Colour</th><th>$V_f$ approx</th><th>$I_S$</th><th>$n$</th></tr></thead><tbody>
 <tr><td><code>LED_Red</code></td><td>Red</td><td>1.8 V</td><td><code>1.2e-20</code></td><td><code>1.8</code></td></tr>
+<tr><td><code>LED_Orange</code></td><td>Orange</td><td>2.0 V</td><td><code>3.0e-21</code></td><td><code>1.85</code></td></tr>
+<tr><td><code>LED_Yellow</code></td><td>Yellow</td><td>2.0 V</td><td><code>5.0e-22</code></td><td><code>1.85</code></td></tr>
 <tr><td><code>LED_Green</code></td><td>Green</td><td>2.1 V</td><td><code>1.0e-22</code></td><td><code>1.9</code></td></tr>
 <tr><td><code>LED_Blue</code></td><td>Blue</td><td>3.2 V</td><td><code>1.0e-30</code></td><td><code>2.1</code></td></tr>
-<tr><td><code>LED_Yellow</code></td><td>Yellow</td><td>2.0 V</td><td><code>5.0e-22</code></td><td><code>1.85</code></td></tr>
 <tr><td><code>LED_White</code></td><td>White</td><td>3.2 V</td><td><code>1.0e-30</code></td><td><code>2.1</code></td></tr>
+<tr><td><code>LED_IR</code></td><td>Infrared</td><td>1.2 V</td><td><code>1.0e-18</code></td><td><code>1.5</code></td></tr>
+<tr><td><code>LED_UV</code></td><td>UV</td><td>3.5 V</td><td><code>1.0e-32</code></td><td><code>2.2</code></td></tr>
 </tbody></table>
 </div>
-<h3 id="npn-transistors"><a class="header" href="#npn-transistors">NPN Transistors</a></h3>
+<h3 id="zener-diodes-libraryzener_diodespy"><a class="header" href="#zener-diodes-libraryzener_diodespy">Zener Diodes (<code>library/zener_diodes.py</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Alias</th><th>$V_Z$</th><th>$I_{BV}$</th></tr></thead><tbody>
+<tr><td><code>BZX55C2V7</code></td><td><code>Zener2V7</code></td><td>2.7 V</td><td>10 mA</td></tr>
+<tr><td><code>BZX55C3V3</code></td><td><code>Zener3V3</code></td><td>3.3 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C3V9</code></td><td><code>Zener3V9</code></td><td>3.9 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C4V7</code></td><td><code>Zener4V7</code></td><td>4.7 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C5V1</code></td><td><code>Zener5V1</code></td><td>5.1 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C5V6</code></td><td><code>Zener5V6</code></td><td>5.6 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C6V2</code></td><td><code>Zener6V2</code></td><td>6.2 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C6V8</code></td><td><code>Zener6V8</code></td><td>6.8 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C7V5</code></td><td><code>Zener7V5</code></td><td>7.5 V</td><td>5 mA</td></tr>
+<tr><td><code>BZX55C9V1</code></td><td><code>Zener9V1</code></td><td>9.1 V</td><td>2 mA</td></tr>
+<tr><td><code>BZX55C10</code></td><td><code>Zener10V</code></td><td>10 V</td><td>2 mA</td></tr>
+<tr><td><code>BZX55C12</code></td><td><code>Zener12V</code></td><td>12 V</td><td>1 mA</td></tr>
+<tr><td><code>BZX55C15</code></td><td><code>Zener15V</code></td><td>15 V</td><td>1 mA</td></tr>
+<tr><td><code>BZX55C18</code></td><td><code>Zener18V</code></td><td>18 V</td><td>1 mA</td></tr>
+<tr><td><code>BZX55C24</code></td><td><code>Zener24V</code></td><td>24 V</td><td>0.5 mA</td></tr>
+<tr><td><code>BZX55C33</code></td><td><code>Zener33V</code></td><td>33 V</td><td>0.5 mA</td></tr>
+</tbody></table>
+</div>
+<h3 id="npn-transistors-librarybjtpy"><a class="header" href="#npn-transistors-librarybjtpy">NPN Transistors (<code>library/bjt.py</code>)</a></h3>
 <p>All use <code>nodes = (collector, base, emitter)</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$\beta_F$</th><th>$I_S$</th><th>$V_{AF}$</th><th>Application</th></tr></thead><tbody>
 <tr><td><code>N2N2222</code></td><td>2N2222</td><td>256</td><td><code>14.34e-15</code></td><td>74 V</td><td>General purpose</td></tr>
+<tr><td><code>N2N2222A</code></td><td>2N2222A</td><td>300</td><td><code>14.34e-15</code></td><td>74 V</td><td>Improved 2N2222</td></tr>
 <tr><td><code>BC547</code></td><td>BC547</td><td>400</td><td><code>1.8e-14</code></td><td>80 V</td><td>Small signal</td></tr>
+<tr><td><code>BC547B</code></td><td>BC547B</td><td>450</td><td><code>1.8e-14</code></td><td>80 V</td><td>Higher-gain grade</td></tr>
 <tr><td><code>BC548</code></td><td>BC548</td><td>400</td><td><code>1.8e-14</code></td><td>80 V</td><td>Small signal</td></tr>
 <tr><td><code>BC549</code></td><td>BC549</td><td>420</td><td><code>1.8e-14</code></td><td>80 V</td><td>Low noise</td></tr>
+<tr><td><code>BC337</code></td><td>BC337</td><td>350</td><td><code>1.5e-14</code></td><td>90 V</td><td>Medium current</td></tr>
 <tr><td><code>N2N3904</code></td><td>2N3904</td><td>416</td><td><code>6.73e-15</code></td><td>74 V</td><td>General purpose</td></tr>
+<tr><td><code>MPSA42</code></td><td>MPSA42</td><td>60</td><td><code>5e-15</code></td><td>150 V</td><td>High voltage (300 V)</td></tr>
 <tr><td><code>TIP31C</code></td><td>TIP31C</td><td>50</td><td><code>1e-12</code></td><td>100 V</td><td>Medium power</td></tr>
 <tr><td><code>TIP41C</code></td><td>TIP41C</td><td>60</td><td><code>1e-12</code></td><td>100 V</td><td>High power</td></tr>
 <tr><td><code>N2N3055</code></td><td>2N3055</td><td>50</td><td><code>2e-11</code></td><td>100 V</td><td>Power (115 W)</td></tr>
@@ -270,47 +341,112 @@ ckt.AddComponent(LED_Red("LED1", (n_a, n_k)))
 <tr><td><code>BC557</code></td><td>BC557</td><td>330</td><td><code>1.8e-14</code></td><td>60 V</td><td>BC547</td></tr>
 <tr><td><code>BC558</code></td><td>BC558</td><td>330</td><td><code>1.8e-14</code></td><td>60 V</td><td>BC548</td></tr>
 <tr><td><code>N2N2907</code></td><td>2N2907</td><td>200</td><td><code>6.5e-15</code></td><td>115 V</td><td>2N2222</td></tr>
+<tr><td><code>MPSA92</code></td><td>MPSA92</td><td>60</td><td><code>5e-15</code></td><td>150 V</td><td>MPSA42</td></tr>
 <tr><td><code>TIP32C</code></td><td>TIP32C</td><td>50</td><td><code>1e-12</code></td><td>100 V</td><td>TIP31C</td></tr>
 <tr><td><code>TIP42C</code></td><td>TIP42C</td><td>60</td><td><code>1e-12</code></td><td>100 V</td><td>TIP41C</td></tr>
 <tr><td><code>BD140</code></td><td>BD140</td><td>100</td><td><code>1e-13</code></td><td>80 V</td><td>BD139</td></tr>
 <tr><td><code>S8550</code></td><td>S8550</td><td>200</td><td><code>1e-14</code></td><td>50 V</td><td>S8050</td></tr>
+<tr><td><code>BC560</code></td><td>BC560</td><td>420</td><td><code>1.8e-14</code></td><td>60 V</td><td>Low-noise PNP</td></tr>
 </tbody></table>
 </div>
 <h3 id="darlington-transistors"><a class="header" href="#darlington-transistors">Darlington Transistors</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>Type</th><th>$\beta_F$</th><th>Application</th></tr></thead><tbody>
 <tr><td><code>TIP120</code></td><td>TIP120</td><td>NPN</td><td>1000</td><td>Switching heavy loads</td></tr>
+<tr><td><code>TIP121</code></td><td>TIP121</td><td>NPN</td><td>1000</td><td>80 V version</td></tr>
+<tr><td><code>TIP122</code></td><td>TIP122</td><td>NPN</td><td>1000</td><td>100 V version</td></tr>
 <tr><td><code>TIP125</code></td><td>TIP125</td><td>PNP</td><td>1000</td><td>Complement of TIP120</td></tr>
+<tr><td><code>TIP126</code></td><td>TIP126</td><td>PNP</td><td>1000</td><td>Complement of TIP121</td></tr>
+<tr><td><code>TIP127</code></td><td>TIP127</td><td>PNP</td><td>1000</td><td>Complement of TIP122</td></tr>
 <tr><td><code>N2N5306</code></td><td>2N5306</td><td>NPN</td><td>2500</td><td>Small-signal Darlington</td></tr>
 </tbody></table>
 </div>
-<h3 id="transformers-240-v-primary"><a class="header" href="#transformers-240-v-primary">Transformers (240 V Primary)</a></h3>
+<h3 id="n-channel-mosfets-librarymosfetspy"><a class="header" href="#n-channel-mosfets-librarymosfetspy">N-Channel MOSFETs (<code>library/mosfets.py</code>)</a></h3>
+<p>All use <code>nodes = (drain, gate, source)</code>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$K_p$</th><th>$V_{th}$</th><th>$\lambda$</th><th>Application</th></tr></thead><tbody>
+<tr><td><code>IRF540N</code></td><td>IRF540N</td><td>20.0</td><td>3.0 V</td><td>0.01</td><td>Power MOSFET (100 V, 33 A)</td></tr>
+<tr><td><code>IRF530N</code></td><td>IRF530N</td><td>10.0</td><td>3.0 V</td><td>0.01</td><td>Power (100 V, 17 A)</td></tr>
+<tr><td><code>IRF9540N</code></td><td>IRF9540N</td><td>8.0</td><td>−3.5 V</td><td>0.01</td><td>P-ch power (note: NMOS model)</td></tr>
+<tr><td><code>IRF3205</code></td><td>IRF3205</td><td>40.0</td><td>2.0 V</td><td>0.005</td><td>Low $R_{DS}$ (55 V, 110 A)</td></tr>
+<tr><td><code>IRFZ44N</code></td><td>IRFZ44N</td><td>25.0</td><td>3.0 V</td><td>0.008</td><td>Logic-level (55 V, 49 A)</td></tr>
+<tr><td><code>N2N7000</code></td><td>2N7000</td><td>0.1</td><td>2.0 V</td><td>0.04</td><td>Small-signal (60 V, 200 mA)</td></tr>
+<tr><td><code>BS170</code></td><td>BS170</td><td>0.15</td><td>2.0 V</td><td>0.04</td><td>Small-signal</td></tr>
+<tr><td><code>IRF840</code></td><td>IRF840</td><td>3.0</td><td>4.0 V</td><td>0.007</td><td>High-voltage (500 V, 8 A)</td></tr>
+<tr><td><code>IRLZ44N</code></td><td>IRLZ44N</td><td>30.0</td><td>1.5 V</td><td>0.008</td><td>Logic-level gate</td></tr>
+<tr><td><code>STP55NF06</code></td><td>STP55NF06</td><td>35.0</td><td>2.5 V</td><td>0.006</td><td>Low $R_{DS}$ (60 V, 50 A)</td></tr>
+</tbody></table>
+</div>
+<h3 id="p-channel-mosfets"><a class="header" href="#p-channel-mosfets">P-Channel MOSFETs</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$K_p$</th><th>$V_{th}$</th><th>$\lambda$</th><th>Application</th></tr></thead><tbody>
+<tr><td><code>IRF9540</code></td><td>IRF9540</td><td>8.0</td><td>−3.5 V</td><td>0.01</td><td>P-ch power (100 V, 23 A)</td></tr>
+<tr><td><code>IRF5305</code></td><td>IRF5305</td><td>10.0</td><td>−3.0 V</td><td>0.008</td><td>P-ch power (55 V, 31 A)</td></tr>
+<tr><td><code>TP0610T</code></td><td>TP0610T</td><td>0.05</td><td>−1.5 V</td><td>0.05</td><td>Small-signal P-ch</td></tr>
+<tr><td><code>VP2106</code></td><td>VP2106</td><td>0.03</td><td>−2.0 V</td><td>0.05</td><td>Small-signal P-ch</td></tr>
+<tr><td><code>NDP6020P</code></td><td>NDP6020P</td><td>5.0</td><td>−2.0 V</td><td>0.01</td><td>Logic-level P-ch (20 V, 24 A)</td></tr>
+</tbody></table>
+</div>
+<h3 id="transformers-librarytransformerspy"><a class="header" href="#transformers-librarytransformerspy">Transformers (<code>library/transformers.py</code>)</a></h3>
+<h4 id="240-v-primary"><a class="header" href="#240-v-primary">240 V Primary</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Ratio</th><th>$L_1$</th><th>$L_2$</th><th>$k$</th></tr></thead><tbody>
-<tr><td><code>Transformer_240_to_5(name, primary_nodes, secondary_nodes)</code></td><td>48:1</td><td>100 H</td><td>0.0434 H</td><td>0.999</td></tr>
-<tr><td><code>Transformer_240_to_12(name, primary_nodes, secondary_nodes)</code></td><td>20:1</td><td>100 H</td><td>0.25 H</td><td>0.999</td></tr>
-<tr><td><code>Transformer_240_to_24(name, primary_nodes, secondary_nodes)</code></td><td>10:1</td><td>100 H</td><td>1.0 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_5</code></td><td>48:1</td><td>100 H</td><td>0.0434 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_9</code></td><td>26.7:1</td><td>100 H</td><td>0.1406 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_12</code></td><td>20:1</td><td>100 H</td><td>0.25 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_24</code></td><td>10:1</td><td>100 H</td><td>1.0 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_240_to_48</code></td><td>5:1</td><td>100 H</td><td>4.0 H</td><td>0.999</td></tr>
+</tbody></table>
+</div>
+<h4 id="120-v-primary"><a class="header" href="#120-v-primary">120 V Primary</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Ratio</th><th>$L_1$</th><th>$L_2$</th><th>$k$</th></tr></thead><tbody>
+<tr><td><code>Transformer_120_to_5</code></td><td>24:1</td><td>25 H</td><td>0.0434 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_120_to_12</code></td><td>10:1</td><td>25 H</td><td>0.25 H</td><td>0.999</td></tr>
+<tr><td><code>Transformer_120_to_24</code></td><td>5:1</td><td>25 H</td><td>1.0 H</td><td>0.999</td></tr>
 </tbody></table>
 </div>
 <blockquote>
 <p>Transformer functions take <code>(name, primary_nodes, secondary_nodes)</code> instead
 of <code>(name, nodes)</code>.</p>
 </blockquote>
-<h3 id="operational-amplifiers"><a class="header" href="#operational-amplifiers">Operational Amplifiers</a></h3>
+<h3 id="operational-amplifiers-libraryopampspy"><a class="header" href="#operational-amplifiers-libraryopampspy">Operational Amplifiers (<code>library/opamps.py</code>)</a></h3>
 <div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$A_{OL}$</th><th>$R_{in}$</th><th>$R_{out}$</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>LM741</code></td><td>LM741</td><td>200k</td><td>2 MΩ</td><td>75 Ω</td><td>Classic general-purpose</td></tr>
+<tr><td><code>UA741</code></td><td>µA741</td><td>200k</td><td>2 MΩ</td><td>75 Ω</td><td>Industry-standard clone</td></tr>
 <tr><td><code>LM358</code></td><td>LM358</td><td>100k</td><td>2 MΩ</td><td>150 Ω</td><td>Dual, single-supply</td></tr>
 <tr><td><code>LM324</code></td><td>LM324</td><td>100k</td><td>2 MΩ</td><td>150 Ω</td><td>Quad, single-supply</td></tr>
-<tr><td><code>TL072</code></td><td>TL072</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Low-noise JFET input</td></tr>
+<tr><td><code>TL071</code></td><td>TL071</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Single low-noise JFET</td></tr>
+<tr><td><code>TL072</code></td><td>TL072</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Dual low-noise JFET</td></tr>
+<tr><td><code>TL074</code></td><td>TL074</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Quad JFET</td></tr>
 <tr><td><code>TL082</code></td><td>TL082</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>General JFET input</td></tr>
+<tr><td><code>TL084</code></td><td>TL084</td><td>200k</td><td>1 TΩ</td><td>100 Ω</td><td>Quad JFET</td></tr>
 <tr><td><code>NE5532</code></td><td>NE5532</td><td>100k</td><td>300 kΩ</td><td>0.3 Ω</td><td>Low-noise audio</td></tr>
-<tr><td><code>OP07</code></td><td>OP07</td><td>500k</td><td>33 MΩ</td><td>60 Ω</td><td>Precision</td></tr>
+<tr><td><code>NE5534</code></td><td>NE5534</td><td>100k</td><td>100 kΩ</td><td>0.3 Ω</td><td>Single low-noise audio</td></tr>
 <tr><td><code>OPA2134</code></td><td>OPA2134</td><td>1M</td><td>10 TΩ</td><td>1 Ω</td><td>Hi-fi audio FET</td></tr>
+<tr><td><code>OPA2604</code></td><td>OPA2604</td><td>1M</td><td>10 TΩ</td><td>1 Ω</td><td>Dual FET, low distortion</td></tr>
+<tr><td><code>OP07</code></td><td>OP07</td><td>500k</td><td>33 MΩ</td><td>60 Ω</td><td>Precision, low offset</td></tr>
+<tr><td><code>OP27</code></td><td>OP27</td><td>1.5M</td><td>6 MΩ</td><td>70 Ω</td><td>Precision low-noise</td></tr>
 <tr><td><code>AD620</code></td><td>AD620</td><td>1M</td><td>10 GΩ</td><td>1 Ω</td><td>Instrumentation amp</td></tr>
+<tr><td><code>INA128</code></td><td>INA128</td><td>1M</td><td>10 GΩ</td><td>1 Ω</td><td>Instrumentation amp</td></tr>
 <tr><td><code>IdealOpAmp</code></td><td>—</td><td>10⁹</td><td>1 TΩ</td><td>0.001 Ω</td><td>Textbook ideal</td></tr>
 </tbody></table>
 </div>
 <blockquote>
 <p>Op-amp functions take <code>(name, nodes)</code> where
 <code>nodes = (non_inv_input, inv_input, output)</code>.</p>
+</blockquote>
+<h3 id="comparators-librarycomparatorspy"><a class="header" href="#comparators-librarycomparatorspy">Comparators (<code>library/comparators.py</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Part</th><th>$R_{in}$</th><th>$R_{out}$</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>LM393</code></td><td>LM393</td><td>1 MΩ</td><td>50 Ω</td><td>Dual, general purpose</td></tr>
+<tr><td><code>LM2903</code></td><td>LM2903</td><td>1 MΩ</td><td>50 Ω</td><td>Automotive grade</td></tr>
+<tr><td><code>LM339</code></td><td>LM339</td><td>1 MΩ</td><td>50 Ω</td><td>Quad, single supply</td></tr>
+<tr><td><code>LM311</code></td><td>LM311</td><td>500 kΩ</td><td>50 Ω</td><td>Fast, with output transistor</td></tr>
+<tr><td><code>TLV3201</code></td><td>TLV3201</td><td>100 MΩ</td><td>25 Ω</td><td>Rail-to-rail CMOS</td></tr>
+<tr><td><code>TLV3501</code></td><td>TLV3501</td><td>100 MΩ</td><td>25 Ω</td><td>4.5 ns propagation</td></tr>
+<tr><td><code>MAX9021</code></td><td>MAX9021</td><td>1 TΩ</td><td>10 Ω</td><td>Ultra-low power</td></tr>
+<tr><td><code>MAX9042</code></td><td>MAX9042</td><td>1 TΩ</td><td>10 Ω</td><td>Dual, 2.5 V compatible</td></tr>
+<tr><td><code>IdealComparator</code></td><td>—</td><td>1 TΩ</td><td>0.001 Ω</td><td>Textbook ideal</td></tr>
+</tbody></table>
+</div>
+<blockquote>
+<p>Comparator functions take <code>(name, nodes, *, V_high=5.0, V_low=0.0)</code>
+where <code>nodes = (non_inv_input, inv_input, output)</code>.</p>
 </blockquote>
 <h2 id="adding-your-own-parts"><a class="header" href="#adding-your-own-parts">Adding Your Own Parts</a></h2>
 <p>See <a href="../extending/new-library-parts.html">Adding Library Parts</a> for how to
@@ -320,7 +456,7 @@ extend this library with new components.</p>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../visualization/live-simulation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../visualization/plotting.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -334,7 +470,7 @@ extend this library with new components.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../visualization/live-simulation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../visualization/plotting.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

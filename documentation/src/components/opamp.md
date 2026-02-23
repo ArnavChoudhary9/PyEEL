@@ -48,7 +48,7 @@ OpAmp(name, nodes, *,
 | `R_in` | `float` | `2e6` | Differential input resistance (Ω) |
 | `R_out` | `float` | `75.0` | Output resistance (Ω) |
 | `V_sat_pos` | `float \| None` | `None` | Positive output saturation voltage |
-| `V_sat_neg` | `float \| None` | `None` | Negative saturation (defaults to `−V_sat_pos`) |
+| `V_sat_neg` | `float \| None` | `None` | Negative saturation (defaults to `-V_sat_pos`) |
 
 ### Physical meaning of each parameter
 
@@ -81,13 +81,13 @@ current $I_{out}$.
 
 ```
            G_in = 1/R_in
-  V+ ──┬──/\/\/──┬── V−
+  V+ ──┬──/\/\/──┬── V-
        │         │
        │    ┌────┘
        │    │
        │  ╔═══════════════╗
        │  ║  Controlled   ║
-       │  ║  Voltage Src  ║  V = A_OL · (V+ − V−)
+       │  ║  Voltage Src  ║  V = A_OL · (V+ - V-)
        │  ╚═══════╤═══════╝
        │          │
        │         R_out
@@ -185,7 +185,7 @@ ckt.AddProbe(p)
 ckt.Finalize()
 ckt.RunDC()
 
-print(f"Vout = {p.Data[-1]:.2f} V")   # ≈ −10.0 V
+print(f"Vout = {p.Data[-1]:.2f} V")   # ≈ -10.0 V
 ```
 
 ## Example: Non-Inverting Amplifier with Saturation

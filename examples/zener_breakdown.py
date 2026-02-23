@@ -40,16 +40,7 @@ Probes
   • I(DZ1)   — Zener current (zero below knee, rises sharply above it)
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor
-from PyEEL.Components.ZenerDiode import ZenerDiode
-from PyEEL.Components.Sources.VoltageSource import VoltageSource
-from PyEEL.Components.Sources.Waveform import SineWave
-from PyEEL.Probe import VoltageProbe, CurrentProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
 # ── simulation config ────────────────────────────────────────────────
 config = SimulationConfig(

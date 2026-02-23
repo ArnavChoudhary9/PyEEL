@@ -10,7 +10,7 @@ non-linear device equations until the solution converges.
 x = x_initial (previous time-step solution)
 for iteration = 1, 2, …, max_iterations:
     1. Build A, b with components stamped at current x
-    2. Solve:  Δx = A⁻¹ b − x
+    2. Solve:  Δx = A⁻¹ b - x
     3. Apply damping:  x_new = x + α · Δx
     4. Check convergence:
        - |Δx| < abs_tolerance  AND

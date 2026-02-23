@@ -36,15 +36,7 @@ Probes:
   • I(Q1)    — collector current
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor, Capacitor
-from PyEEL.Components.BJT import NPN
-from PyEEL.Components.Sources.VoltageSource import DCVoltageSource, ACVoltageSource
-from PyEEL.Probe import VoltageProbe, CurrentProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
 # ── simulation config ───────────────────────────────────────────────
 config = SimulationConfig(

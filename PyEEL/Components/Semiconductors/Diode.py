@@ -47,17 +47,22 @@ class Diode(Component):
     _Is: float
     _n: float
     _Vt: float
+    _Tnom: float       # nominal temperature (K)
+    _Eg: float         # band-gap energy (eV)
     _Vcrit: float
     _current: float
     _v_prev: float
     _v_nr_prev: float
 
     _EXP_MAX: float = 500.0
+    _BOLTZMANN_Q: float = 8.617333262e-5  # k/q in eV/K
 
     def __init__(self, name: str, nodes: tuple[Node, Node], *,
                  Is: float = 1e-14,
                  n: float = 1.0,
-                 Vt: float = 0.02585):
+                 Vt: float = 0.02585,
+                 Tnom: float = 300.15,
+                 Eg: float = 1.11):
         if Is <= 0:
             raise ValueError(f"Diode '{name}': Is must be positive, got {Is}")
         if n <= 0:
@@ -69,12 +74,32 @@ class Diode(Component):
         self._Is = Is
         self._n = n
         self._Vt = Vt
+        self._Tnom = Tnom
+        self._Eg = Eg
         self._current = 0.0
         self._v_prev = 0.0
         self._v_nr_prev = 0.0
 
         nVt = n * Vt
         self._Vcrit = nVt * math.log(nVt / (math.sqrt(2.0) * Is))
+
+    # ── temperature helpers ─────────────────────────────────────────
+    def _effective_params(self, T: float) -> tuple[float, float]:
+        """
+        Return ``(Is_eff, Vt_eff)`` at temperature *T* (kelvin).
+
+        SPICE temperature model:
+            Vt = k·T/q
+            Is(T) = Is(Tnom) · (T/Tnom)^(3/n) · exp((Eg/n)·(1/Tnom - 1/T) / (k/q))
+        """
+        if abs(T - self._Tnom) < 0.01:
+            return self._Is, self._Vt
+        Vt_eff = self._BOLTZMANN_Q * T
+        ratio = T / self._Tnom
+        Is_eff = self._Is * (ratio ** (3.0 / self._n)) * self._safe_exp(
+            (self._Eg / self._n) * (1.0 / self._Tnom - 1.0 / T) / self._BOLTZMANN_Q
+        )
+        return Is_eff, Vt_eff
 
     # ── properties ──────────────────────────────────────────────────
     @property
@@ -127,20 +152,26 @@ class Diode(Component):
     def _safe_exp(self, x: float) -> float:
         return math.exp(min(x, self._EXP_MAX))
 
-    def _evaluate(self, Vd: float) -> tuple[float, float]:
+    def _evaluate(self, Vd: float, Is: float | None = None,
+                  Vt: float | None = None) -> tuple[float, float]:
         """Evaluate diode current and conductance.  Returns ``(I_d, G_d)``."""
-        nVt = self._n * self._Vt
+        _Is = Is if Is is not None else self._Is
+        _Vt = Vt if Vt is not None else self._Vt
+        nVt = self._n * _Vt
         e = self._safe_exp(Vd / nVt)
 
-        Id = self._Is * (e - 1.0)
-        Gd = (self._Is / nVt) * e
-        Gd = max(Gd, self._Is / nVt)
+        Id = _Is * (e - 1.0)
+        Gd = (_Is / nVt) * e
+        Gd = max(Gd, _Is / nVt)
 
         return Id, Gd
 
     # ── stamp ───────────────────────────────────────────────────────
     def Stamp(self, A: np.ndarray, b: np.ndarray,
               context: SimulationContext) -> None:
+        # Temperature-adjusted parameters
+        Is_eff, Vt_eff = self._effective_params(context.temperature)
+
         # Determine operating-point voltage
         if context.x_current is not None:
             Vd0 = self._get_vd(context.x_current)
@@ -154,7 +185,7 @@ class Diode(Component):
         if context.is_nonlinear_iteration:
             self._v_nr_prev = Vd0
 
-        Id0, Gd = self._evaluate(Vd0)
+        Id0, Gd = self._evaluate(Vd0, Is=Is_eff, Vt=Vt_eff)
         Ieq = Id0 - Gd * Vd0
 
         n1 = self.Nodes[0].Index   # anode

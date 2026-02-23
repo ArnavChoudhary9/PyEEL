@@ -144,13 +144,13 @@ class MutualCoupling(Component):
         stamp_transconductance(A, n2p, n2n, n1p, n1n, G12)
 
         # RHS history-current corrections
-        di1 = self._i1_prev - self._L1._i_prev
+        di1 = self._i1_prev - self._L1.PreviousCurrent
         if n1p is not None:
             b[n1p] -= di1
         if n1n is not None:
             b[n1n] += di1
 
-        di2 = self._i2_prev - self._L2._i_prev
+        di2 = self._i2_prev - self._L2.PreviousCurrent
         if n2p is not None:
             b[n2p] -= di2
         if n2n is not None:
@@ -159,8 +159,8 @@ class MutualCoupling(Component):
     def UpdateState(self, solutionVector: np.ndarray,
                     context: SimulationContext) -> None:
         if context.Mode == SimulationMode.DC:
-            self._i1_prev = self._L1._current
-            self._i2_prev = self._L2._current
+            self._i1_prev = self._L1.Current
+            self._i2_prev = self._L2.Current
             return
 
         dt = context.dt
@@ -182,10 +182,10 @@ class MutualCoupling(Component):
         self._i1_prev = i1_new
         self._i2_prev = i2_new
 
-        self._L1._i_prev = i1_new
-        self._L1._current = i1_new
-        self._L2._i_prev = i2_new
-        self._L2._current = i2_new
+        self._L1.PreviousCurrent = i1_new
+        self._L1.Current = i1_new
+        self._L2.PreviousCurrent = i2_new
+        self._L2.Current = i2_new
 
     # ── query helpers ───────────────────────────────────────────────
     def GetCurrent(self, solutionVector: np.ndarray) -> float:
@@ -196,4 +196,4 @@ class MutualCoupling(Component):
 
     def GetInductorCurrents(self, solutionVector: np.ndarray) -> tuple[float, float]:
         """Return ``(i1, i2)`` — the correct coupled inductor currents."""
-        return (self._L1._current, self._L2._current)
+        return (self._L1.Current, self._L2.Current)

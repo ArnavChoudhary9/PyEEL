@@ -33,15 +33,7 @@ Probes
   • V(n_g)  — VCCS output across R_g (4 V peak)
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
-from PyEEL.Components.Sources.DependentSources import VCVS, VCCS
-from PyEEL.Probe import VoltageProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
 # ── config ───────────────────────────────────────────────────────────
 config = SimulationConfig(dc_operating_point=True, gmin=1e-12)

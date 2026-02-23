@@ -38,6 +38,11 @@ class Resistor(Component):
         """Resistance in ohms (Ω)."""
         return self._Resistance
 
+    @Resistance.setter
+    def Resistance(self, value: float) -> None:
+        self._Resistance = value
+        self._Conductance = 1.0 / value
+
     # ── MNA interface ───────────────────────────────────────────────
     def RegisterUnknowns(self, nodeManager: NodeManager) -> None:
         pass

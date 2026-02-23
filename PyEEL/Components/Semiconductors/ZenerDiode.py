@@ -64,6 +64,7 @@ class ZenerDiode(Component):
     _v_nr_prev: float
 
     _EXP_MAX: float = 500.0
+    _BOLTZMANN_Q: float = 8.617333262e-5
 
     def __init__(self, name: str, nodes: tuple[Node, Node], *,
                  Vz: float = 5.1,
@@ -71,7 +72,9 @@ class ZenerDiode(Component):
                  n: float = 1.0,
                  Ibv: float = 1e-3,
                  n_bv: float = 1.0,
-                 Vt: float = 0.02585):
+                 Vt: float = 0.02585,
+                 Tnom: float = 300.15,
+                 Eg: float = 1.11):
         if Vz <= 0:
             raise ValueError(f"ZenerDiode '{name}': Vz must be positive, got {Vz}")
         if Is <= 0:
@@ -99,6 +102,8 @@ class ZenerDiode(Component):
         self._current = 0.0
         self._v_prev = 0.0
         self._v_nr_prev = 0.0
+        self._Tnom = Tnom
+        self._Eg = Eg
 
         nVt = n * Vt
         self._Vcrit_fwd = nVt * math.log(nVt / (math.sqrt(2.0) * Is))
@@ -129,6 +134,18 @@ class ZenerDiode(Component):
     @property
     def BreakdownCurrent(self) -> float:
         return self._Ibv
+
+    # ── temperature ─────────────────────────────────────────────────
+    def _effective_params(self, T: float) -> tuple[float, float]:
+        """Return ``(Is_eff, Vt_eff)`` at temperature *T* (kelvin)."""
+        if abs(T - self._Tnom) < 0.01:
+            return self._Is, self._Vt
+        Vt_eff = self._BOLTZMANN_Q * T
+        ratio = T / self._Tnom
+        Is_eff = self._Is * (ratio ** (3.0 / self._n)) * self._safe_exp(
+            (self._Eg / self._n) * (1.0 / self._Tnom - 1.0 / T) / self._BOLTZMANN_Q
+        )
+        return Is_eff, Vt_eff
 
     # ── MNA interface ───────────────────────────────────────────────
     def RegisterUnknowns(self, nodeManager: NodeManager) -> None:
@@ -180,16 +197,19 @@ class ZenerDiode(Component):
     def _safe_exp(self, x: float) -> float:
         return math.exp(min(x, self._EXP_MAX))
 
-    def _evaluate(self, Vd: float) -> tuple[float, float]:
+    def _evaluate(self, Vd: float, Is: float | None = None,
+                  Vt: float | None = None) -> tuple[float, float]:
         """Evaluate total Zener current and conductance. Returns ``(I, G)``."""
-        nVt = self._n * self._Vt
-        n_bv_Vt = self._n_bv * self._Vt
+        _Is = Is if Is is not None else self._Is
+        _Vt = Vt if Vt is not None else self._Vt
+        nVt = self._n * _Vt
+        n_bv_Vt = self._n_bv * _Vt
 
         # Forward (Shockley)
         ef = self._safe_exp(Vd / nVt)
-        I_fwd = self._Is * (ef - 1.0)
-        G_fwd = (self._Is / nVt) * ef
-        G_fwd = max(G_fwd, self._Is / nVt)
+        I_fwd = _Is * (ef - 1.0)
+        G_fwd = (_Is / nVt) * ef
+        G_fwd = max(G_fwd, _Is / nVt)
 
         # Reverse breakdown
         rev_arg = -(Vd + self._Vz) / n_bv_Vt
@@ -199,7 +219,7 @@ class ZenerDiode(Component):
 
         I_total = I_fwd - I_rev
         G_total = G_fwd + G_rev
-        G_total = max(G_total, self._Is / nVt)
+        G_total = max(G_total, _Is / nVt)
 
         return I_total, G_total
 
@@ -218,7 +238,8 @@ class ZenerDiode(Component):
         if context.is_nonlinear_iteration:
             self._v_nr_prev = Vd0
 
-        Id0, Gd = self._evaluate(Vd0)
+        Is_eff, Vt_eff = self._effective_params(context.temperature)
+        Id0, Gd = self._evaluate(Vd0, Is=Is_eff, Vt=Vt_eff)
         Ieq = Id0 - Gd * Vd0
 
         n1 = self.Nodes[0].Index

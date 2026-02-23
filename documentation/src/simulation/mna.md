@@ -18,7 +18,7 @@ where:
 | $\mathbf{x}$ | $N \times 1$ | Unknown vector: node voltages + auxiliary currents |
 | $\mathbf{b}$ | $N \times 1$ | Right-hand-side: known currents + voltage constraints |
 
-$N = $ `NodeManager.TotalUnknownCount` = (number of nodes − 1) + (auxiliary unknowns).
+$N = $ `NodeManager.TotalUnknownCount` = (number of nodes - 1) + (auxiliary unknowns).
 
 ## Solution Vector Layout
 

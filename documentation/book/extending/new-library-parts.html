@@ -129,7 +129,7 @@
                         <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/extending/new-library-parts.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/src/extending/new-library-parts.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -159,11 +159,31 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="adding-library-parts"><a class="header" href="#adding-library-parts">Adding Library Parts</a></h1>
-<p>The pre-built component library at <code>PyEEL/Components/library.py</code> is
-designed to be easily extended with new real-world parts.</p>
+<p>The pre-built component library lives in <code>PyEEL/Components/library/</code>, a
+package split by category:</p>
+<div class="table-wrapper"><table><thead><tr><th>Sub-module</th><th>Contents</th></tr></thead><tbody>
+<tr><td><code>sources.py</code></td><td>DC &amp; AC voltage sources</td></tr>
+<tr><td><code>resistors.py</code></td><td>Standard resistor values (E24+)</td></tr>
+<tr><td><code>capacitors.py</code></td><td>Ceramic, film &amp; electrolytic capacitors</td></tr>
+<tr><td><code>inductors.py</code></td><td>Inductors from 1 µH to 10 H</td></tr>
+<tr><td><code>diodes.py</code></td><td>Rectifiers, signal, Schottky, LEDs</td></tr>
+<tr><td><code>zener_diodes.py</code></td><td>BZX55C series + short aliases</td></tr>
+<tr><td><code>bjt.py</code></td><td>NPN, PNP &amp; Darlington transistors</td></tr>
+<tr><td><code>mosfets.py</code></td><td>N-channel &amp; P-channel MOSFETs</td></tr>
+<tr><td><code>transformers.py</code></td><td>240 V &amp; 120 V step-down transformers</td></tr>
+<tr><td><code>opamps.py</code></td><td>General, JFET-input, audio &amp; precision op-amps</td></tr>
+<tr><td><code>comparators.py</code></td><td>Open-collector &amp; push-pull comparators</td></tr>
+</tbody></table>
+</div>
+<p>All names are re-exported from the package <code>__init__.py</code>, so either of
+these imports works:</p>
+<pre><code class="language-python">from PyEEL.Components.library import R1k, IN4007
+from PyEEL.Components.library.resistors import R1k
+</code></pre>
 <h2 id="how-library-functions-work"><a class="header" href="#how-library-functions-work">How Library Functions Work</a></h2>
-<p>Each library function is a thin wrapper that creates a component with
-datasheet parameters pre-filled:</p>
+<p>Each library function is an explicitly typed factory that creates a
+component with datasheet parameters pre-filled.  The full type signature
+is visible to IDEs and type-checkers:</p>
 <pre><code class="language-python">def IN4007(name: str, nodes: tuple[Node, Node]) -&gt; Diode:
     """1N4007 — general-purpose rectifier (1000 V, 1 A)."""
     return Diode(name, nodes, Is=7.02e-9, n=1.77)
@@ -173,6 +193,7 @@ datasheet parameters pre-filled:</p>
 <li>Takes only <code>name</code> and <code>nodes</code> (no electrical parameters).</li>
 <li>Returns the appropriate component class with all parameters filled in.</li>
 <li>Has a docstring with the part name, key specs, and pin order.</li>
+<li>Full return-type annotation so IDEs auto-complete <code>.Nodes</code>, <code>.Is</code>, etc.</li>
 </ol>
 <h2 id="adding-a-new-diode"><a class="header" href="#adding-a-new-diode">Adding a New Diode</a></h2>
 <pre><code class="language-python">def IN5408(name: str, nodes: tuple[Node, Node]) -&gt; Diode:
@@ -289,6 +310,18 @@ gnd = nm.GroundNode
 
 part = MyNewPart("X1", (n1, n2))
 print(f"{part.Name} created successfully")
+</code></pre>
+<h2 id="adding-to-the-package"><a class="header" href="#adding-to-the-package">Adding to the Package</a></h2>
+<ol>
+<li>Open the appropriate sub-module (e.g. <code>library/diodes.py</code> for a new diode).</li>
+<li>Add your typed factory function at the bottom of the relevant section.</li>
+<li>Export the name in <code>library/__init__.py</code> by adding it to the correct
+<code>from .submodule import ...</code> line.</li>
+</ol>
+<pre><code class="language-python"># In library/__init__.py, add to the diodes import:
+from .diodes import (
+    IN4001, ..., IN5408, MyNewDiode,   # ← add here
+)
 </code></pre>
 
                     </main>

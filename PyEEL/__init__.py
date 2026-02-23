@@ -26,15 +26,28 @@ from .Components.Sources import (
 )
 
 # ── Solver ──────────────────────────────────────────────────────────
-from .Solver import LinearSolver, NumpySolver
+from .Solver import (
+    LinearSolver, NumpySolver,
+    ACAnalysis, ACResult,
+    NoiseAnalysis, NoiseResult,
+    HarmonicBalance, HBResult,
+)
 
 # ── Simulation ──────────────────────────────────────────────────────
-from .Simulation import Circuit
+from .Simulation import (
+    Circuit,
+    EventDetector, EventRecord,
+    ZeroCrossing, ThresholdCrossing, CustomEvent, CrossingDirection,
+    MonteCarlo, Tolerance, MonteCarloResult,
+    ParameterSweep, SweepResult,
+)
 
 # ── Visualization ───────────────────────────────────────────────────
 from .Visualization import (
     Probe, ProbeType, VoltageProbe, CurrentProbe,
     LivePlotter, LiveSimulation,
+    plot_bode, plot_noise_spectrum, plot_monte_carlo,
+    plot_sweep, plot_harmonic_spectrum, plot_transient,
 )
 
 # ── Common building blocks ──────────────────────────────────────────

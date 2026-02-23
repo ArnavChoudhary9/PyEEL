@@ -76,6 +76,7 @@ class BJT(Component):
 
     _G_MIN: float = 1e-12
     _EXP_MAX: float = 500.0
+    _BOLTZMANN_Q: float = 8.617333262e-5  # k/q in eV/K
 
     def __init__(
         self,
@@ -90,6 +91,8 @@ class BJT(Component):
         Nr: float = 1.0,
         Vt: float = 0.02585,
         Vaf: float | None = None,
+        Tnom: float = 300.15,
+        Eg: float = 1.11,
     ):
         if Is <= 0:
             raise ValueError(f"BJT '{name}': Is must be positive, got {Is}")
@@ -119,6 +122,8 @@ class BJT(Component):
         self._Nr = Nr
         self._Vt = Vt
         self._Vaf = Vaf
+        self._Tnom = Tnom
+        self._Eg = Eg
         self._type = bjt_type
         self._polarity = bjt_type.value
 
@@ -196,13 +201,27 @@ class BJT(Component):
             Vnew = -5.0 * Vcrit
         return Vnew
 
-    def _evaluate(self, Vbe: float, Vbc: float) -> dict:
+    def _effective_params(self, T: float) -> tuple[float, float]:
+        """Return ``(Is_eff, Vt_eff)`` at temperature *T* (kelvin)."""
+        if abs(T - self._Tnom) < 0.01:
+            return self._Is, self._Vt
+        Vt_eff = self._BOLTZMANN_Q * T
+        ratio = T / self._Tnom
+        Is_eff = self._Is * (ratio ** 3.0) * math.exp(
+            self._Eg * (1.0 / self._Tnom - 1.0 / T) / self._BOLTZMANN_Q
+        )
+        return Is_eff, Vt_eff
+
+    def _evaluate(self, Vbe: float, Vbc: float,
+                  Is: float | None = None,
+                  Vt: float | None = None) -> dict:
         """Evaluate all BJT sub-circuit currents and conductances."""
-        Is = self._Is
+        Is = Is if Is is not None else self._Is
+        Vt = Vt if Vt is not None else self._Vt
         BF = self._BF
         BR = self._BR
-        nfVt = self._Nf * self._Vt
-        nrVt = self._Nr * self._Vt
+        nfVt = self._Nf * Vt
+        nrVt = self._Nr * Vt
 
         expf = self._safe_exp(Vbe / nfVt)
         expr = self._safe_exp(Vbc / nrVt)
@@ -236,6 +255,9 @@ class BJT(Component):
     # ── stamp ───────────────────────────────────────────────────────
     def Stamp(self, A: np.ndarray, b: np.ndarray,
               context: SimulationContext) -> None:
+        # Temperature-adjusted parameters
+        Is_eff, Vt_eff = self._effective_params(context.temperature)
+
         # Operating point
         if context.x_current is not None:
             Vbe0, Vbc0 = self._get_voltages(context.x_current)
@@ -251,8 +273,8 @@ class BJT(Component):
             Vbe_ref = self._vbe_prev
             Vbc_ref = self._vbc_prev
 
-        nfVt = self._Nf * self._Vt
-        nrVt = self._Nr * self._Vt
+        nfVt = self._Nf * Vt_eff
+        nrVt = self._Nr * Vt_eff
 
         Vbe0 = self._limit_voltage(Vbe0, Vbe_ref, self._Vcrit_be, nfVt)
         Vbc0 = self._limit_voltage(Vbc0, Vbc_ref, self._Vcrit_bc, nrVt)
@@ -261,7 +283,7 @@ class BJT(Component):
             self._vbe_nr_prev = Vbe0
             self._vbc_nr_prev = Vbc0
 
-        ev = self._evaluate(Vbe0, Vbc0)
+        ev = self._evaluate(Vbe0, Vbc0, Is=Is_eff, Vt=Vt_eff)
 
         I_be = ev["I_be"];  gbe = ev["gbe"]
         I_bc = ev["I_bc"];  gbc = ev["gbc"]

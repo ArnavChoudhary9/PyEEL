@@ -129,7 +129,7 @@
                         <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/components/opamp.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/src/components/opamp.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -195,7 +195,7 @@ operational amplifier.  It is suitable for both DC and transient analysis of cir
 <tr><td><code>R_in</code></td><td><code>float</code></td><td><code>2e6</code></td><td>Differential input resistance (Ω)</td></tr>
 <tr><td><code>R_out</code></td><td><code>float</code></td><td><code>75.0</code></td><td>Output resistance (Ω)</td></tr>
 <tr><td><code>V_sat_pos</code></td><td><code>float | None</code></td><td><code>None</code></td><td>Positive output saturation voltage</td></tr>
-<tr><td><code>V_sat_neg</code></td><td><code>float | None</code></td><td><code>None</code></td><td>Negative saturation (defaults to <code>−V_sat_pos</code>)</td></tr>
+<tr><td><code>V_sat_neg</code></td><td><code>float | None</code></td><td><code>None</code></td><td>Negative saturation (defaults to <code>-V_sat_pos</code>)</td></tr>
 </tbody></table>
 </div>
 <h3 id="physical-meaning-of-each-parameter"><a class="header" href="#physical-meaning-of-each-parameter">Physical meaning of each parameter</a></h3>
@@ -230,13 +230,13 @@ clamps the output and the gain drops to zero (saturation).  Leave
 current $I_{out}$.</p>
 <h3 id="internal-equivalent-circuit"><a class="header" href="#internal-equivalent-circuit">Internal equivalent circuit</a></h3>
 <pre><code>           G_in = 1/R_in
-  V+ ──┬──/\/\/──┬── V−
+  V+ ──┬──/\/\/──┬── V-
        │         │
        │    ┌────┘
        │    │
        │  ╔═══════════════╗
        │  ║  Controlled   ║
-       │  ║  Voltage Src  ║  V = A_OL · (V+ − V−)
+       │  ║  Voltage Src  ║  V = A_OL · (V+ - V-)
        │  ╚═══════╤═══════╝
        │          │
        │         R_out
@@ -322,7 +322,7 @@ ckt.AddProbe(p)
 ckt.Finalize()
 ckt.RunDC()
 
-print(f"Vout = {p.Data[-1]:.2f} V")   # ≈ −10.0 V
+print(f"Vout = {p.Data[-1]:.2f} V")   # ≈ -10.0 V
 </code></pre>
 <h2 id="example-non-inverting-amplifier-with-saturation"><a class="header" href="#example-non-inverting-amplifier-with-saturation">Example: Non-Inverting Amplifier with Saturation</a></h2>
 <pre><code class="language-python">ckt.AddComponent(
@@ -361,7 +361,7 @@ for other parts.</li>
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../components/magnetic.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../components/comparator.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -375,7 +375,7 @@ for other parts.</li>
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../components/magnetic.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../components/comparator.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

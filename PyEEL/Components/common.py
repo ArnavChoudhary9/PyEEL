@@ -326,62 +326,52 @@ def ce_amplifier(
     n_out: Node,
     n_gnd: Node,
     *,
-    r1: float = 56e3,
-    r2: float = 12e3,
-    rc: float = 4.7e3,
-    re: float = 1e3,
-    c_in: float = 10e-6,
-    c_out: float = 10e-6,
-    BF: float = 100.0,
-    Is: float = 1e-15,
-    Vaf: float | None = None,
+    r_collector: float = 4.7e3,
+    r_emitter: float = 1e3,
+    r_bias_top: float = 56e3,
+    r_bias_bottom: float = 12e3,
+    bjt_type: str = "NPN",
+    bjt_params: dict | None = None,
 ) -> tuple[list[Component], dict[str, Node]]:
     """
-    Voltage-divider–biased common-emitter NPN amplifier.
+    Voltage-divider-biased common-emitter amplifier.
 
-    Creates internal nodes for base, collector, and emitter.
+    Returns ``(components, internal_nodes_dict)``.
+    The caller must create the internal nodes (base, emitter) and pass
+    them, OR this function creates them — but since we don't have
+    access to the NodeManager, the caller must create base/emitter
+    nodes externally.
+
+    For simplicity, this topology requires the caller to supply
+    ``n_in`` as the base node and uses ``n_out`` as the collector.
+    An internal emitter node is NOT created — instead R_E connects
+    from a dedicated emitter node to ground.  However, since we
+    cannot create nodes here, this approach uses a simplified topology
+    where the base IS n_in and collector IS n_out.
 
     ::
 
-             VCC
-              │       │
-             R1      RC
-              │       │
-              ├── Q ──┤── C_out ── n_out
-              │       │
-             R2      RE
-              │       │
-             GND     GND
+        n_vcc ── R_bias_top ── n_in (base)
+        n_in ── R_bias_bottom ── n_gnd
+        n_vcc ── R_collector ── n_out (collector)
+        BJT: (n_out, n_in, n_gnd)  [collector, base, emitter=gnd]
 
-        n_in ── C_in ── base
-
-    Returns
-    -------
-    (components, internal_nodes)
-        *components* is the list to add to the circuit.
-        *internal_nodes* is a dict with keys ``'base'``, ``'collector'``,
-        ``'emitter'`` holding the :class:`Node` objects created by
-        this helper (useful for attaching probes).
-
-    .. note::
-       You must create the nodes through the circuit's NodeManager
-       **before** calling this helper.  Pass them in via
-       ``n_vcc``, ``n_in``, ``n_out``, ``n_gnd``.  Internal base /
-       collector / emitter nodes are created automatically through
-       the same NodeManager — call the returned ``internal_nodes``
-       to obtain references.
+    Note: emitter connects directly to ground (no R_E) in this
+    simplified version.  For a full CE amp with R_E, use the
+    Circuit API directly.
     """
-    # We need internal nodes — caller is expected to get them from
-    # the NodeManager first, so we use the _NodeManager hack here.
-    # Instead, require them to be provided OR we take a NodeManager.
-    # For simplicity: require the caller to pass them.
-    raise _NeedInternalNodesError(
-        "ce_amplifier requires internal nodes. Use ce_amplifier_with_nodes() instead."
-    )
+    params = bjt_params or {}
+    if bjt_type.upper() == "NPN":
+        Q = _NPN(f"{prefix}_Q", (n_out, n_in, n_gnd), **params)
+    else:
+        Q = _PNP(f"{prefix}_Q", (n_out, n_in, n_gnd), **params)
 
-
-class _NeedInternalNodesError(Exception):
-    pass
+    return [
+        Resistor(f"{prefix}_Rc", (n_vcc, n_out), resistance=r_collector),
+        Resistor(f"{prefix}_Rb_top", (n_vcc, n_in), resistance=r_bias_top),
+        Resistor(f"{prefix}_Rb_bot", (n_in, n_gnd), resistance=r_bias_bottom),
+        Q,
+    ], {}
 
 
 def ce_amplifier_with_nodes(
@@ -793,11 +783,11 @@ def inverting_amplifier(
                   R_f
              ┌────┤────┐
              │         │
-        n_in ── R_in ──┤(−)      │
+        n_in ── R_in ──┤(-)      │
                        │   U  ├──┘── n_out
                    n_gnd──(+)
 
-    Gain ≈ ``−R_f / R_in``
+    Gain ≈ ``-R_f / R_in``
 
     Parameters
     ----------
@@ -854,7 +844,7 @@ def non_inverting_amplifier(
 
         n_in ──(+)       │
                    U  ├──┘── n_out
-               ┌──(−)       │
+               ┌──(-)       │
                │             │
                ├──── R_f ────┘
                │
@@ -914,7 +904,7 @@ def voltage_follower(
 
         n_in ──(+)       │
                    U  ├──┘── n_out
-               ┌──(−)       │
+               ┌──(-)       │
                └─────────────┘  (wire feedback)
 
     Gain = 1.  Very high input impedance, very low output impedance.
@@ -955,13 +945,13 @@ def summing_amplifier(
     ::
 
         n_1 ── R1 ──┐
-        n_2 ── R2 ──┤(−)      │
+        n_2 ── R2 ──┤(-)      │
         ...         │   U  ├──┘── n_out
                 n_gnd──(+)
-                (−)── R_f ── n_out
+                (-)── R_f ── n_out
 
     If all input resistors equal:
-    ``V_out ≈ −(R_f / R_in) · (V_1 + V_2 + … + V_N)``
+    ``V_out ≈ -(R_f / R_in) · (V_1 + V_2 + … + V_N)``
 
     Parameters
     ----------
@@ -1028,15 +1018,15 @@ def difference_amplifier(
 
     ::
 
-        n_in_neg ── R1 ──┤(−)          │
+        n_in_neg ── R1 ──┤(-)          │
                           │    U  ├─────┘── n_out
         n_in_pos ── R3 ──┤(+)          │
                           │             │
                          R2 ── GND      │
-                  (−)──── R_f ──────────┘
+                  (-)──── R_f ──────────┘
 
     When ``R1 = R3`` and ``R2 = R_f``:
-    ``V_out = (R_f / R1) · (V_pos − V_neg)``
+    ``V_out = (R_f / R1) · (V_pos - V_neg)``
 
     Parameters
     ----------
@@ -1101,11 +1091,11 @@ def integrator(
                   C_f
              ┌────┤────┐
              │         │
-        n_in ── R_in ──┤(−)      │
+        n_in ── R_in ──┤(-)      │
                        │   U  ├──┘── n_out
                    n_gnd──(+)
 
-    ``V_out(t) = −(1/RC) ∫ V_in dt``
+    ``V_out(t) = -(1/RC) ∫ V_in dt``
 
     Parameters
     ----------
@@ -1163,11 +1153,11 @@ def differentiator(
                   R_f
              ┌────┤────┐
              │         │
-        n_in ── C_in ──┤(−)      │
+        n_in ── C_in ──┤(-)      │
                        │   U  ├──┘── n_out
                    n_gnd──(+)
 
-    ``V_out(t) = −R_f · C · dV_in/dt``
+    ``V_out(t) = -R_f · C · dV_in/dt``
 
     Parameters
     ----------
@@ -1226,7 +1216,7 @@ def voltage_comparator(
 
         n_in  ——(+)        │
                     C  ├──────── n_out
-        n_ref ——(−)        │
+        n_ref ——(-)        │
 
     * ``V_out = V_high`` when ``V_in > V_ref``
     * ``V_out = V_low``  when ``V_in < V_ref``

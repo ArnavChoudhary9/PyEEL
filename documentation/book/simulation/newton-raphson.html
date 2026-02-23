@@ -129,7 +129,7 @@
                         <a href="https://github.com/ArnavChoudhary9/PyEEL" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/md/simulation/newton-raphson.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/ArnavChoudhary9/PyEEL/edit/main/documentation/src/simulation/newton-raphson.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -166,7 +166,7 @@ non-linear device equations until the solution converges.</p>
 <pre><code>x = x_initial (previous time-step solution)
 for iteration = 1, 2, …, max_iterations:
     1. Build A, b with components stamped at current x
-    2. Solve:  Δx = A⁻¹ b − x
+    2. Solve:  Δx = A⁻¹ b - x
     3. Apply damping:  x_new = x + α · Δx
     4. Check convergence:
        - |Δx| &lt; abs_tolerance  AND

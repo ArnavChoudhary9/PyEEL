@@ -50,6 +50,12 @@
 - [Newton–Raphson Solver](simulation/newton-raphson.md)
 - [DC Operating Point](simulation/dc-operating-point.md)
 - [Transient Analysis](simulation/transient.md)
+- [AC Analysis](simulation/ac-analysis.md)
+- [Noise Analysis](simulation/noise-analysis.md)
+- [Monte Carlo](simulation/monte-carlo.md)
+- [Parameter Sweep](simulation/parameter-sweep.md)
+- [Event Detection](simulation/event-detection.md)
+- [Harmonic Balance](simulation/harmonic-balance.md)
 - [Convergence Helpers](simulation/convergence.md)
 
 ---
@@ -59,6 +65,7 @@
 - [Probes](visualization/probes.md)
 - [Live Plotting](visualization/live-plotting.md)
 - [Live Simulation](visualization/live-simulation.md)
+- [Static Plotting](visualization/plotting.md)
 
 ---
 
@@ -77,6 +84,9 @@
 - [Linear Power Supply](examples/linear-power-supply.md)
 - [Series LCR](examples/lcr.md)
 - [Transformer](examples/transformer.md)
+- [AC Analysis](examples/ac-analysis.md)
+- [Monte Carlo](examples/monte-carlo.md)
+- [Event Detection](examples/event-detection.md)
 
 ---
 

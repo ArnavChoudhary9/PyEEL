@@ -33,14 +33,6 @@ Probes:
 """
 
 from PyEEL import *
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.Components import Resistor
-from PyEEL.Components.Transformer import Transformer
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
-from PyEEL.Probe import VoltageProbe, CurrentProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
 
 # ── transformer parameters ──────────────────────────────────────────
 TURNS_RATIO   = 48          # 240 V / 5 V

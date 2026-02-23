@@ -57,6 +57,7 @@ class Circuit:
     __dc_solved: bool
     __step_count: int
     _has_nonlinear: bool
+    _initial_guesses: dict[int, float]  # node_index → voltage
 
     def __init__(self, solver: LinearSolver,
                  config: SimulationConfig | None = None):
@@ -72,6 +73,8 @@ class Circuit:
         self.__dc_solved = False
         self.__step_count = 0
         self._has_nonlinear = False
+        self._initial_guesses: dict[int, float] = {}
+        self._event_detector = None  # EventDetector | None
 
         # Initialised in Finalize()
         self._system_builder: MNASystemBuilder | None = None
@@ -129,6 +132,35 @@ class Circuit:
         """Attach a measurement probe (can be done before or after finalize)."""
         self._Probes.append(probe)
 
+    def SetEventDetector(self, detector) -> None:
+        """Attach an :class:`EventDetector` to the simulation loop."""
+        self._event_detector = detector
+
+    def SetInitialGuess(self, node, voltage: float) -> None:
+        """
+        Set an initial node-voltage guess for the DC operating point.
+
+        Parameters
+        ----------
+        node : Node
+            A node previously created via ``NodeManager.AddNode``.
+        voltage : float
+            Initial guess voltage (V).
+
+        The guess is injected as the starting point for the DC solver's
+        Newton-Raphson iteration, improving convergence for circuits that
+        are sensitive to initial conditions.
+        """
+        from ..Core.Node import Node as NodeCls
+        if not isinstance(node, NodeCls):
+            raise TypeError(f"Expected a Node, got {type(node).__name__}")
+        if node.Index is None:
+            raise ValueError("Cannot set initial guess for ground node.")
+        self._initial_guesses[node.Index] = voltage
+
+    def GetSolution(self) -> np.ndarray | None:
+        """Return the most recent solution vector, or ``None`` if unsolved."""
+        return self.__x_prev
     def Finalize(self) -> None:
         """
         Freeze the topology, register auxiliary unknowns, run topology
@@ -151,6 +183,7 @@ class Circuit:
             Mode=SimulationMode.TRANSIENT, Time=0.0, dt=0.0,
             integration_method=self._config.integration_method,
             gmin=self._config.gmin,
+            temperature=self._config.temperature,
         )
 
         # Topology sanity checks
@@ -182,9 +215,22 @@ class Circuit:
         dc_solver = DCOperatingPointSolver(
             self._Components, self._NodeManager,
             self._Solver, self._config, self._has_nonlinear,
+            initial_guesses=self._initial_guesses,
         )
 
         x_dc = dc_solver.solve()
+
+        # Inject capacitor / inductor initial conditions
+        from ..Components.Passive.Capacitor import Capacitor as _Cap
+        from ..Components.Passive.Inductor import Inductor as _Ind
+        for comp in self._Components:
+            if isinstance(comp, _Cap) and comp.InitialVoltage is not None:
+                n1 = comp.Nodes[0].Index
+                n2 = comp.Nodes[1].Index
+                v_ic = comp.InitialVoltage
+                if n1 is not None:
+                    x_dc[n1] = v_ic + (x_dc[n2] if n2 is not None else 0.0)
+
         self.__x_prev = x_dc.copy()
         self.__dc_solved = True
 
@@ -200,6 +246,207 @@ class Circuit:
 
         logger.info("DC operating point complete.")
         return x_dc
+
+    # ── AC analysis ─────────────────────────────────────────────────
+    def RunAC(
+        self,
+        f_start: float,
+        f_stop: float,
+        num_points: int = 100,
+        *,
+        input_source_name: str | None = None,
+        output_node_index: int | None = None,
+        input_node_index: int | None = None,
+        log_scale: bool = True,
+    ):
+        """
+        Perform a small-signal AC frequency sweep.
+
+        The circuit must be finalized.  If the DC operating point has
+        not yet been solved, it is computed automatically.
+
+        Returns an :class:`ACResult` with ``frequencies``,
+        ``magnitude_dB``, ``phase_deg``, and ``complex_response``.
+        """
+        from ..Solver.ACAnalysis import ACAnalysis
+
+        if not self._Finalized:
+            raise RuntimeError("Circuit must be finalized first.")
+        if self.__x_prev is None:
+            self.SolveDCOperatingPoint()
+
+        ac = ACAnalysis(
+            self._Components, self._NodeManager, self._config, self.__x_prev,
+        )
+        return ac.sweep(
+            f_start, f_stop, num_points,
+            input_source_name=input_source_name,
+            output_node_index=output_node_index,
+            input_node_index=input_node_index,
+            log_scale=log_scale,
+        )
+
+    # ── noise analysis ──────────────────────────────────────────────
+    def RunNoise(
+        self,
+        f_start: float,
+        f_stop: float,
+        num_points: int = 100,
+        *,
+        output_node_index: int,
+        log_scale: bool = True,
+    ):
+        """
+        Perform a noise analysis over a frequency sweep.
+
+        Computes output-referred noise spectral density (V²/Hz),
+        integrated RMS noise, and per-component breakdown.
+
+        Returns a :class:`NoiseResult`.
+        """
+        from ..Solver.NoiseAnalysis import NoiseAnalysis
+
+        if not self._Finalized:
+            raise RuntimeError("Circuit must be finalized first.")
+        if self.__x_prev is None:
+            self.SolveDCOperatingPoint()
+
+        na = NoiseAnalysis(
+            self._Components, self._NodeManager, self._config, self.__x_prev,
+        )
+        return na.analyze(
+            f_start, f_stop, num_points,
+            output_node_index=output_node_index,
+            log_scale=log_scale,
+        )
+
+    def RunMonteCarlo(
+        self,
+        tolerances: list[tuple] | None = None,
+        *,
+        num_runs: int = 100,
+        measure=None,
+        seed: int | None = None,
+    ):
+        """
+        Run a Monte Carlo analysis.
+
+        Parameters
+        ----------
+        tolerances : list of (component, param_name, Tolerance)
+            Each entry specifies a component, the parameter name
+            (e.g. ``"Resistance"``), and a :class:`Tolerance`.
+            If ``None``, use ``add_tolerance`` on the returned
+            :class:`MonteCarlo` object instead.
+        num_runs : int
+            Number of random trials (default 100).
+        measure : callable, optional
+            ``measure(circuit, x_dc) -> float`` extracts the metric
+            from each run.
+        seed : int | None
+            Random seed for reproducibility.
+
+        Returns
+        -------
+        MonteCarloResult
+        """
+        from .MonteCarlo import MonteCarlo
+
+        if not self._Finalized:
+            raise RuntimeError("Circuit must be finalized first.")
+
+        mc = MonteCarlo(self)
+        if tolerances:
+            for comp, param, tol in tolerances:
+                mc.add_tolerance(comp, param, tol)
+        return mc.run(num_runs, measure=measure, seed=seed)
+
+    def RunSweep(
+        self,
+        parameters: list[tuple] | None = None,
+        *,
+        measure=None,
+    ):
+        """
+        Run a parameter sweep.
+
+        Parameters
+        ----------
+        parameters : list of (component, param_name, start, stop, num)
+            or (component, param_name, values_list).
+        measure : callable, optional
+            ``measure(circuit, x_dc) -> float``.
+
+        Returns
+        -------
+        SweepResult
+        """
+        from .ParameterSweep import ParameterSweep
+
+        if not self._Finalized:
+            raise RuntimeError("Circuit must be finalized first.")
+
+        ps = ParameterSweep(self)
+        if parameters:
+            for entry in parameters:
+                comp, param = entry[0], entry[1]
+                rest = entry[2:]
+                if len(rest) == 1 and hasattr(rest[0], '__iter__'):
+                    ps.add_parameter_list(comp, param, rest[0])
+                elif len(rest) == 3:
+                    start, stop, num = rest
+                    ps.add_parameter(comp, param,
+                                     start=start, stop=stop, num=num)
+                elif len(rest) == 2:
+                    start, stop = rest
+                    ps.add_parameter(comp, param, start=start, stop=stop)
+                else:
+                    raise ValueError(f"Bad sweep spec: {entry}")
+        return ps.run(measure=measure)
+
+    def RunHarmonicBalance(
+        self,
+        fundamental: float,
+        *,
+        num_harmonics: int = 7,
+        max_iter: int = 200,
+        tol: float = 1e-6,
+    ):
+        """
+        Run a Harmonic Balance analysis.
+
+        Finds the periodic steady state of a nonlinear circuit
+        driven at *fundamental* Hz.
+
+        Parameters
+        ----------
+        fundamental : float
+            Fundamental frequency in Hz.
+        num_harmonics : int
+            Number of harmonics (default 7).
+        max_iter : int
+            Maximum Newton iterations.
+        tol : float
+            Convergence tolerance.
+
+        Returns
+        -------
+        HBResult
+        """
+        from ..Solver.HarmonicBalance import HarmonicBalance
+
+        if not self._Finalized:
+            raise RuntimeError("Circuit must be finalized first.")
+        if self.__x_prev is None:
+            self.SolveDCOperatingPoint()
+
+        hb = HarmonicBalance(
+            self._Components, self._NodeManager, self._config, self.__x_prev,
+        )
+        return hb.solve(
+            fundamental, num_harmonics=num_harmonics,
+            max_iter=max_iter, tol=tol,
+        )
 
     # ── simulation ──────────────────────────────────────────────────
     def Simulate(self, dt: float) -> np.ndarray:
@@ -220,10 +467,21 @@ class Circuit:
         assert self._system_builder is not None
         assert self._nr_solver is not None
 
-        # 1. Clamp dt
         dt = self._adaptive.clamp(dt)
+        self._ensure_initial_solution()
+        ctx = self._prepare_context(dt)
+        solution = self._solve_step(ctx)
+        self._update_components(solution, ctx)
+        self._check_energy()
+        self._adaptive.update(dt, solution, ctx.x_prev)
+        self._record(solution, dt)
+        self._detect_events(solution, ctx)
 
-        # 2. DC operating point on first call
+        return solution
+
+    # ── private simulation helpers ──────────────────────────────────
+    def _ensure_initial_solution(self) -> None:
+        """Compute DC operating point on first call if needed."""
         if self.__x_prev is None and not self.__dc_solved:
             if self._config.dc_operating_point:
                 self.SolveDCOperatingPoint()
@@ -232,7 +490,8 @@ class Circuit:
                 self.__x_prev = np.zeros(n)
                 self.__dc_solved = True
 
-        # 3. Prepare context
+    def _prepare_context(self, dt: float) -> SimulationContext:
+        """Fill the reusable context with current step parameters."""
         ctx = self._context
         ctx.Mode = SimulationMode.TRANSIENT
         ctx.Time = self.__T
@@ -242,30 +501,32 @@ class Circuit:
         ctx.integration_method = self._config.integration_method
         ctx.gmin = self._config.gmin
         ctx.source_factor = 1.0
+        return ctx
 
-        # 4. Solve
+    def _solve_step(self, ctx: SimulationContext) -> np.ndarray:
+        """Run the linear or Newton-Raphson solver for one step."""
         if self._has_nonlinear:
-            solution = self._nr_solver.solve(ctx)
-        else:
-            A, b = self._system_builder.build(ctx)
-            solution = self._Solver.Solve(A, b)
+            return self._nr_solver.solve(ctx)
+        A, b = self._system_builder.build(ctx)
+        return self._Solver.Solve(A, b)
 
-        # 5. Update component state
+    def _update_components(self, solution: np.ndarray,
+                           ctx: SimulationContext) -> None:
+        """Push the new solution into every component's state."""
         for component in self._Components:
             component.UpdateState(solution, ctx)
 
-        # 6. Periodic energy sanity check
+    def _check_energy(self) -> None:
+        """Periodic energy-conservation sanity check."""
         if (self._config.energy_check
                 and self.__step_count % 100 == 0
                 and self.__step_count > 0):
             EnergyChecker.check(
-                self._Components, solution, self._config.max_energy,
+                self._Components, self.__x_prev, self._config.max_energy,
             )
 
-        # 7. Adaptive timestep recommendation
-        self._adaptive.update(dt, solution, ctx.x_prev)
-
-        # 8. Record
+    def _record(self, solution: np.ndarray, dt: float) -> None:
+        """Advance clock, store solution, and record probe data."""
         self.__x_prev = solution.copy()
         self.__T += dt
         self.__step_count += 1
@@ -273,4 +534,8 @@ class Circuit:
         for probe in self._Probes:
             probe.Record(self.__T, solution)
 
-        return solution
+    def _detect_events(self, solution: np.ndarray,
+                       ctx: SimulationContext) -> None:
+        """Run event detector if attached."""
+        if self._event_detector is not None:
+            self._event_detector.check(solution, self.__T, ctx)

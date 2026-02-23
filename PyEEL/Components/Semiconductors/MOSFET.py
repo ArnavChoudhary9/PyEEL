@@ -69,6 +69,8 @@ class MOSFET(Component):
         Kp: float = 2e-5,
         Vth: float = 1.0,
         lambda_: float = 0.0,
+        Tnom: float = 300.15,
+        Vth_tc: float = -2e-3,
     ):
         if Kp <= 0:
             raise ValueError(f"MOSFET '{name}': Kp must be positive, got {Kp}")
@@ -83,6 +85,8 @@ class MOSFET(Component):
         self._Kp = Kp
         self._Vth = Vth
         self._lambda = lambda_
+        self._Tnom = Tnom
+        self._Vth_tc = Vth_tc
         self._type = mosfet_type
         self._polarity = mosfet_type.value
 
@@ -111,6 +115,20 @@ class MOSFET(Component):
     def RegisterUnknowns(self, nodeManager: NodeManager) -> None:
         pass
 
+    # ── temperature ──────────────────────────────────────────────────────
+    def _effective_params(self, T: float) -> tuple[float, float]:
+        """Return ``(Kp_eff, Vth_eff)`` at temperature *T* (kelvin).
+
+        Mobility degradation: Kp(T) = Kp(Tnom) · (T/Tnom)^(-1.5)
+        Threshold shift: Vth(T) = Vth(Tnom) + Vth_tc · (T - Tnom)
+        """
+        if abs(T - self._Tnom) < 0.01:
+            return self._Kp, self._Vth
+        ratio = T / self._Tnom
+        Kp_eff = self._Kp * (ratio ** (-1.5))
+        Vth_eff = self._Vth + self._Vth_tc * (T - self._Tnom)
+        return Kp_eff, Vth_eff
+
     # ── helpers ─────────────────────────────────────────────────────
     def _node_voltage(self, solutionVector: np.ndarray | None, idx: int) -> float:
         if solutionVector is None:
@@ -129,10 +147,12 @@ class MOSFET(Component):
         Vds = p * (vd - vs)
         return Vgs, Vds
 
-    def _evaluate(self, Vgs: float, Vds: float) -> tuple[float, float, float]:
+    def _evaluate(self, Vgs: float, Vds: float,
+                  Kp: float | None = None,
+                  Vth: float | None = None) -> tuple[float, float, float]:
         """Evaluate drain current, gm, gds.  Returns ``(Id, gm, gds)``."""
-        Kp = self._Kp
-        Vth = self._Vth
+        Kp = Kp if Kp is not None else self._Kp
+        Vth = Vth if Vth is not None else self._Vth
         lam = self._lambda
         Vov = Vgs - Vth
 
@@ -164,13 +184,16 @@ class MOSFET(Component):
     # ── stamp ───────────────────────────────────────────────────────
     def Stamp(self, A: np.ndarray, b: np.ndarray,
               context: SimulationContext) -> None:
+        # Temperature-adjusted parameters
+        Kp_eff, Vth_eff = self._effective_params(context.temperature)
+
         if context.x_current is not None:
             Vgs0, Vds0 = self._get_voltages(context.x_current)
         else:
             Vgs0 = self._vgs_prev
             Vds0 = self._vds_prev
 
-        Id0, gm, gds = self._evaluate(Vgs0, Vds0)
+        Id0, gm, gds = self._evaluate(Vgs0, Vds0, Kp=Kp_eff, Vth=Vth_eff)
 
         Ieq = Id0 - gm * Vgs0 - gds * Vds0
 

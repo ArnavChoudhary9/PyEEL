@@ -1,100 +1,63 @@
 """
-PyEEL — Voltage-Controlled Sources Demo (VCVS & VCCS)
-=======================================================
-Demonstrates both voltage-controlled dependent sources in one circuit.
+PyEEL - Series LCR Circuit Demo
+=================================
+Demonstrates a series LCR circuit driven by an AC source.
 
 Topology::
 
-                     ┌──────── VCVS (E1, gain=3) ───────┐
-                     │  ctrl: (n1, GND)                 │
-    V1 (1 V, 100 Hz) │ out:  (n_e, GND)                 │
-     │               │                                  │
-    (n1)──R1 (1 kΩ)──GND    (n_e)──R_e (1 kΩ)──GND      │
-                                                        │
-                     ┌──────── VCCS (G1, gm=2 mS) ──────┘
-                     │  ctrl: (n1, GND)
-                     │  out:  (GND, n_g)  — current into n_g
-                     │
-                     (n_g)──R_g (2 kΩ)──GND
+    V1 (AC 5 V, 5 Hz)
+     ├──(n1)── L1 0.1 H ──(n2)── C1 0.01 F ──(n3)── R1 1 Ω ──(GND)
 
-**VCVS (E1)** — voltage gain μ = 3
-  V(n_e) = 3 × V(n1)
-  With V1 = 1 V peak at 100 Hz and R1 as load:
-    V(n1) = 1 V peak → V(n_e) = 3 V peak.
+Resonant frequency  f₀ = 1/(2π√LC) ≈ 5.03 Hz  (≈ drive frequency)
+Quality factor       Q  = (1/R)·√(L/C) ≈ 3.16
 
-**VCCS (G1)** — transconductance g = 2 mS
-  I_out = 2e-3 × V(n1) = 2 mA peak
-  Across R_g = 2 kΩ: V(n_g) = I_out × R_g = 4 V peak.
-
-Probes
-------
-  • V(n1)   — input voltage (1 V sine)
-  • V(n_e)  — VCVS output (3× input)
-  • V(n_g)  — VCCS output across R_g (4 V peak)
+Probes:
+  • V(n1)  — source voltage
+  • V(n2)  — voltage after inductor (across C + R)
+  • V(n3)  — voltage across resistor
+  • I(L1)  — series current (same everywhere in the loop)
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
-from PyEEL.Components.Sources.DependentSources import VCVS, VCCS
-from PyEEL.Probe import VoltageProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
-# ── config ───────────────────────────────────────────────────────────
-config = SimulationConfig(dc_operating_point=True, gmin=1e-12)
+# ── build circuit ───────────────────────────────────────────────────
+ckt = Circuit(solver=NumpySolver())
 
-ckt = Circuit(solver=NumpySolver(), config=config)
 nm  = ckt.NodeManager
 gnd = nm.GroundNode
+n1  = nm.AddNode("n1")
+n2  = nm.AddNode("n2")
+n3  = nm.AddNode("n3")
 
-n1   = nm.AddNode("n1")      # input node
-n_e  = nm.AddNode("n_e")     # VCVS output
-n_g  = nm.AddNode("n_g")     # VCCS output
+#  V1 ──(n1)── L1 ──(n2)── C1 ──(n3)── R1 ──(gnd)
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5.0, frequency=5.0))
+ckt.AddComponent(l := Inductor("L1", (n1, n2), inductance=0.1))
+ckt.AddComponent(Capacitor("C1", (n2, n3), capacitance=0.01))
+ckt.AddComponent(Resistor("R1", (n3, gnd), resistance=1.0))
 
-# ── input source & load ─────────────────────────────────────────────
-ckt.AddComponent(ACVoltageSource("V1", (n1, gnd),
-                                  amplitude=1.0, frequency=100.0))
+# ── probes ──────────────────────────────────────────────────────────
+v_n1 = VoltageProbe("V(n1)", n1)            # source voltage
+v_n2 = VoltageProbe("V(n2)", n2)            # after inductor
+v_n3 = VoltageProbe("V(n3)", n3)            # across R (= V_R)
+i_l1 = CurrentProbe("I(L1)", l)             # series current
 
-# ── VCVS: E1, gain = 3 V/V ──────────────────────────────────────────
-#   Controls on V(n1, GND); output between n_e and GND.
-ckt.AddComponent(VCVS("E1", out_nodes=(n_e, gnd),
-                       ctrl_nodes=(n1, gnd), gain=3.0))
-# Load on VCVS output (so current can flow)
-ckt.AddComponent(Resistor("R_e", (n_e, gnd), resistance=1e3))
+ckt.AddProbe(v_n1)
+ckt.AddProbe(v_n2)
+ckt.AddProbe(v_n3)
+ckt.AddProbe(i_l1)
 
-# ── VCCS: G1, transconductance = 2 mS ───────────────────────────────
-#   Controls on V(n1, GND); output current into n_g.
-#   out_nodes=(gnd, n_g) so that output current enters n_g,
-#   giving V(n_g) = +gm × V_ctrl × R_g  (non-inverting).
-ckt.AddComponent(VCCS("G1", out_nodes=(gnd, n_g),
-                       ctrl_nodes=(n1, gnd), transconductance=2e-3))
-# Load converts output current to a voltage
-ckt.AddComponent(Resistor("R_g", (n_g, gnd), resistance=2e3))
-
-# ── probes ───────────────────────────────────────────────────────────
-v_in = VoltageProbe("V(input)", n1)
-v_e  = VoltageProbe("V(VCVS)",  n_e)
-v_g  = VoltageProbe("V(VCCS)",  n_g)
-
-ckt.AddProbe(v_in)
-ckt.AddProbe(v_e)
-ckt.AddProbe(v_g)
-
-# ── simulate ─────────────────────────────────────────────────────────
 ckt.Finalize()
 
+# ── live plotter ────────────────────────────────────────────────────
+# Subplot 1: voltages at each node overlaid
+# Subplot 2: currents through L and R overlaid
 plotter = LivePlotter(
-    [v_in, v_e, v_g],   # all three waveforms overlaid
-    window=30e-3,        # 3 full cycles at 100 Hz
+    [v_n1, v_n2, v_n3],     # subplot 1 — voltages
+    [i_l1],                 # subplot 2 — currents
+    window=1.0,             # show the last 1 second of data
 )
 
-sim = LiveSimulation(
-    ckt, plotter,
-    dt=5e-5,             # 200 samples per cycle
-    speed=100,
-)
-
+# ── run ─────────────────────────────────────────────────────────────
+# Press Space on the plot window to pause / resume.
+sim = LiveSimulation(ckt, plotter, dt=0.0005, speed=60)
 sim.Run()

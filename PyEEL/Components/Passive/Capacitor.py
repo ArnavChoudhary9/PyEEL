@@ -28,20 +28,27 @@ class Capacitor(Component):
 
     _Capacitance: float
 
-    def __init__(self, name: str, nodes: tuple[Node, Node], capacitance: float):
+    def __init__(self, name: str, nodes: tuple[Node, Node], capacitance: float,
+                 *, initial_voltage: float | None = None):
         if capacitance <= 0:
             raise ValueError(
                 f"Capacitor '{name}': capacitance must be positive, got {capacitance}."
             )
         super().__init__(name, nodes)
         self._Capacitance = capacitance
-        self._v_prev = 0.0
+        self._initial_voltage = initial_voltage
+        self._v_prev = initial_voltage if initial_voltage is not None else 0.0
         self._current = 0.0
 
     @property
     def Capacitance(self) -> float:
         """Capacitance in farads (F)."""
         return self._Capacitance
+
+    @property
+    def InitialVoltage(self) -> float | None:
+        """User-specified initial voltage (V), or ``None``."""
+        return self._initial_voltage
 
     # ── MNA interface ───────────────────────────────────────────────
     def RegisterUnknowns(self, nodeManager: NodeManager) -> None:

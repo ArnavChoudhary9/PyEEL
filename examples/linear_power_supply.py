@@ -39,14 +39,7 @@ Probes:
   • V(dc+) — rectified + filtered DC output
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor, Capacitor, Diode, Transformer
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
-from PyEEL.Probe import VoltageProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
 # ── configuration ───────────────────────────────────────────────────
 config = SimulationConfig(

@@ -31,29 +31,21 @@ How the clipping works
 **Negative half-cycle** (V_in < 0):
 
   DZ1 is forward biased like a normal diode.  Once V(n_out) drops
-  below **≈ −0.7 V** the Zener conducts in the forward direction,
-  clamping the output at ~−0.7 V.
+  below **≈ -0.7 V** the Zener conducts in the forward direction,
+  clamping the output at ~-0.7 V.
 
-The result is a waveform clipped between **−0.7 V** and **+5 V** —
+The result is a waveform clipped between **-0.7 V** and **+5 V** —
 an asymmetric clipper / half-wave-like rectifier with a defined
 upper breakdown threshold.
 
 Probes
 ------
   • V(n_in)  — original ±10 V sine wave (input)
-  • V(n_out) — clipped output: flat top at +5 V, flat bottom at −0.7 V
+  • V(n_out) — clipped output: flat top at +5 V, flat bottom at -0.7 V
   • I(DZ1)   — Zener current (positive = forward, negative = breakdown)
 """
 
-from PyEEL.Circuit import Circuit
-from PyEEL.Solver.Solver import NumpySolver
-from PyEEL.SimulationContext import SimulationConfig
-from PyEEL.Components import Resistor
-from PyEEL.Components.ZenerDiode import ZenerDiode
-from PyEEL.Components.Sources.VoltageSource import ACVoltageSource
-from PyEEL.Probe import VoltageProbe, CurrentProbe
-from PyEEL.LivePlotter import LivePlotter
-from PyEEL.LiveSimulation import LiveSimulation
+from PyEEL import *
 
 # ── simulation config ────────────────────────────────────────────────
 config = SimulationConfig(
@@ -78,7 +70,7 @@ ckt.AddComponent(Resistor("R_series", (n_in, n_out), resistance=1e3))
 
 # ── Zener clamp: cathode = n_out, anode = GND
 #    Breakdown (reverse) at +5 V  →  clamps positive peaks at +5 V
-#    Forward conduction at ~−0.7 V →  clamps negative peaks at −0.7 V
+#    Forward conduction at ~-0.7 V →  clamps negative peaks at -0.7 V
 ckt.AddComponent(dz1 := ZenerDiode("DZ1", (gnd, n_out),
                                     Vz=5.0, Ibv=10e-3, n_bv=0.5))
 

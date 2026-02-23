@@ -31,20 +31,27 @@ class Inductor(Component):
     # ── DC short-circuit conductance ────────────────────────────────
     _DC_SHORT_RESISTANCE: float = 1e-9  # 1 nΩ — effectively a short
 
-    def __init__(self, name: str, nodes: tuple[Node, Node], inductance: float):
+    def __init__(self, name: str, nodes: tuple[Node, Node], inductance: float,
+                 *, initial_current: float | None = None):
         if inductance <= 0:
             raise ValueError(
                 f"Inductor '{name}': inductance must be positive, got {inductance}."
             )
         super().__init__(name, nodes)
         self._Inductance = inductance
-        self._i_prev = 0.0
-        self._current = 0.0
+        self._initial_current = initial_current
+        self._i_prev = initial_current if initial_current is not None else 0.0
+        self._current = self._i_prev
 
     @property
     def Inductance(self) -> float:
         """Inductance in henrys (H)."""
         return self._Inductance
+
+    @property
+    def InitialCurrent(self) -> float | None:
+        """User-specified initial current (A), or ``None``."""
+        return self._initial_current
 
     # ── MNA interface ───────────────────────────────────────────────
     def RegisterUnknowns(self, nodeManager: NodeManager) -> None:
@@ -86,6 +93,25 @@ class Inductor(Component):
         i_new = G_eq * v + self._i_prev
         self._current = i_new
         self._i_prev = i_new
+
+    # ── public current properties (used by MutualCoupling) ─────────
+    @property
+    def Current(self) -> float:
+        """Current inductor current (A)."""
+        return self._current
+
+    @Current.setter
+    def Current(self, value: float) -> None:
+        self._current = value
+
+    @property
+    def PreviousCurrent(self) -> float:
+        """Previous step inductor current (A)."""
+        return self._i_prev
+
+    @PreviousCurrent.setter
+    def PreviousCurrent(self, value: float) -> None:
+        self._i_prev = value
 
     # ── query helpers ───────────────────────────────────────────────
     def GetCurrent(self, solutionVector: np.ndarray) -> float:

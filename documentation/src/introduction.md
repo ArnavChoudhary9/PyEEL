@@ -16,7 +16,7 @@ design.
 | **Magnetic coupling** | Coupled inductors, ideal transformers |
 | **Dependent sources** | VCVS, VCCS, CCVS, CCCS |
 | **Live visualisation** | Real-time animated plots with `LiveSimulation` |
-| **Pre-built library** | 55+ real-world components with datasheet parameters |
+| **Pre-built library** | 165+ real-world components with datasheet parameters |
 
 ## Project Layout
 
@@ -28,8 +28,8 @@ PyEEL/
 │   ├── Semiconductors/    # Diode, ZenerDiode, BJT, MOSFET
 │   ├── Magnetic/          # MutualCoupling, Transformer
 │   ├── Sources/           # VoltageSource, DependentSources, Waveform
-│   ├── common.py          # Circuit-topology factory helpers
-│   └── library.py         # Pre-built real-world parts
+│   ├── common/            # Circuit-topology factory helpers
+│   └── library/           # Pre-built real-world parts (typed)
 ├── Solver/                # MNA builder, Newton–Raphson, DC OP
 ├── Simulation/            # Circuit engine, adaptive timestep
 └── Visualization/         # Probes, LivePlotter, LiveSimulation

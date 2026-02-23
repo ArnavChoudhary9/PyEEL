@@ -72,6 +72,10 @@ def DCVoltageSource(name: str, nodes: tuple[Node, Node],
 
 
 def ACVoltageSource(name: str, nodes: tuple[Node, Node],
-                    amplitude: float, frequency: float) -> VoltageSource:
-    """Create a sinusoidal (AC) voltage source."""
-    return VoltageSource(name, nodes, SineWave(frequency, amplitude))
+                    amplitude: float, frequency: float,
+                    *, dc_offset: float = 0.0,
+                    phase: float = 0.0) -> VoltageSource:
+    """Create a sinusoidal (AC) voltage source with optional DC bias."""
+    return VoltageSource(name, nodes, SineWave(frequency, amplitude,
+                                                phase=phase,
+                                                dc_offset=dc_offset))
