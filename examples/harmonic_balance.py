@@ -66,6 +66,7 @@ def main():
         print(f"  {label:>3s}  {freq:>10.0f} Hz   {mag:.4f} V")
 
     # ── plot harmonic spectrum ──────────────────────────────────────
+    assert n_out.Index is not None
     plot_harmonic_spectrum(hb_result, node_index=n_out.Index)
 
 

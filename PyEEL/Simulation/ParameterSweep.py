@@ -163,8 +163,9 @@ class ParameterSweep:
             raise RuntimeError("At most 2 nested sweep parameters are supported.")
 
         if measure is None:
-            def measure(c, x):
+            def _default_measure(c, x):
                 return float(np.max(np.abs(x)))
+            measure = _default_measure
 
         ckt = self._circuit
         sweep_values: dict[str, np.ndarray] = {}

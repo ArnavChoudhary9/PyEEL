@@ -139,10 +139,14 @@ class EventDetector:
 
         for spec in self._specs:
             if isinstance(spec, ZeroCrossing):
+                assert spec.name is not None
+                assert isinstance(spec.direction, CrossingDirection)
                 new_events.extend(self._check_crossing(
                     spec.name, x, time, spec.node.Index, 0.0, spec.direction,
                 ))
             elif isinstance(spec, ThresholdCrossing):
+                assert spec.name is not None
+                assert isinstance(spec.direction, CrossingDirection)
                 new_events.extend(self._check_crossing(
                     spec.name, x, time, spec.node.Index, spec.level,
                     spec.direction,

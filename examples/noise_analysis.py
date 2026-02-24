@@ -31,6 +31,7 @@ def main():
     ckt.Finalize()
 
     # ── run noise analysis ──────────────────────────────────────────
+    assert n_out.Index is not None
     noise_result = ckt.RunNoise(
         10.0, 100e3, 200,
         output_node_index=n_out.Index,

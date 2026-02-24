@@ -199,12 +199,12 @@ class HarmonicBalance:
             #    v(t_i) = sum_k V_hat[k] * exp(j*2*pi*k*i/N_t)
             v_time = np.zeros((N_t, N))
             for i in range(N_t):
-                v_time[i, :] = V_hat[0, :].real
+                v_time[i, :] = np.real(V_hat[0, :])
                 for k in range(1, K + 1):
                     phase = 2 * np.pi * k * i / N_t
                     v_time[i, :] += 2 * (
-                        V_hat[k, :].real * np.cos(phase)
-                        - V_hat[k, :].imag * np.sin(phase)
+                        np.real(V_hat[k, :]) * np.cos(phase)
+                        - np.imag(V_hat[k, :]) * np.sin(phase)
                     )
 
             # 2. Evaluate nonlinear currents at each time point

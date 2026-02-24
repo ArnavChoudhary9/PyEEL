@@ -145,8 +145,9 @@ class MonteCarlo:
         param_samples: dict[str, np.ndarray] = {}
 
         if measure is None:
-            def measure(c, x):
+            def _default_measure(c, x):
                 return float(np.max(np.abs(x)))
+            measure = _default_measure
 
         # Save nominal values — prefer the public property (so setters fire).
         nominals: list[tuple[Component, str, float]] = []

@@ -51,6 +51,7 @@ from .Sources.VoltageSource import (
 
 # ── ICs ─────────────────────────────────────────────────────────────
 from .ICs.OpAmp import OpAmp
+from .ICs.Comparator import Comparator
 
 if TYPE_CHECKING:
     from .Component import Component
@@ -1255,13 +1256,13 @@ def schmitt_trigger(
     positive-feedback tap.
     """
     n_ni = node_manager.AddNode(f"{prefix}_ni")
-    hys_kw = {} if V_hys is None else {"V_hys": V_hys}
+    hys_kw: dict[str, float] = {} if V_hys is None else {"V_hys": V_hys}
     comps: list[Component] = [
         Resistor(f"{prefix}_Rupper", (n_out, n_ni), resistance=r_upper),
         Resistor(f"{prefix}_Rlower", (n_ni, n_ref), resistance=r_lower),
         Comparator(f"{prefix}_C", (n_ni, n_ref, n_out),
                    V_high=V_supply, V_low=0.0,
-                   R_in=R_in, R_out=R_out, **hys_kw),
+                   R_in=R_in, R_out=R_out, **hys_kw),  # type: ignore[arg-type]
     ]
     return comps, {"noninv_input": n_ni}
 

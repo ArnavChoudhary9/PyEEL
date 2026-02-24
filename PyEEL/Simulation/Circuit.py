@@ -275,6 +275,7 @@ class Circuit:
         if self.__x_prev is None:
             self.SolveDCOperatingPoint()
 
+        assert self.__x_prev is not None
         ac = ACAnalysis(
             self._Components, self._NodeManager, self._config, self.__x_prev,
         )
@@ -311,6 +312,7 @@ class Circuit:
         if self.__x_prev is None:
             self.SolveDCOperatingPoint()
 
+        assert self.__x_prev is not None
         na = NoiseAnalysis(
             self._Components, self._NodeManager, self._config, self.__x_prev,
         )
@@ -440,6 +442,7 @@ class Circuit:
         if self.__x_prev is None:
             self.SolveDCOperatingPoint()
 
+        assert self.__x_prev is not None
         hb = HarmonicBalance(
             self._Components, self._NodeManager, self._config, self.__x_prev,
         )
@@ -505,6 +508,8 @@ class Circuit:
 
     def _solve_step(self, ctx: SimulationContext) -> np.ndarray:
         """Run the linear or Newton-Raphson solver for one step."""
+        assert self._nr_solver is not None
+        assert self._system_builder is not None
         if self._has_nonlinear:
             return self._nr_solver.solve(ctx)
         A, b = self._system_builder.build(ctx)
@@ -520,7 +525,8 @@ class Circuit:
         """Periodic energy-conservation sanity check."""
         if (self._config.energy_check
                 and self.__step_count % 100 == 0
-                and self.__step_count > 0):
+                and self.__step_count > 0
+                and self.__x_prev is not None):
             EnergyChecker.check(
                 self._Components, self.__x_prev, self._config.max_energy,
             )

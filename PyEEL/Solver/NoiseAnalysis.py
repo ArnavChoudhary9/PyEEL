@@ -252,6 +252,7 @@ class NoiseAnalysis:
         # Integrate (trapezoidal) to get total RMS noise
         if len(freqs) > 1:
             _trapz = getattr(np, 'trapezoid', getattr(np, 'trapz', None))
+            assert _trapz is not None, "numpy has no trapezoid/trapz function"
             integrated = float(_trapz(total_noise, freqs))
             vrms = float(np.sqrt(max(integrated, 0.0)))
         else:
