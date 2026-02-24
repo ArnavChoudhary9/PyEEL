@@ -1,6 +1,6 @@
 # PyEEL
 
-**P**ython **E**lectrical **E**ngineering **L**ibrary — A fast, interactive circuit simulator with real-time visualization.
+**Py**thon **E**lectrical **E**ngineering **L**ibrary — A fast, interactive circuit simulator with real-time visualization.
 
 PyEEL implements **Modified Nodal Analysis (MNA)** — the same technique used in SPICE — to solve linear electrical circuits in the time domain. It's designed for education, prototyping, and interactive exploration of circuit dynamics.
 
