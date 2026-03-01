@@ -94,17 +94,18 @@ ckt.AddProbe(i_c)
 # ── simulate ────────────────────────────────────────────────────────
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [v_in, v_out],           # subplot 1: input vs amplified output
-    [v_base],                # subplot 2: base DC bias + AC ripple
-    [i_c],                   # subplot 3: collector current
-    window=5e-3,             # show last 5 ms (5 cycles at 1 kHz)
+scope = Scope(
+    [v_in, v_out],           # CH1-2: input vs amplified output
+    [v_base],                # CH3:   base DC bias + AC ripple
+    [i_c],                   # CH4:   collector current
+    window=5e-3,
+    title="Common-Emitter BJT Amplifier",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
-    dt=5e-6,                 # 5 µs step → 200 samples per 1 kHz cycle
-    speed=200,               # steps per frame
+    ckt, scope,
+    dt=5e-6,
+    speed=200,
 )
 
 sim.Run()

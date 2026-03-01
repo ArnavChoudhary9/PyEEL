@@ -92,15 +92,16 @@ ckt.AddProbe(i_dz1)
 # ── live simulation ──────────────────────────────────────────────────
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [v_rect, v_out],    # subplot 1: unregulated vs regulated voltage
-    [i_dz1],            # subplot 2: Zener current (absorbs ripple)
-    window=100e-3,      # show last 100 ms (5 cycles at 50 Hz)
+scope = Scope(
+    [v_rect, v_out],
+    [i_dz1],
+    window=100e-3,
+    title="Zener Voltage Regulator",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
-    dt=2e-4,            # 0.2 ms step → ~100 samples per 50 Hz cycle
+    ckt, scope,
+    dt=2e-4,
     speed=50,
 )
 

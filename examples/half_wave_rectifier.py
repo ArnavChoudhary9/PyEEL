@@ -50,14 +50,15 @@ ckt.AddProbe(i_d1)
 # ── simulate ────────────────────────────────────────────────────────
 ckt.Finalize()
 
-plotter = LivePlotter(
+scope = Scope(
     [v_in, v_out],
     [i_d1],
-    window=100e-3,   # show last 100 ms (5 cycles at 50 Hz)
+    window=100e-3,
+    title="Half-Wave Rectifier",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
+    ckt, scope,
     dt=1e-4,
     speed=100,
 )

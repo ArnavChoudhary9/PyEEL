@@ -89,15 +89,16 @@ ckt.AddProbe(i_dz1)
 # ── live simulation ──────────────────────────────────────────────────
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [v_in, v_out],  # subplot 1: full sine vs clipped output
-    [i_dz1],        # subplot 2: Zener current (forward/breakdown phases)
-    window=60e-3,   # show last 60 ms (3 full cycles at 50 Hz)
+scope = Scope(
+    [v_in, v_out],
+    [i_dz1],
+    window=60e-3,
+    title="Zener AC Clipper",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
-    dt=1e-4,        # 0.1 ms step → 200 samples per 50 Hz cycle
+    ckt, scope,
+    dt=1e-4,
     speed=50,
 )
 

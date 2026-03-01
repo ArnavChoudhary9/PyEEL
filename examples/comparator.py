@@ -68,16 +68,17 @@ ckt.AddProbe(p_out)
 # -- live simulation -------------------------------------------------
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [p_in, p_ref],   # subplot 1: input signal and reference level
-    [p_out],         # subplot 2: comparator digital output
-    window=30e-3,    # show last 30 ms (3 full 100 Hz cycles)
+scope = Scope(
+    [p_in, p_ref],
+    [p_out],
+    window=30e-3,
+    title="Voltage Comparator",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
-    dt=10e-6,        # 10 us step  ->  1000 samples per 100 Hz cycle
-    speed=50,        # steps per frame
+    ckt, scope,
+    dt=10e-6,
+    speed=50,
 )
 
 sim.Run()

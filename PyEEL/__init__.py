@@ -45,7 +45,10 @@ from .Simulation import (
 # ── Visualization ───────────────────────────────────────────────────
 from .Visualization import (
     Probe, ProbeType, VoltageProbe, CurrentProbe,
-    LivePlotter, LiveSimulation,
+    LivePlotterProtocol, LivePlotter, LiveSimulation,
+    Scope, ScopeChannel, ScopeRenderer, CircularBuffer,
+    Trigger, TriggerEdge, TriggerMode, TriggerState,
+    compute_measurements, MeasurementResult,
     plot_bode, plot_noise_spectrum, plot_monte_carlo,
     plot_sweep, plot_harmonic_spectrum, plot_transient,
 )

@@ -124,15 +124,16 @@ ckt.AddProbe(v_dc)
 # ── simulate ────────────────────────────────────────────────────────
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [v_sec, v_dc],          # subplot 1: secondary + DC output
-    [v_mains],              # subplot 2: mains primary
-    window=100e-3,          # show last 100 ms (5 cycles)
+scope = Scope(
+    [v_sec, v_dc],
+    [v_mains],
+    window=100e-3,
+    title="Linear Power Supply",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
-    dt=2e-5,                # 20 µs steps (fine enough for 50 Hz + diode switching)
+    ckt, scope,
+    dt=2e-5,
     speed=200,
 )
 

@@ -58,15 +58,16 @@ ckt.AddProbe(p_out)
 # -- live simulation --------------------------------------------------
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [p_in, p_out],        # subplot 1: input vs output (inverted & amplified)
-    window=3e-3,          # show last 3 ms (3 cycles at 1 kHz)
+scope = Scope(
+    [p_in, p_out],
+    window=3e-3,
+    title="Inverting Op-Amp Amplifier",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
-    dt=2e-6,              # 2 us step -> 500 samples per 1 kHz cycle
-    speed=100,            # steps per frame
+    ckt, scope,
+    dt=2e-6,
+    speed=100,
 )
 
 sim.Run()

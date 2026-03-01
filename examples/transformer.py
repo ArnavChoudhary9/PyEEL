@@ -81,17 +81,13 @@ for p in (v_source, v_primary, v_secondary, i_primary, i_secondary):
 
 ckt.Finalize()
 
-# ── live plotter ────────────────────────────────────────────────────
-# Subplot 1: source vs secondary voltage (very different scales — both shown)
-# Subplot 2: primary vs secondary current
-plotter = LivePlotter(
-    [v_source, v_primary, v_secondary],   # subplot 1 — voltages
-    [i_primary, i_secondary],             # subplot 2 — currents
-    window=0.06,                          # 3 cycles of 50 Hz
+# ── scope ───────────────────────────────────────────────────────────
+scope = Scope(
+    [v_source, v_primary, v_secondary],
+    [i_primary, i_secondary],
+    window=0.06,
+    title="240 V → 5 V Step-Down Transformer",
 )
 
-# ── run ─────────────────────────────────────────────────────────────
-# dt = 100 µs → 200 samples per 50 Hz cycle (good accuracy)
-# Press Space on the plot window to pause / resume.
-sim = LiveSimulation(ckt, plotter, dt=1e-4, speed=20)
+sim = LiveSimulation(ckt, scope, dt=1e-4, speed=20)
 sim.Run()

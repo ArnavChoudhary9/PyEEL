@@ -30,7 +30,7 @@ n2  = nm.AddNode("n2")
 n3  = nm.AddNode("n3")
 
 #  V1 ──(n1)── L1 ──(n2)── C1 ──(n3)── R1 ──(gnd)
-ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5.0, frequency=5.0))
+ckt.AddComponent(ACVoltageSource("V1", (n1, gnd), amplitude=5.0, frequency=5.03))
 ckt.AddComponent(l := Inductor("L1", (n1, n2), inductance=0.1))
 ckt.AddComponent(Capacitor("C1", (n2, n3), capacitance=0.01))
 ckt.AddComponent(Resistor("R1", (n3, gnd), resistance=1.0))
@@ -48,16 +48,14 @@ ckt.AddProbe(i_l1)
 
 ckt.Finalize()
 
-# ── live plotter ────────────────────────────────────────────────────
-# Subplot 1: voltages at each node overlaid
-# Subplot 2: currents through L and R overlaid
-plotter = LivePlotter(
-    [v_n1, v_n2, v_n3],     # subplot 1 — voltages
-    [i_l1],                 # subplot 2 — currents
-    window=1.0,             # show the last 1 second of data
+# ── scope ───────────────────────────────────────────────────────────
+scope = Scope(
+    [v_n1, v_n2, v_n3],     # CH1-3 — voltages
+    [i_l1],                 # CH4   — current
+    window=1.0,
+    title="LCR Series Circuit",
 )
 
 # ── run ─────────────────────────────────────────────────────────────
-# Press Space on the plot window to pause / resume.
-sim = LiveSimulation(ckt, plotter, dt=0.0005, speed=60)
+sim = LiveSimulation(ckt, scope, dt=0.0005, speed=60)
 sim.Run()

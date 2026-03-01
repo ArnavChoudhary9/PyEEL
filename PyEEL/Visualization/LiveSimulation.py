@@ -1,31 +1,54 @@
 """
-LiveSimulation — run a transient simulation with live plotting.
+LiveSimulation — run a transient simulation with any live visualizer.
 
 Wraps the simulate-then-plot loop into a single callable object with
-built-in **pause / resume** support.
+built-in **pause / resume** support.  Works with both
+:class:`LivePlotter` (matplotlib) and :class:`Scope` (PyQt6) — or
+any object that satisfies :class:`LivePlotterProtocol`.
 """
 
 from __future__ import annotations
 
 from ..Simulation.Circuit import Circuit
-from .LivePlotter import LivePlotter
+from .PlotterProtocol import LivePlotterProtocol
 
 
 class LiveSimulation:
     """
     Manages the transient simulation loop, coupling a :class:`Circuit`
-    with a :class:`LivePlotter` and providing pause/resume control.
+    with any visualizer that implements :class:`LivePlotterProtocol`.
+
+    Parameters
+    ----------
+    circuit : Circuit
+        A finalized circuit to simulate.
+    plotter : LivePlotterProtocol
+        Any visualizer with ``Update()``, ``Close()``, ``KeepOpen()``,
+        and ``IsOpen`` — e.g. :class:`LivePlotter` or :class:`Scope`.
+    dt : float
+        Default time step (seconds).
+    speed : int
+        Simulation steps per render frame.
+    use_adaptive_dt : bool
+        If ``True``, override *dt* with the circuit's recommended
+        adaptive time step each frame.
     """
 
     _circuit: Circuit
-    _plotter: LivePlotter
+    _plotter: LivePlotterProtocol
     _dt: float
     _speed: int
     _paused: bool
 
-    def __init__(self, circuit: Circuit, plotter: LivePlotter, *,
-                 dt: float = 0.0005, speed: int = 60,
-                 use_adaptive_dt: bool = False):
+    def __init__(
+        self,
+        circuit: Circuit,
+        plotter: LivePlotterProtocol,
+        *,
+        dt: float = 0.0005,
+        speed: int = 60,
+        use_adaptive_dt: bool = False,
+    ):
         if not circuit._Finalized:
             raise RuntimeError("Circuit must be finalized before simulation.")
 
@@ -34,12 +57,11 @@ class LiveSimulation:
         self._dt = dt
         self._speed = speed
         self._paused = False
-        self._pause_text = None
         self._use_adaptive_dt = use_adaptive_dt
 
-        self._plotter._fig.canvas.mpl_connect(
-            "key_press_event", self._on_key_press
-        )
+        # If the plotter is matplotlib-based, hook the space-bar
+        self._pause_text = None
+        self._try_bind_keyboard(plotter)
 
     # ── public API ──────────────────────────────────────────────────
     def Run(self) -> None:
@@ -104,15 +126,31 @@ class LiveSimulation:
             raise ValueError("Speed must be at least 1.")
         self._speed = value
 
-    # ── internal ────────────────────────────────────────────────────
-    def _on_key_press(self, event) -> None:
+    # ── keyboard binding (best-effort) ──────────────────────────────
+    def _try_bind_keyboard(self, plotter: LivePlotterProtocol) -> None:
+        """
+        Attempt to hook the space-bar for pause/resume.
+
+        For matplotlib-based LivePlotter, we connect to the figure's
+        ``key_press_event``.  For Scope (PyQt6), keyboard events are
+        handled natively by the renderer — no binding needed.
+        """
+        fig = getattr(plotter, "_fig", None)
+        if fig is not None and hasattr(fig, "canvas"):
+            fig.canvas.mpl_connect("key_press_event", self._on_key_press)
+
+    def _on_key_press(self, event) -> None:  # type: ignore[no-untyped-def]
         if event.key == " ":
             self.TogglePause()
 
+    # ── pause overlay (matplotlib only) ─────────────────────────────
     def _show_pause_indicator(self) -> None:
         if self._pause_text is not None:
             return
-        ax = self._plotter._axes[0]
+        axes = getattr(self._plotter, "_axes", None)
+        if not axes:
+            return
+        ax = axes[0]
         self._pause_text = ax.text(
             0.5, 0.5, "PAUSED  (Space to resume)",
             transform=ax.transAxes,

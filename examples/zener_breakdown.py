@@ -83,15 +83,16 @@ ckt.AddProbe(i_dz1)
 # ── live simulation ──────────────────────────────────────────────────
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [v_in, v_b],    # subplot 1: supply vs clamped output (knee visible)
-    [i_dz1],        # subplot 2: Zener current (jumps at breakdown)
-    window=2.0,     # show last 2 s (one full 0.5 Hz cycle)
+scope = Scope(
+    [v_in, v_b],
+    [i_dz1],
+    window=2.0,
+    title="Zener Breakdown Clamping",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
-    dt=1e-3,        # 1 ms step
+    ckt, scope,
+    dt=1e-3,
     speed=20,
 )
 

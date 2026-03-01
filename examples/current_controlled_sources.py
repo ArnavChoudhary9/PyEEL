@@ -114,13 +114,14 @@ ckt.AddProbe(v_f)
 # ── simulate ─────────────────────────────────────────────────────────
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [v_n1, v_h, v_f],   # all three DC levels on one subplot
-    window=5e-3,         # short window (DC so values are constant)
+scope = Scope(
+    [v_n1, v_h, v_f],
+    window=5e-3,
+    title="Current-Controlled Sources (CCVS & CCCS)",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
+    ckt, scope,
     dt=1e-4,
     speed=50,
 )

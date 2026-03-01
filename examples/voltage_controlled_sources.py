@@ -78,14 +78,15 @@ ckt.AddProbe(v_g)
 # ── simulate ─────────────────────────────────────────────────────────
 ckt.Finalize()
 
-plotter = LivePlotter(
-    [v_in, v_e, v_g],   # all three waveforms overlaid
-    window=30e-3,        # 3 full cycles at 100 Hz
+scope = Scope(
+    [v_in, v_e, v_g],
+    window=30e-3,
+    title="Voltage-Controlled Sources (VCVS & VCCS)",
 )
 
 sim = LiveSimulation(
-    ckt, plotter,
-    dt=5e-5,             # 200 samples per cycle
+    ckt, scope,
+    dt=5e-5,
     speed=100,
 )
 
